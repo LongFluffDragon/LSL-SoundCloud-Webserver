@@ -8,7 +8,7 @@
 	
 	var pagecss = "dGVzdA==";
 	
-	var pagetemplates = "dGVzdA==";
+	var pagetemplates = "PHRlbXBsYXRlIGlkPSJzY19pZnJhbWUiPgoJPGlmcmFtZSB3aWR0aD0iMTAwJSIgaGVpZ2h0PSIzMDAiIHNjcm9sbGluZz0ibm8iIGZyYW1lYm9yZGVyPSJubyIgYWxsb3c9ImF1dG9wbGF5IiBzcmM9Imh0dHBzOi8vdy5zb3VuZGNsb3VkLmNvbS9wbGF5ZXIvP3VybD1odHRwcyUzQS8vYXBpLnNvdW5kY2xvdWQuY29tL3RyYWNrcy8yMjk3NzM0MDEmY29sb3I9JTIzZmY1NTAwJmF1dG9fcGxheT10cnVlJmhpZGVfcmVsYXRlZD1mYWxzZSZzaG93X2NvbW1lbnRzPXRydWUmc2hvd191c2VyPXRydWUmc2hvd19yZXBvc3RzPWZhbHNlJnNob3dfdGVhc2VyPXRydWUmdmlzdWFsPXRydWUiPjwvaWZyYW1lPgo8L3RlbXBsYXRlPg==";
 	
 	var pagebody = "PGRpdiBpZD0iaWZyYW1lYm94Ij4KPC9kaXY+";
 
