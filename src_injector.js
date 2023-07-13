@@ -7,7 +7,7 @@
 
 	
 	console.log("beginning injection");
-	document.head.innerHTML="";//atob(pagetemplates);
+	document.head.innerHTML = atob(pagetemplates);
 	var icss = document.createElement("style");
 	icss.type = "text/css";
 	icss.innerText = atob(pagecss);
