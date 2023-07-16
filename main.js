@@ -82,8 +82,9 @@
 			{
 				console.log("soundcloud widget ready, attempting to play");
 				
-				soundcloud_oembed("https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city"); // load by normal url
+				//soundcloud_oembed("https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city"); // load by normal url
 				//soundcloud_oembed("https://api.soundcloud.com/tracks/229773401"); // embed url also works
+				soundcloud_oembed("https://api.soundcloud.com/tracks/297853948");
 				
 				//soundcloud_loadtrack("https%3A//api.soundcloud.com/tracks/204852531"); // sky tower
 				//soundcloud_loadtrack("https%3A//api.soundcloud.com/tracks/297853948"); // lanakila
