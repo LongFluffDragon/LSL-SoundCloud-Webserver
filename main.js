@@ -116,7 +116,13 @@
 	
 	function request_track()
 	{
-		xhr(lslServer+"/next-track", soundcloud_oembed, "", "GET");
+		xhr(lslServer+"/next-track", receive_track, "", "GET");
+	}
+	
+	function receive_track(xml)
+	{
+		console.log(xml);
+		soundcloud_oembed(xml.url);
 	}
 	
 	function soundcloud_getsound(sound)
