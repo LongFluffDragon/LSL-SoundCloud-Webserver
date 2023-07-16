@@ -63,11 +63,7 @@
 		xhr.send(message);
 	}
 	
-	
-	function request_track()
-	{
-		xhr(lslServer, soundcloud_oembed, "next-track", "GET");
-	}
+	// soundcloud/controls related functionality
 	
 	function create_soundcloud_iframe()
 	{
@@ -116,6 +112,11 @@
 			console.log("setup complete");
 		});
 		//document.getElementById("playbtn").click();
+	}
+	
+	function request_track()
+	{
+		xhr(lslServer, soundcloud_oembed+"/next-track", "", "GET");
 	}
 	
 	function soundcloud_getsound(sound)
