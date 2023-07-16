@@ -224,8 +224,8 @@
 		scWidget.play();
 	}
 	
-	console.log("test 4");
-	create_soundcloud_iframe();
+	console.log("test 5");
+	//create_soundcloud_iframe();
 	
 	//soundcloud_oembed("https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
 	
