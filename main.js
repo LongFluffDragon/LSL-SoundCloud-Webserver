@@ -36,14 +36,6 @@
 		return str.substr(0, start) + rep + str.substr(end);
 	}
 	
-	function image_exists(url) // needs async handler
-	{
-		var http = new XMLHttpRequest();
-		http.open('HEAD', url, false);
-		http.send();
-		return http.status != 404;
-	}
-	
 	function xhr(url, callbackfn, message, method)
 	{
 		var xhr = new XMLHttpRequest();
@@ -216,6 +208,7 @@
 		
 		document.getElementById("titlespan").innerHTML = oembedResult.title;
 		document.getElementById("icon").src = oembedResult.thumbnail_url;
+		console.log("icon=" + oembedResult.thumbnail_url);
 		
 		
 		soundcloud_loadtrack(decodeURI(urlSubstr));
