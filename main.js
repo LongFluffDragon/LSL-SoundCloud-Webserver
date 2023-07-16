@@ -1,4 +1,5 @@
 
+	var lslServer;
 	var scWidget;
 	var oembedResult;
 	/* example members
@@ -63,7 +64,10 @@
 	}
 	
 	
-	// 
+	function request_track()
+	{
+		xhr(lslServer, soundcloud_oembed, "next-track", "GET");
+	}
 	
 	function create_soundcloud_iframe()
 	{
@@ -82,15 +86,17 @@
 			{
 				console.log("soundcloud widget ready, attempting to play");
 				
+				request_track();
+				
 				//soundcloud_oembed("https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city"); // load by normal url
 				//soundcloud_oembed("https://api.soundcloud.com/tracks/229773401"); // embed url also works
-				soundcloud_oembed("https://api.soundcloud.com/tracks/297853948");
+				//soundcloud_oembed("https://api.soundcloud.com/tracks/297853948");
 				
 				//soundcloud_loadtrack("https%3A//api.soundcloud.com/tracks/204852531"); // sky tower
 				//soundcloud_loadtrack("https%3A//api.soundcloud.com/tracks/297853948"); // lanakila
 				
-				scWidget.getCurrentSound(soundcloud_getsound);
-				scWidget.play(); // try playing immediately, autoplay should be enabled on the embedded browser
+				//scWidget.getCurrentSound(soundcloud_getsound);
+				//scWidget.play(); // try playing immediately, autoplay should be enabled on the embedded browser
 			});
 			
 			scWidget.bind(SC.Widget.Events.LOAD_PROGRESS, function()
@@ -212,6 +218,9 @@
 		console.log("icon=" + oembedResult.thumbnail_url);
 		
 		soundcloud_loadtrack(decodeURI(urlSubstr));
+		
+		scWidget.getCurrentSound(soundcloud_getsound);
+		scWidget.play();
 	}
 	
 	document.onclick = function(event)
@@ -224,6 +233,7 @@
 		scWidget.play();
 	}
 	
+	lslServer = window.location.href;
 	console.log("test 5");
 	create_soundcloud_iframe();
 	
