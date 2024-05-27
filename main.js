@@ -47,7 +47,7 @@
 			{	
 				if(xhr.status==200)
 				{
-					//console.log("xhr response: "+xhr.response);
+					console.log("xhr response: "+xhr.response);
 					callbackfn(xhr.response);
 				}
 				else
@@ -116,13 +116,7 @@
 	
 	function request_track()
 	{
-		xhr(lslServer+"/next-track", receive_track, "", "GET");
-	}
-	
-	function receive_track(xml)
-	{
-		console.log(xml);
-		soundcloud_oembed(xml.url);
+		xhr(lslServer+"/next-track", soundcloud_oembed, "", "GET");
 	}
 	
 	function soundcloud_getsound(sound)
