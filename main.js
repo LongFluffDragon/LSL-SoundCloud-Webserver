@@ -157,7 +157,7 @@
 		
 		xhr(sound.waveform_url, callback_waveform, "", "GET");
 		
-		
+		console.log("properties in sound data:");
 		for(var propertyName in sound)
 		{
 			console.log(propertyName + "=" + sound[propertyName]);
