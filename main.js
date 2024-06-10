@@ -79,7 +79,7 @@
 		{
 			var ihtml=document.getElementById("sc_track_setup").cloneNode(true).innerHTML;
 			console.log("creating setup from template");
-			document.getElementById("iframebox").insertAdjacentHTML("beforeend",ihtml);
+			document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
 		}
 	}
 	
