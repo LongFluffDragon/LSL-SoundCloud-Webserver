@@ -254,7 +254,7 @@
 	
 	document.onclick = function(event)
 	{
-		if(mode != 0)
+		if(page_type != "player")
 			return;
 		
 		//if (event===undefined) event= window.event;
