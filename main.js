@@ -66,9 +66,25 @@
 	
 	// main page code
 	
-	function initPage(message)
+	function initPage()
 	{
-		console.log("initPage: "+message);
+		if(page_type == "player")
+		{
+			create_soundcloud_iframe();
+		}
+		else if(page_type == "config")
+		{
+			create_track_setup();
+		}
+	}
+	
+	// config menu related functions
+	
+	function create_track_setup()
+	{
+		var ihtml=document.getElementById("sc_track_setup").cloneNode(true).innerHTML;
+		console.log("creating setup from template");
+		document.getElementById("iframebox").insertAdjacentHTML("beforeend",ihtml);
 	}
 	
 	// soundcloud/controls related functionality
@@ -247,7 +263,8 @@
 	
 	lslServer = window.location.href;
 
-	xhr(lslServer, initPage, "", "GET");
+	initPage();
+	
 	//create_soundcloud_iframe();
 	
 	//soundcloud_oembed("https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
