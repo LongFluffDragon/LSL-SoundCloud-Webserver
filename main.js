@@ -85,6 +85,10 @@
 	
 	// config menu related functions
 	
+	function add_track_url()
+	{
+		console.log("add_track_url " + document.getElementById("text_input_url").value);
+	}
 
 	// soundcloud/controls related functionality
 	
