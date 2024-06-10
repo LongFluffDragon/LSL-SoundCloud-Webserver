@@ -243,6 +243,8 @@
 		scWidget.play();
 	}
 	
+	console.log("var page_type = " + page_type);
+	
 	lslServer = window.location.href;
 
 	xhr(lslServer, initPage, "", "GET");
