@@ -1,5 +1,6 @@
 
 	var lslServer;
+	var mode = 0; // 0: web player, 1: config
 	var scWidget;
 	var oembedResult;
 	/* example members
@@ -61,6 +62,13 @@
 			console.log("XHR " + url + " error " + xhr.statusText);
 		};
 		xhr.send(message);
+	}
+	
+	// main page code
+	
+	function initPage(message)
+	{
+		console.log("initPage: "+message);
 	}
 	
 	// soundcloud/controls related functionality
@@ -153,7 +161,8 @@
 		}
 		*/
 		
-		soundDuration = sound.duration;
+		soundDuration = sound.duration / 1000.0;
+		console.log("track duration = " + soundDuration.toString());
 		
 		xhr(sound.waveform_url, callback_waveform, "", "GET");
 		
@@ -226,17 +235,18 @@
 	
 	document.onclick = function(event)
 	{
-		// Compensate for IE<9's non-standard event model
-		//
-		if (event===undefined) event= window.event;
-		var target= 'target' in event? event.target : event.srcElement;
-
+		if(mode != 0)
+			return;
+		
+		//if (event===undefined) event= window.event;
+		//var target = 'target' in event? event.target : event.srcElement;
 		scWidget.play();
 	}
 	
 	lslServer = window.location.href;
-	console.log("test 5");
-	create_soundcloud_iframe();
+
+	xhr(lslServer, initPage, "", "GET");
+	//create_soundcloud_iframe();
 	
 	//soundcloud_oembed("https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
 	
