@@ -98,7 +98,7 @@
 	function soundcloud_onload(iframe)
 	{
 		console.log("iframe loaded "+iframe);
-		$(document).ready(function()
+		jQuery(document).ready(function()
 		{
 			scWidget = SC.Widget(document.getElementById("soundcloud_iframe"));
 			scWidget.bind(SC.Widget.Events.READY, function()
