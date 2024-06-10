@@ -70,14 +70,14 @@
 	{
 		if(page_type == "player")
 		{
-			var ihtml=document.getElementById("sc_player_page").cloneNode(true).innerHTML;
+			var ihtml = document.getElementById("sc_player_page").cloneNode(true).innerHTML;
 			console.log("creating player from template");
 			document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
-			create_soundcloud_iframe();
+			create_soundcloud_iframe("iframebox");
 		}
 		else if(page_type == "config")
 		{
-			var ihtml=document.getElementById("sc_track_setup").cloneNode(true).innerHTML;
+			var ihtml = document.getElementById("sc_track_setup").cloneNode(true).innerHTML;
 			console.log("creating setup from template");
 			document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
 		}
@@ -87,21 +87,28 @@
 	
 	function add_track_url()
 	{
-		console.log("add_track_url " + document.getElementById("text_input_url").value);
+		var track_url = document.getElementById("text_input_url").value;
+		console.log("add_track_url " + track_url);
+		var ihtml = document.getElementById("sc_track_preview").cloneNode(true).innerHTML;
+		ihtml = replace_all(ihtml, "%title%", track_url);
+		ihtml = replace_all(ihtml, "%track%", "test");
+		document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
+		create_soundcloud_iframe("preview_test");
 	}
 
 	// soundcloud/controls related functionality
 	
-	function create_soundcloud_iframe()
+	function create_soundcloud_iframe(insertTo)
 	{
-		var ihtml=document.getElementById("sc_iframe").cloneNode(true).innerHTML;
+		var ihtml = document.getElementById("sc_iframe").cloneNode(true).innerHTML;
+		ihtml = replace_all(ihtml, "%id%", insertTo);
 		console.log("creating iframe from template");
-		document.getElementById("iframebox").insertAdjacentHTML("beforeend",ihtml);
+		document.getElementById(insertTo).insertAdjacentHTML("beforeend",ihtml);
 	}
 	
 	function soundcloud_onload(iframe)
 	{
-		console.log("iframe loaded "+iframe);
+		console.log("iframe loaded "+iframe.id);
 		jQuery(document).ready(function()
 		{
 			scWidget = SC.Widget(document.getElementById("soundcloud_iframe"));
@@ -268,7 +275,7 @@
 
 	initPage();
 	
-	//create_soundcloud_iframe();
+	//create_soundcloud_iframe("iframebox");
 	
 	//soundcloud_oembed("https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
 	
