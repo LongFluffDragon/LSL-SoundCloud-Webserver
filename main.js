@@ -70,23 +70,22 @@
 	{
 		if(page_type == "player")
 		{
+			var ihtml=document.getElementById("sc_player_page").cloneNode(true).innerHTML;
+			console.log("creating player from template");
+			document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
 			create_soundcloud_iframe();
 		}
 		else if(page_type == "config")
 		{
-			create_track_setup();
+			var ihtml=document.getElementById("sc_track_setup").cloneNode(true).innerHTML;
+			console.log("creating setup from template");
+			document.getElementById("iframebox").insertAdjacentHTML("beforeend",ihtml);
 		}
 	}
 	
 	// config menu related functions
 	
-	function create_track_setup()
-	{
-		var ihtml=document.getElementById("sc_track_setup").cloneNode(true).innerHTML;
-		console.log("creating setup from template");
-		document.getElementById("iframebox").insertAdjacentHTML("beforeend",ihtml);
-	}
-	
+
 	// soundcloud/controls related functionality
 	
 	function create_soundcloud_iframe()
