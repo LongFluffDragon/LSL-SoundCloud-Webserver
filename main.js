@@ -126,7 +126,7 @@
 			id_scplayer_map.set(iframe.id, newSCWidget)
 			console.log("Created scWidget for id "+iframe.id);
 			
-			newSCWidget.bind(SC.Widget.Events.READY, SC_IFrame_Event_READY(newSCWidget, "heckity"));
+			newSCWidget.bind(SC.Widget.Events.READY, SC_IFrame_Event_READY(iframe.id));
 			/*
 			{
 				
@@ -162,12 +162,13 @@
 		//document.getElementById("playbtn").click();
 	}
 	
-	function SC_IFrame_Event_READY(iframe, lolstring)
+	function SC_IFrame_Event_READY(iframe_id)
 	{
-		console.log("string = " + lolstring);
-		console.log("soundcloud widget " + iframe.id + " ready, attempting to play");
-		var trackURL = id_track_map.get(iframe.id);
+		console.log("soundcloud widget " + iframe_id + " ready, attempting to play");
+		var trackURL = id_track_map.get(iframe_id);
+		var scWidget = id_scwidget_map.get(iframe_id);
 		console.log("track URL = " + trackURL);
+		console.log("scWidget = " + scWidget);
 	}
 	
 	function LSL_GetNextTrack()
