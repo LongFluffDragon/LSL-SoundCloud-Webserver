@@ -22,18 +22,18 @@
 	
 	// basic library method vomit ect
 
-	function replace_all(str,tkn,rep)
+	function ReplaceAll(str,tkn,rep)
 	{
 		var next;
 		while((next=str.indexOf(tkn,next))!=-1)
 		{
-			str=replace_sub(str,rep,next,next+tkn.length);
+			str=ReplaceSub(str,rep,next,next+tkn.length);
 			next+=rep.length;
 		}
 		return str;
 	}
 	
-	function replace_sub(str, rep, start, end)
+	function ReplaceSub(str, rep, start, end)
 	{
 		return str.substr(0, start) + rep + str.substr(end);
 	}
@@ -66,14 +66,14 @@
 	
 	// main page code
 	
-	function initPage()
+	function InitPage()
 	{
 		if(page_type == "player")
 		{
 			var ihtml = document.getElementById("sc_player_page").cloneNode(true).innerHTML;
 			console.log("creating player from template");
 			document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
-			create_soundcloud_iframe("iframebox");
+			SC_CreateIframe("iframebox");
 		}
 		else if(page_type == "config")
 		{
@@ -85,47 +85,47 @@
 	
 	// config menu related functions
 	
-	function add_track_url()
+	function Btn_AddTrackURL()
 	{
 		var track_url = document.getElementById("text_input_url").value;
-		console.log("add_track_url " + track_url);
+		console.log("Btn_AddTrackURL " + track_url);
 		var ihtml = document.getElementById("sc_track_preview").cloneNode(true).innerHTML;
-		ihtml = replace_all(ihtml, "%title%", track_url);
-		ihtml = replace_all(ihtml, "%track%", "test");
+		ihtml = ReplaceAll(ihtml, "%title%", track_url);
+		ihtml = ReplaceAll(ihtml, "%track%", "test");
 		document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
-		create_soundcloud_iframe("preview_test");
+		SC_CreateIframe("preview_test");
 	}
 
 	// soundcloud/controls related functionality
 	
-	function create_soundcloud_iframe(insertTo)
+	function SC_CreateIframe(insertTo)
 	{
 		var ihtml = document.getElementById("sc_iframe").cloneNode(true).innerHTML;
-		ihtml = replace_all(ihtml, "%id%", insertTo);
+		ihtml = ReplaceAll(ihtml, "%id%", insertTo);
 		console.log("creating iframe from template");
 		document.getElementById(insertTo).insertAdjacentHTML("beforeend",ihtml);
 	}
 	
-	function soundcloud_onload(iframe)
+	function SC_IframeTemplate_onload(iframe)
 	{
 		console.log("iframe loaded "+iframe.id);
 		jQuery(document).ready(function()
 		{
-			scWidget = SC.Widget(document.getElementById("soundcloud_iframe"));
+			scWidget = SC.Widget(iframe.id);
 			scWidget.bind(SC.Widget.Events.READY, function()
 			{
 				console.log("soundcloud widget ready, attempting to play");
 				
-				request_track();
+				LSL_GetNextTrack();
 				
-				//soundcloud_oembed("https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city"); // load by normal url
-				//soundcloud_oembed("https://api.soundcloud.com/tracks/229773401"); // embed url also works
-				//soundcloud_oembed("https://api.soundcloud.com/tracks/297853948");
+				//SC_GetOembedURL("https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city"); // load by normal url
+				//SC_GetOembedURL("https://api.soundcloud.com/tracks/229773401"); // embed url also works
+				//SC_GetOembedURL("https://api.soundcloud.com/tracks/297853948");
 				
-				//soundcloud_loadtrack("https%3A//api.soundcloud.com/tracks/204852531"); // sky tower
-				//soundcloud_loadtrack("https%3A//api.soundcloud.com/tracks/297853948"); // lanakila
+				//SC_LoadTrack("https%3A//api.soundcloud.com/tracks/204852531"); // sky tower
+				//SC_LoadTrack("https%3A//api.soundcloud.com/tracks/297853948"); // lanakila
 				
-				//scWidget.getCurrentSound(soundcloud_getsound);
+				//scWidget.getCurrentSound(getCurrentSound_callback);
 				//scWidget.play(); // try playing immediately, autoplay should be enabled on the embedded browser
 			});
 			
@@ -136,7 +136,7 @@
 			
 			scWidget.bind(SC.Widget.Events.PLAY, function()
 			{
-				scWidget.getCurrentSound(soundcloud_getsound);
+				scWidget.getCurrentSound(getCurrentSound_callback);
 			});
 			
 			$('button').click(function()
@@ -148,12 +148,12 @@
 		//document.getElementById("playbtn").click();
 	}
 	
-	function request_track()
+	function LSL_GetNextTrack()
 	{
-		xhr(lslServer+"/next-track", soundcloud_oembed, "", "GET");
+		xhr(lslServer+"/next-track", SC_GetOembedURL, "", "GET");
 	}
 	
-	function soundcloud_getsound(sound)
+	function getCurrentSound_callback(sound)
 	{
 		if(sound == null)
 		{
@@ -171,7 +171,7 @@
 		// moved to oembed to get data earlier
 		
 		/*
-		var img200 = replace_all(sound.artwork_url, "large.jpg", "t200x200.jpg");
+		var img200 = ReplaceAll(sound.artwork_url, "large.jpg", "t200x200.jpg");
 		
 		if(image_exists(img500))
 		{
@@ -190,7 +190,7 @@
 		soundDuration = sound.duration / 1000.0;
 		console.log("track duration = " + soundDuration.toString());
 		
-		xhr(sound.waveform_url, callback_waveform, "", "GET");
+		xhr(sound.waveform_url, getWaveform_callback, "", "GET");
 		
 		console.log("properties in sound data:");
 		for(var propertyName in sound)
@@ -199,7 +199,7 @@
 		}//*/
 	}
 	
-	function callback_waveform(jsonstr)
+	function getWaveform_callback(jsonstr)
 	{
 		//console.log("waveform="+jsonstr);
 		var waveform = JSON.parse(jsonstr);
@@ -212,7 +212,7 @@
 		// reduce to 15 bit unicode chars: 5 bit magnitude, 10 bit length
 	}
 	
-	function soundcloud_loadtrack(url)
+	function SC_LoadTrack(url)
 	{
 		var options = [];
 		options.auto_play = true;
@@ -229,12 +229,12 @@
 		scWidget.load(url, options);
 	}
 	
-	function soundcloud_oembed(url)
+	function SC_GetOembedURL(url)
 	{
-		xhr("https://soundcloud.com/oembed?format=js&url="+url, soundcloud_oembed_callback, "", "GET");
+		xhr("https://soundcloud.com/oembed?format=js&url="+url, SC_GetOembedURL_callback, "", "GET");
 	}
 	
-	function soundcloud_oembed_callback(jsonstr)
+	function SC_GetOembedURL_callback(jsonstr)
 	{
 		//console.log(jsonstr);
 		if(jsonstr.substring(0, 1) === '(') // what the fuck is this round-edged safety json
@@ -253,9 +253,9 @@
 		document.getElementById("icon").src = oembedResult.thumbnail_url;
 		console.log("icon=" + oembedResult.thumbnail_url);
 		
-		soundcloud_loadtrack(decodeURI(urlSubstr));
+		SC_LoadTrack(decodeURI(urlSubstr));
 		
-		scWidget.getCurrentSound(soundcloud_getsound);
+		scWidget.getCurrentSound(getCurrentSound_callback);
 		scWidget.play();
 	}
 	
@@ -273,9 +273,9 @@
 	
 	lslServer = window.location.href;
 
-	initPage();
+	InitPage();
 	
-	//create_soundcloud_iframe("iframebox");
+	//SC_CreateIframe("iframebox");
 	
-	//soundcloud_oembed("https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
+	//SC_GetOembedURL("https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
 	
