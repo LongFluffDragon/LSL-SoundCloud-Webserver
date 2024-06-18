@@ -128,8 +128,8 @@
 			
 			newSCWidget.bind(SC.Widget.Events.READY, function()
 			{
-				console.log("soundcloud widget " + this.id + " ready, attempting to play");
-				var trackURL = id_track_map.get(this.id);
+				console.log("soundcloud widget " + newSCWidget.id + " ready, attempting to play");
+				var trackURL = id_track_map.get(newSCWidget.id);
 				console.log("track URL = " + trackURL);
 				//LSL_GetNextTrack();
 				
