@@ -1,7 +1,7 @@
 
 	var lslServer;
 	var mode = 0; // 0: web player, 1: config
-	var scWidget;
+	//var newSCWidget;
 	var oembedResult;
 	/* example members
 		author_name: "ArenaNet"
@@ -19,6 +19,9 @@
 	} */
 	var lastGetTrackID; // ID of the last track info was retrieved from, to prevent repetitive calls
 	var soundDuration; // length of current track ms
+	
+	var id_track_map = new Map();
+	var id_scplayer_map = new Map();
 	
 	// basic library method vomit ect
 
@@ -73,7 +76,7 @@
 			var ihtml = document.getElementById("sc_player_page").cloneNode(true).innerHTML;
 			console.log("creating player from template");
 			document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
-			SC_CreateIframe("iframebox");
+			SC_CreateIframe("client_player_box");
 		}
 		else if(page_type == "config")
 		{
@@ -93,6 +96,7 @@
 		ihtml = ReplaceAll(ihtml, "%title%", track_url);
 		ihtml = ReplaceAll(ihtml, "%track%", "test");
 		document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
+		id_track_map.set("sc_iframe_preview_test", "placeholderTrackURL");
 		SC_CreateIframe("preview_test");
 	}
 
@@ -108,15 +112,26 @@
 	
 	function SC_IframeTemplate_onload(iframe)
 	{
-		console.log("iframe loaded "+iframe.id);
+		console.log("iframe loaded: " + iframe.id);
+		if(id_track_map.has(iframe.id) == false)
+		{
+			id_track_map.set(iframe.id, "");
+			console.log("Requesting track from LSL server for " + iframe.id);
+			LSL_GetNextTrack();
+		}
+		
 		jQuery(document).ready(function()
 		{
-			scWidget = SC.Widget(iframe.id);
-			scWidget.bind(SC.Widget.Events.READY, function()
+			var newSCWidget = SC.Widget(iframe.id);
+			id_scplayer_map.set(iframe.id, newSCWidget)
+			console.log("Created scWidget for id "+iframe.id);
+			
+			newSCWidget.bind(SC.Widget.Events.READY, function()
 			{
-				console.log("soundcloud widget ready, attempting to play");
-				
-				LSL_GetNextTrack();
+				console.log("soundcloud widget " + this.id + " ready, attempting to play");
+				var trackURL = id_track_map.get(this.id);
+				console.log("track URL = " + trackURL);
+				//LSL_GetNextTrack();
 				
 				//SC_GetOembedURL("https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city"); // load by normal url
 				//SC_GetOembedURL("https://api.soundcloud.com/tracks/229773401"); // embed url also works
@@ -125,23 +140,23 @@
 				//SC_LoadTrack("https%3A//api.soundcloud.com/tracks/204852531"); // sky tower
 				//SC_LoadTrack("https%3A//api.soundcloud.com/tracks/297853948"); // lanakila
 				
-				//scWidget.getCurrentSound(getCurrentSound_callback);
-				//scWidget.play(); // try playing immediately, autoplay should be enabled on the embedded browser
+				//newSCWidget.getCurrentSound(getCurrentSound_callback);
+				//newSCWidget.play(); // try playing immediately, autoplay should be enabled on the embedded browser
 			});
 			
-			scWidget.bind(SC.Widget.Events.LOAD_PROGRESS, function()
+			newSCWidget.bind(SC.Widget.Events.LOAD_PROGRESS, function()
 			{
 				console.log("lololoload"); // never executes
 			});
 			
-			scWidget.bind(SC.Widget.Events.PLAY, function()
+			newSCWidget.bind(SC.Widget.Events.PLAY, function()
 			{
-				scWidget.getCurrentSound(getCurrentSound_callback);
+				newSCWidget.getCurrentSound(getCurrentSound_callback);
 			});
 			
 			$('button').click(function()
 			{
-				scWidget.toggle();
+				newSCWidget.toggle();
 			});
 			console.log("setup complete");
 		});
@@ -226,7 +241,7 @@
 		options.show_reposts = false;
 		options.show_teaser = false;
 		//hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;show_teaser=true
-		scWidget.load(url, options);
+		newSCWidget.load(url, options);
 	}
 	
 	function SC_GetOembedURL(url)
@@ -255,8 +270,8 @@
 		
 		SC_LoadTrack(decodeURI(urlSubstr));
 		
-		scWidget.getCurrentSound(getCurrentSound_callback);
-		scWidget.play();
+		newSCWidget.getCurrentSound(getCurrentSound_callback);
+		newSCWidget.play();
 	}
 	
 	document.onclick = function(event)
@@ -266,7 +281,7 @@
 		
 		//if (event===undefined) event= window.event;
 		//var target = 'target' in event? event.target : event.srcElement;
-		scWidget.play();
+		newSCWidget.play();
 	}
 	
 	console.log("var page_type = " + page_type);
