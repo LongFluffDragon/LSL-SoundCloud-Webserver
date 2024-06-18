@@ -126,11 +126,10 @@
 			id_scplayer_map.set(iframe.id, newSCWidget)
 			console.log("Created scWidget for id "+iframe.id);
 			
-			newSCWidget.bind(SC.Widget.Events.READY, function()
+			newSCWidget.bind(SC.Widget.Events.READY, SC_IFrame_Event_READY(newSCWidget, "heckity"));
+			/*
 			{
-				console.log("soundcloud widget " + newSCWidget.id + " ready, attempting to play");
-				var trackURL = id_track_map.get(newSCWidget.id);
-				console.log("track URL = " + trackURL);
+				
 				//LSL_GetNextTrack();
 				
 				//SC_GetOembedURL("https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city"); // load by normal url
@@ -143,7 +142,7 @@
 				//newSCWidget.getCurrentSound(getCurrentSound_callback);
 				//newSCWidget.play(); // try playing immediately, autoplay should be enabled on the embedded browser
 			});
-			
+			*/
 			newSCWidget.bind(SC.Widget.Events.LOAD_PROGRESS, function()
 			{
 				console.log("lololoload"); // never executes
@@ -151,7 +150,7 @@
 			
 			newSCWidget.bind(SC.Widget.Events.PLAY, function()
 			{
-				newSCWidget.getCurrentSound(getCurrentSound_callback);
+				newSCWidget.getCurrentSound(getCurrentSound_callback); // when scope is sus
 			});
 			
 			$('button').click(function()
@@ -161,6 +160,14 @@
 			console.log("setup complete");
 		});
 		//document.getElementById("playbtn").click();
+	}
+	
+	function SC_IFrame_Event_READY(iframe, lolstring)
+	{
+		console.log("string = " + lolstring);
+		console.log("soundcloud widget " + iframe.id + " ready, attempting to play");
+		var trackURL = id_track_map.get(iframe.id);
+		console.log("track URL = " + trackURL);
 	}
 	
 	function LSL_GetNextTrack()
