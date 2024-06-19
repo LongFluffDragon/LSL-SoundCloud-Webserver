@@ -260,8 +260,9 @@
 		var urlSubstr = oembedHtml.substring(start+4, end);
 		console.log("url=" + urlSubstr);
 		
-		document.getElementById("titlespan").innerHTML = oembedResult.title;
-		document.getElementById("icon").src = oembedResult.thumbnail_url;
+		//document.getElementById("titlespan").innerHTML = oembedResult.title;
+		//document.getElementById("icon").src = oembedResult.thumbnail_url;
+		
 		console.log("icon=" + oembedResult.thumbnail_url);
 		
 		SC_LoadTrack(id, decodeURI(urlSubstr));
