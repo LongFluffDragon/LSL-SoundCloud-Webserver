@@ -25,13 +25,13 @@
 	
 	// basic library method vomit ect
 
-	function ReplaceAll(str,tkn,rep)
+	function ReplaceAll(str, tkn, rep)
 	{
 		var next;
-		while((next=str.indexOf(tkn,next))!=-1)
+		while((next = str.indexOf(tkn,next)) != -1)
 		{
-			str=ReplaceSub(str,rep,next,next+tkn.length);
-			next+=rep.length;
+			str = ReplaceSub(str, rep, next, next + tkn.length);
+			next += rep.length;
 		}
 		return str;
 	}
@@ -41,7 +41,7 @@
 		return str.substr(0, start) + rep + str.substr(end);
 	}
 	
-	function xhr(url, callbackfn, message, method)
+	function MakeXHR(handle, url, callbackFunction, message, method)
 	{
 		var xhr = new XMLHttpRequest();
 		xhr.open(method, url, true);
@@ -52,7 +52,7 @@
 				if(xhr.status==200)
 				{
 					console.log("xhr response: "+xhr.response);
-					callbackfn(xhr.response);
+					callbackFunction(handle, xhr.response);
 				}
 				else
 				{
@@ -96,7 +96,7 @@
 		ihtml = ReplaceAll(ihtml, "%title%", track_url);
 		ihtml = ReplaceAll(ihtml, "%track%", "test");
 		document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
-		id_track_map.set("sc_iframe_preview_test", "placeholderTrackURL");
+		id_track_map.set("sc_iframe_preview_test", "https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
 		SC_CreateIframe("preview_test");
 	}
 
@@ -126,23 +126,8 @@
 			id_scplayer_map.set(iframe.id, newSCWidget)
 			console.log("Created scWidget for id "+iframe.id);
 			
-			newSCWidget.bind(SC.Widget.Events.READY, SC_IFrame_Event_READY(iframe.id));
+			newSCWidget.bind(SC.Widget.Events.READY, SC_Widget_Event_READY(iframe.id));
 			/*
-			{
-				
-				//LSL_GetNextTrack();
-				
-				//SC_GetOembedURL("https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city"); // load by normal url
-				//SC_GetOembedURL("https://api.soundcloud.com/tracks/229773401"); // embed url also works
-				//SC_GetOembedURL("https://api.soundcloud.com/tracks/297853948");
-				
-				//SC_LoadTrack("https%3A//api.soundcloud.com/tracks/204852531"); // sky tower
-				//SC_LoadTrack("https%3A//api.soundcloud.com/tracks/297853948"); // lanakila
-				
-				//newSCWidget.getCurrentSound(getCurrentSound_callback);
-				//newSCWidget.play(); // try playing immediately, autoplay should be enabled on the embedded browser
-			});
-			*/
 			newSCWidget.bind(SC.Widget.Events.LOAD_PROGRESS, function()
 			{
 				console.log("lololoload"); // never executes
@@ -157,23 +142,25 @@
 			{
 				newSCWidget.toggle();
 			});
+			*/
 			console.log("setup complete");
 		});
 		//document.getElementById("playbtn").click();
 	}
 	
-	function SC_IFrame_Event_READY(iframe_id)
+	function SC_Widget_Event_READY(iframe_id)
 	{
 		console.log("soundcloud widget " + iframe_id + " ready, attempting to play");
 		var trackURL = id_track_map.get(iframe_id);
 		var scWidget = id_scplayer_map.get(iframe_id);
 		console.log("track URL = " + trackURL);
-		console.log("scWidget = " + scWidget);
+		SC_GetOembedURL(iframe_id, trackURL);
+		//console.log("scWidget = " + scWidget);
 	}
 	
 	function LSL_GetNextTrack()
 	{
-		xhr(lslServer+"/next-track", SC_GetOembedURL, "", "GET");
+		MakeXHR("", lslServer+"/next-track", SC_GetOembedURL, "", "GET");
 	}
 	
 	function getCurrentSound_callback(sound)
@@ -213,7 +200,7 @@
 		soundDuration = sound.duration / 1000.0;
 		console.log("track duration = " + soundDuration.toString());
 		
-		xhr(sound.waveform_url, getWaveform_callback, "", "GET");
+		MakeXHR("", sound.waveform_url, getWaveform_callback, "", "GET");
 		
 		console.log("properties in sound data:");
 		for(var propertyName in sound)
@@ -222,7 +209,7 @@
 		}//*/
 	}
 	
-	function getWaveform_callback(jsonstr)
+	function getWaveform_callback(id, jsonstr)
 	{
 		//console.log("waveform="+jsonstr);
 		var waveform = JSON.parse(jsonstr);
@@ -235,7 +222,7 @@
 		// reduce to 15 bit unicode chars: 5 bit magnitude, 10 bit length
 	}
 	
-	function SC_LoadTrack(url)
+	function SC_LoadTrack(id, url)
 	{
 		var options = [];
 		options.auto_play = true;
@@ -249,22 +236,23 @@
 		options.show_reposts = false;
 		options.show_teaser = false;
 		//hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;show_teaser=true
-		newSCWidget.load(url, options);
+		//newSCWidget.load(url, options);
+		id_scplayer_map.get(id).load(url, options);
 	}
 	
-	function SC_GetOembedURL(url)
+	function SC_GetOembedURL(id, url)
 	{
-		xhr("https://soundcloud.com/oembed?format=js&url="+url, SC_GetOembedURL_callback, "", "GET");
+		MakeXHR(id, "https://soundcloud.com/oembed?format=js&url="+url, SC_GetOembedURL_callback, "", "GET");
 	}
 	
-	function SC_GetOembedURL_callback(jsonstr)
+	function SC_GetOembedURL_callback(id, jsonstr)
 	{
 		//console.log(jsonstr);
 		if(jsonstr.substring(0, 1) === '(') // what the fuck is this round-edged safety json
 			jsonstr = jsonstr.substring(1, jsonstr.length - 2);
 		console.log(jsonstr);
 		oembedResult = JSON.parse(jsonstr);
-		console.log(oembedResult);
+		console.log("SC_GetOembedURL_callback for " + id + " = " + oembedResult);
 		var oembedHtml = oembedResult.html;
 		var start = oembedHtml.indexOf("url=");
 		var end = oembedHtml.indexOf("&", start);
@@ -276,10 +264,10 @@
 		document.getElementById("icon").src = oembedResult.thumbnail_url;
 		console.log("icon=" + oembedResult.thumbnail_url);
 		
-		SC_LoadTrack(decodeURI(urlSubstr));
+		SC_LoadTrack(id, decodeURI(urlSubstr));
 		
-		newSCWidget.getCurrentSound(getCurrentSound_callback);
-		newSCWidget.play();
+		//newSCWidget.getCurrentSound(getCurrentSound_callback);
+		//newSCWidget.play();
 	}
 	
 	document.onclick = function(event)
@@ -289,7 +277,8 @@
 		
 		//if (event===undefined) event= window.event;
 		//var target = 'target' in event? event.target : event.srcElement;
-		newSCWidget.play();
+		
+		//newSCWidget.play();
 	}
 	
 	console.log("var page_type = " + page_type);
