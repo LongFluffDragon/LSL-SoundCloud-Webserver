@@ -91,14 +91,14 @@
 	function Btn_AddTrackURL()
 	{
 		var track_url = document.getElementById("text_input_url").value;
+		var track_id = (Math.random()*2147483647).toString(16);
 		console.log("Btn_AddTrackURL " + track_url);
 		var ihtml = document.getElementById("sc_track_preview").cloneNode(true).innerHTML;
 		ihtml = ReplaceAll(ihtml, "%title%", track_url);
-		ihtml = ReplaceAll(ihtml, "%track%", "test");
+		ihtml = ReplaceAll(ihtml, "%track%", track_id);
 		document.getElementById("sc_preview_scroll").insertAdjacentHTML("beforeend",ihtml);
-		var iframe_id = (Math.random()*2147483647).toString(16);
-		id_track_map.set("sc_iframe_preview_" + iframe_id, track_url);//"https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
-		SC_CreateIframe("preview_" + iframe_id);
+		id_track_map.set("sc_iframe_preview_" + track_id, track_url);//"https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
+		SC_CreateIframe("preview_" + track_id);
 	}
 
 	// soundcloud/controls related functionality
