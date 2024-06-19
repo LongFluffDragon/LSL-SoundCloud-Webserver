@@ -96,8 +96,9 @@
 		ihtml = ReplaceAll(ihtml, "%title%", track_url);
 		ihtml = ReplaceAll(ihtml, "%track%", "test");
 		document.getElementById("sc_preview_scroll").insertAdjacentHTML("beforeend",ihtml);
-		id_track_map.set("sc_iframe_preview_test", track_url);//"https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
-		SC_CreateIframe("preview_test");
+		var iframe_id = (Math.random()*2147483647).toString(16);
+		id_track_map.set("sc_iframe_preview_" + iframe_id, track_url);//"https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
+		SC_CreateIframe("preview_" + iframe_id);
 	}
 
 	// soundcloud/controls related functionality
