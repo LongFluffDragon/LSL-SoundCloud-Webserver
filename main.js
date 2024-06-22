@@ -116,7 +116,7 @@
 		var tracks = Array.from(id_track_map.values()).join();
 		console.log("Btn_SaveTracks: tracks = " + tracks);
 		console.log("tracks num is " + id_track_map.size);
-		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, tracks, "GET");
+		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, encodeURIComponent(tracks), "GET");
 	}
 	
 	function LSL_SaveTracks_Callback(id, body)
