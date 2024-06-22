@@ -4,7 +4,11 @@
 </template>
 
 <template id="sc_track_setup">
-	<div>Enter Soundcloud track URL</div>
+	<div>
+		<button type="button" id="btn_reload" onclick="Btn_Reload()">LOAD TRACKS</button>
+		<button type="button" id="btn_save" onclick="Btn_Save()">SAVE CHANGES</button>
+	</div>
+	<div>Enter Soundcloud track URL:</div>
 	<input type="url" id="text_input_url"></input>
 	<button type="button" id="btn_add_url" onclick="Btn_AddTrackURL()">ADD</button>
 	<div id="sc_preview_scroll" style="overflow-y:scroll;padding:5px;max-width:522px"></div>
