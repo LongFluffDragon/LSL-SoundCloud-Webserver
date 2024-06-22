@@ -113,7 +113,7 @@
 	
 	function Btn_SaveTracks()
 	{
-		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, id_tracks_map.values().join(), "GET");
+		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, id_track_map.values().join(), "GET");
 	}
 	
 	function LSL_SaveTracks_Callback(id, body)
