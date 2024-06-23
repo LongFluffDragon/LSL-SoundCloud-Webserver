@@ -320,7 +320,7 @@
 					value.hasData = true;
 					value.title = sound.title;
 					value.duration = sound.duration;
-					id_track_map.set(id, value);
+					id_track_map.set(key, value);
 					
 					console.log("properties in sound data:");
 					for(var propertyName in sound)
