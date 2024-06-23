@@ -245,6 +245,7 @@
 		var track_url = decodeURI(urlSubstr);
 		var track_obj = id_track_map.get(id);
 		track_obj.uri = track_url;
+		console.log("track.obj.uri=" + track_url);
 		id_track_map.set(id, track_obj);
 		
 		SC_LoadTrack(id, track_url);
