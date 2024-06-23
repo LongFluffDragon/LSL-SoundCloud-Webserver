@@ -376,7 +376,27 @@
 			var hmul = 127.0 / parseFloat(waveform.height);
 			var kfps = waveform.width / (soundDuration / 1000.0);
 			
-			track_obj.waveform = waveform;
+			var encode_wf = "";
+			var next_char = 0;
+			var val = 0;
+			
+			for(var n = 0; n < waveform.width; ++n)
+			{
+				val = Math.floor(waveform.samples[n] / 2);
+				if(n % 2)
+				{
+					next_char += val << 7;
+					encode_wf += String.fromCharCode(256 + next_char);
+				}
+				else
+				{
+					next_char = val;
+				}
+			}
+			
+			track_obj.enc_wf = encode_wf;
+			
+			//track_obj.waveform = waveform;
 			id_track_map.set(id, track_obj);
 			
 			console.log("waveform.height=" + waveform.height + " waveform.length=" + waveform.width +" keys="+waveform.samples);
