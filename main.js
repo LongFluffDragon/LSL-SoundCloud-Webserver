@@ -116,9 +116,15 @@
 	
 	function Btn_SaveTracks()
 	{
-		var tracks = Array.from(id_track_map.values()).join();
-		console.log("Btn_SaveTracks: tracks = " + tracks);
-		console.log("tracks num is " + id_track_map.size);
+		//var tracks = Array.from(id_track_map.values()).join();
+		//console.log("Btn_SaveTracks: tracks = " + tracks);
+		//console.log("tracks num is " + id_track_map.size);
+		var tracks = [];
+		for (let [key, value] of id_track_map)
+		{
+			tracks.push(JSON.stringify(value));
+		}
+			
 		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, encodeURIComponent(tracks), "PUT");
 	}
 	
@@ -297,7 +303,6 @@
 		var track_obj = id_track_map.get(id);
 		track_obj.emb_url = track_url;
 		id_track_map.set(id, track_obj);
-		console.log(id_track_map.toString());
 		
 		SC_LoadTrack(id, track_url);
 		
