@@ -137,15 +137,18 @@
 			return;
 			
 		}
-		console.log("LSL_SaveTrack_Callback: " + body)
-		if(save_track_index >= id_track_map.size)
+		else if(body == "NXT")
 		{
-			MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, "END", "PUT");
-		}
-		else
-		{
-			var track_obj = Array.from(id_track_map.values())[++save_track_index];
-			MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, JSON.stringify(track_obj), "PUT");
+			console.log("LSL_SaveTrack_Callback: " + body)
+			if(save_track_index >= id_track_map.size)
+			{
+				MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, "END", "PUT");
+			}
+			else
+			{
+				var track_obj = Array.from(id_track_map.values())[++save_track_index];
+				MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, JSON.stringify(track_obj), "PUT");
+			}
 		}
 	}
 
