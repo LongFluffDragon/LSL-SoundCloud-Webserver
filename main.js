@@ -279,6 +279,8 @@
 	
 	function GetMissingTrackData()
 	{
+		console.log("GetMissingTrackData");
+		
 		for (let [key, value] of id_track_map)
 		{
 			if(value.hasData != true)
@@ -286,8 +288,8 @@
 				var player = id_scplayer_map.get(key);
 				if(player)
 				{
-					player.getCurrentSound(getCurrentSound_Callback);
 					console.log("requesting sound data for " + key);
+					player.getCurrentSound(getCurrentSound_Callback);
 				}
 			}
 		}
