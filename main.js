@@ -125,7 +125,8 @@
 		}
 			
 		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, encodeURIComponent(tracks), "PUT");*/
-		save_track_index = -1;
+		save_track_index = 0;
+		console.log("Beginning track save to LSL server");
 		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, "CLR", "PUT");
 	}
 	
@@ -146,8 +147,10 @@
 			}
 			else
 			{
-				var track_obj = Array.from(id_track_map.values())[++save_track_index];
-				MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, JSON.stringify(track_obj), "PUT");
+				var track_obj = Array.from(id_track_map.values())[save_track_index];
+				if(track_obj.emb_url.length() > 0)
+					MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, JSON.stringify(track_obj), "PUT");
+				++save_track_index;
 			}
 		}
 	}
@@ -216,7 +219,7 @@
 		MakeXHR("", lslServer+"/next-track", SC_GetOembedURL, "", "GET");
 	}
 	
-	function getCurrentSound_Callback(id, sound)
+	function getCurrentSound_Callback(sound)
 	{
 		if(sound == null)
 		{
@@ -229,7 +232,7 @@
 		
 		lastGetTrackID = sound.id;
 		
-		console.log("got sound data, updating display");
+		console.log("got sound data for " + sound.id + ", updating display");
 		
 		// moved to oembed to get data earlier
 		
@@ -325,7 +328,8 @@
 		
 		SC_LoadTrack(id, track_url);
 		
-		//newSCWidget.getCurrentSound(getCurrentSound_Callback);
+		newSCWidget.getCurrentSound(getCurrentSound_Callback);
+		
 		//newSCWidget.play();
 	}
 	
