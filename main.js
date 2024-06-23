@@ -269,23 +269,28 @@
 		
 		var player = id_scplayer_map.get(id);
 		player.load(url, options);
-		setTimeout(function() { player.getCurrentSound(getCurrentSound_Callback); }, 1000);
+		setTimeout(function() {
+			console.log("trying delayed getCurrentSound");
+			player.getCurrentSound(getCurrentSound_Callback); 
+		}, 1000);
 		//var heck = player.getCurrentSound(getCurrentSound_Callback);
 		//console.log("handle="+heck);
 	}
 	
 	function getCurrentSound_Callback(sound)
 	{
+		console.log("gotCurrentSound?");
 		if(sound == null)
 		{
 			console.log("no sound loaded yet or an error occured");
 			return;
 		}
-		
+		/*
 		if(sound.id == lastGetTrackID)
 			return
 		
 		lastGetTrackID = sound.id;
+		*/
 		
 		console.log("got sound data for " + sound.id + ", updating display");
 		
