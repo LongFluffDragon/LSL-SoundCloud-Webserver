@@ -377,21 +377,28 @@
 			var kfps = waveform.width / (soundDuration / 1000.0);
 			
 			var encode_wf = "";
-			var next_char = 0;
 			var val = 0;
-			
-			for(var n = 0; n < waveform.width; ++n)
+			var sample = 0;
+			var step = 8;
+			while(sample < waveform.width)
 			{
-				val = Math.floor(waveform.samples[n] / 2);
-				if(n % 2)
+				var min = 255;
+				var max = 0;
+				var n = 0;
+				for(; n < step; ++n)
 				{
-					next_char += val << 7;
-					encode_wf += String.fromCharCode(256 + next_char);
+					if(sample + n >= waveform.width)
+						break;
+					
+					val = waveform.samples[sample + n];
+					if(val < min)
+						min = val;
+					if(val > max)
+						max = val;
 				}
-				else
-				{
-					next_char = val;
-				}
+				
+				encode_wf += String.fromCharCode(255 + min + (max << 7));
+				sample += step;
 			}
 			
 			track_obj.enc_wf = encode_wf;
