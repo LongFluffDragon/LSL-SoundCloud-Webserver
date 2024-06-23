@@ -153,7 +153,7 @@
 					track += String.fromCharCode(255 + track_obj.duration);
 					track += String.fromCharCode(255 + track_obj.encode_wf.length) + track_obj.encode_wf;
 					
-					MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, JSON.stringify(track_obj), "PUT");
+					MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, track, "PUT");
 				}
 					
 				++save_track_index;
