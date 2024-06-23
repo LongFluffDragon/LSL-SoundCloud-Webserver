@@ -182,6 +182,7 @@
 			console.log("Created scWidget for id "+iframe.id);
 			
 			newSCWidget.bind(SC.Widget.Events.READY, SC_Widget_Event_READY(iframe.id));
+			
 			/*
 			newSCWidget.bind(SC.Widget.Events.LOAD_PROGRESS, function()
 			{
@@ -290,11 +291,17 @@
 		options.show_user = false;
 		options.show_reposts = false;
 		options.show_teaser = false;
+		options.callback = "SC_SoundLoad_Callback";
 		
 		var player = id_scplayer_map.get(id);
 		player.load(url, options);
-		var heck = player.getCurrentSound(getCurrentSound_Callback);
-		console.log("handle="+heck);
+		//var heck = player.getCurrentSound(getCurrentSound_Callback);
+		//console.log("handle="+heck);
+	}
+	
+	function SC_Soundload_Callback()
+	{
+		console.log("SC_Soundload_Callback!");
 	}
 	
 	function SC_GetOembedURL(id, url)
