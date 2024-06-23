@@ -366,15 +366,20 @@
 	
 	function getWaveform_Callback(id, jsonstr)
 	{
-		//console.log("waveform="+jsonstr);
-		console.log("got waveform for " + id);
-		var soundDuration = id_track_map.get(id).duration;
-		var waveform = JSON.parse(jsonstr);
-		console.log("waveform.height=" + waveform.height + " waveform.length=" + waveform.width +" keys="+waveform.samples);
-		var hmul = 127.0 / parseFloat(waveform.height);
-		var kfps = waveform.width / (soundDuration / 1000.0);
-		console.log(hmul + " " + kfps);
-		
+		var track_obj = id_track_map.get(id);
+		if(track_obj)
+		{
+			console.log("got waveform for " + id);
+			var soundDuration = track_obj.duration;
+			var waveform = JSON.parse(jsonstr);
+			var hmul = 127.0 / parseFloat(waveform.height);
+			var kfps = waveform.width / (soundDuration / 1000.0);
+			
+			track_obj.waveform = waveform;
+			
+			console.log("waveform.height=" + waveform.height + " waveform.length=" + waveform.width +" keys="+waveform.samples);
+			console.log(hmul + " " + kfps);
+		}
 		// compress and encode keyframes
 		// reduce to 15 bit unicode chars: 5 bit magnitude, 10 bit length
 	}
