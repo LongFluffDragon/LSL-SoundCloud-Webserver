@@ -23,6 +23,8 @@
 	var id_track_map = new Map();
 	var id_scplayer_map = new Map();
 	
+	
+	
 	// basic library method vomit ect
 
 	function ReplaceAll(str, tkn, rep)
@@ -97,7 +99,8 @@
 		ihtml = ReplaceAll(ihtml, "%title%", track_url);
 		ihtml = ReplaceAll(ihtml, "%track%", track_id);
 		document.getElementById("sc_preview_scroll").insertAdjacentHTML("beforeend",ihtml);
-		id_track_map.set("sc_iframe_preview_" + track_id, track_url);//"https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
+		var track_obj = {src_url:track_url, emb_url:""};
+		id_track_map.set("sc_iframe_preview_" + track_id, track_obj);//"https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
 		SC_CreateIframe("preview_" + track_id);
 	}
 	
@@ -139,7 +142,8 @@
 		console.log("iframe loaded: " + iframe.id);
 		if(id_track_map.has(iframe.id) == false)
 		{
-			id_track_map.set(iframe.id, "");
+			var track_obj = {src_url:"", emb_url:""};
+			id_track_map.set(iframe.id, track_obj);
 			console.log("Requesting track from LSL server for " + iframe.id);
 			LSL_GetNextTrack();
 		}
@@ -175,7 +179,7 @@
 	function SC_Widget_Event_READY(iframe_id)
 	{
 		console.log("soundcloud widget " + iframe_id + " ready, attempting to play");
-		var trackURL = id_track_map.get(iframe_id);
+		var trackURL = id_track_map.get(iframe_id).src_url;
 		var scWidget = id_scplayer_map.get(iframe_id);
 		console.log("track URL = " + trackURL);
 		SC_GetOembedURL(iframe_id, trackURL);
@@ -289,7 +293,13 @@
 		
 		console.log("icon=" + oembedResult.thumbnail_url);
 		
-		SC_LoadTrack(id, decodeURI(urlSubstr));
+		var track_url = decodeURI(urlSubstr);
+		var track_obj = id_track_map.get(id);
+		track_obj.emb_url = track_url;
+		id_track_map.set(id, track_obj);
+		console.log(id_track_map.toString());
+		
+		SC_LoadTrack(id, track_url);
 		
 		//newSCWidget.getCurrentSound(getCurrentSound_Callback);
 		//newSCWidget.play();
