@@ -145,7 +145,17 @@
 			{
 				var track_obj = Array.from(id_track_map.values())[save_track_index];
 				if(track_obj.uri.length > 0)
+				{
+					var track = "";
+					
+					track += String.fromCharCode(255 + track_obj.uri.length) + track_obj.uri;
+					track += String.fromCharCode(255 + track_obj.title.length) + track_obj.title;
+					track += String.fromCharCode(255 + track_obj.duration);
+					track += String.fromCharCode(255 + track_obj.encode_wf.length) + track_obj.encode_wf;
+					
 					MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, JSON.stringify(track_obj), "PUT");
+				}
+					
 				++save_track_index;
 			}
 		}
@@ -325,7 +335,7 @@
 				{
 					value.hasData = true;
 					value.title = sound.title;
-					value.duration = sound.duration;
+					value.duration = Math.round(sound.duration / 1000);
 					id_track_map.set(key, value);
 					
 					console.log("properties in sound data:");
@@ -407,7 +417,7 @@
 				sample += step;
 			}
 			
-			track_obj.enc_wf = encode_wf;
+			track_obj.encode_wf = encode_wf;
 			
 			id_track_map.set(id, track_obj);
 			
