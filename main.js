@@ -316,10 +316,14 @@
 		{
 			if(value.emb_url.includes(sound.id))
 			{
-				console.log("found URL matching ID " + value_emb_url);
+				console.log("found URL matching ID " + value.emb_url);
 				if(value.hasData != true)
 				{
-					value.hasData = true;
+					value.hasData = true;console.log("properties in sound data:");
+					for(var propertyName in sound)
+					{
+						console.log(propertyName + "=" + sound[propertyName]);
+					}
 					console.log("updating data, requesting waveform");
 					MakeXHR(key, sound.waveform_url, getWaveform_Callback, "", "GET");
 				}
