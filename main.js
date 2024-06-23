@@ -23,7 +23,7 @@
 	var id_track_map = new Map();
 	var id_scplayer_map = new Map();
 	
-	
+	var save_track_index = 0;
 	
 	// basic library method vomit ect
 
@@ -116,21 +116,31 @@
 	
 	function Btn_SaveTracks()
 	{
-		//var tracks = Array.from(id_track_map.values()).join();
-		//console.log("Btn_SaveTracks: tracks = " + tracks);
-		//console.log("tracks num is " + id_track_map.size);
-		var tracks = [];
+
+		/*var tracks = [];
 		for (let [key, value] of id_track_map)
 		{
 			tracks.push(JSON.stringify(value));
+			// need to buffer and send each track one by one to avoid 2048 byte limit
 		}
 			
-		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, encodeURIComponent(tracks), "PUT");
+		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, encodeURIComponent(tracks), "PUT");*/
+		save_track_index = -1;
+		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, "CLR", "PUT");
 	}
 	
 	function LSL_SaveTracks_Callback(id, body)
 	{
 		console.log("LSL_SaveTrack_Callback: " + body)
+		if(save_track_index >= id_track_map.size)
+		{
+			MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, "END", "PUT");
+		}
+		else
+		{
+			var track_obj = Array.from(id_track_map.values())[++save_track_index];
+			MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, JSON.stringify(track_obj), "PUT");
+		}
 	}
 
 	// soundcloud/controls related functionality
