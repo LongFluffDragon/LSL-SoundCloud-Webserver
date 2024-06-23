@@ -1,7 +1,6 @@
 
 	var lslServer;
 	
-	var oembedResult;
 	/* example members
 		author_name: "ArenaNet"
 		author_url: "https://soundcloud.com/arenanet"
@@ -16,8 +15,6 @@
 		version: 1
 		width: "100%"
 	} */
-	var lastGetTrackID; // ID of the last track info was retrieved from, to prevent repetitive calls
-	var soundDuration; // length of current track ms
 	
 	var id_track_map = new Map();
 	var id_scplayer_map = new Map();
@@ -98,7 +95,7 @@
 		ihtml = ReplaceAll(ihtml, "%title%", track_url);
 		ihtml = ReplaceAll(ihtml, "%track%", track_id);
 		document.getElementById("sc_preview_scroll").insertAdjacentHTML("beforeend",ihtml);
-		var track_obj = {src_url:track_url, emb_url:""};
+		var track_obj = {src_url:track_url, uri:""};
 		id_track_map.set("sc_iframe_preview_" + track_id, track_obj);//"https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
 		SC_CreateIframe("preview_" + track_id);
 	}
@@ -147,7 +144,7 @@
 			else
 			{
 				var track_obj = Array.from(id_track_map.values())[save_track_index];
-				if(track_obj.emb_url.length() > 0)
+				if(track_obj.uri.length() > 0)
 					MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, JSON.stringify(track_obj), "PUT");
 				++save_track_index;
 			}
@@ -169,7 +166,7 @@
 		console.log("iframe loaded: " + iframe.id);
 		if(id_track_map.has(iframe.id) == false)
 		{
-			var track_obj = {src_url:"", emb_url:""};
+			var track_obj = {src_url:"", uri:""};
 			id_track_map.set(iframe.id, track_obj);
 			console.log("Requesting track from LSL server for " + iframe.id);
 			LSL_GetNextTrack();
@@ -231,7 +228,7 @@
 		if(jsonstr.substring(0, 1) === '(') // what the fuck is this round-edged safety json
 			jsonstr = jsonstr.substring(1, jsonstr.length - 2);
 		console.log(jsonstr);
-		oembedResult = JSON.parse(jsonstr);
+		var oembedResult = JSON.parse(jsonstr);
 		console.log("SC_GetOembedURL_Callback for " + id + " = " + oembedResult);
 		var oembedHtml = oembedResult.html;
 		var start = oembedHtml.indexOf("url=");
@@ -247,7 +244,7 @@
 		
 		var track_url = decodeURI(urlSubstr);
 		var track_obj = id_track_map.get(id);
-		track_obj.emb_url = track_url;
+		track_obj.uri = track_url;
 		id_track_map.set(id, track_obj);
 		
 		SC_LoadTrack(id, track_url);
@@ -314,12 +311,16 @@
 		
 		for (let [key, value] of id_track_map)
 		{
-			if(value.emb_url.includes(sound.id))
+			if(value.uri == sound.uri)
 			{
-				console.log("found URL matching ID " + value.emb_url);
+				console.log("found URL matching ID " + value.uri);
 				if(value.hasData != true)
 				{
-					value.hasData = true;console.log("properties in sound data:");
+					value.hasData = true;
+					value.title = sound.title;
+					value.duration = sound.duration;
+					
+					console.log("properties in sound data:");
 					for(var propertyName in sound)
 					{
 						console.log(propertyName + "=" + sound[propertyName]);
@@ -366,6 +367,7 @@
 	{
 		//console.log("waveform="+jsonstr);
 		console.log("got waveform for " + id);
+		var soundDuration = id_track_map.get(id).duration;
 		var waveform = JSON.parse(jsonstr);
 		console.log("waveform.height=" + waveform.height + " waveform.length=" + waveform.width +" keys="+waveform.samples);
 		var hmul = 127.0 / parseFloat(waveform.height);
