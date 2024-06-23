@@ -144,7 +144,7 @@
 			else
 			{
 				var track_obj = Array.from(id_track_map.values())[save_track_index];
-				if(track_obj.uri.length() > 0)
+				if(track_obj.uri.length > 0)
 					MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, JSON.stringify(track_obj), "PUT");
 				++save_track_index;
 			}
