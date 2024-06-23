@@ -272,7 +272,7 @@
 		setTimeout(function() {
 			console.log("trying delayed getCurrentSound");
 			player.getCurrentSound(getCurrentSound_Callback); 
-		}, 1000);
+		}, 1);
 		//var heck = player.getCurrentSound(getCurrentSound_Callback);
 		//console.log("handle="+heck);
 	}
