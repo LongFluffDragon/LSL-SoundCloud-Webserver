@@ -1,7 +1,6 @@
 
 	var lslServer;
-	var mode = 0; // 0: web player, 1: config
-	//var newSCWidget;
+	
 	var oembedResult;
 	/* example members
 		author_name: "ArenaNet"
@@ -281,7 +280,7 @@
 	function SC_LoadTrack(id, url)
 	{
 		var options = [];
-		options.auto_play = true;
+		options.auto_play = page_type == "player" ? true : false;
 		options.download = false;
 		options.show_artwork = true;
 		options.show_playcount = false;
@@ -291,9 +290,11 @@
 		options.show_user = false;
 		options.show_reposts = false;
 		options.show_teaser = false;
-		//hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;show_teaser=true
-		//newSCWidget.load(url, options);
-		id_scplayer_map.get(id).load(url, options);
+		
+		var player = id_scplayer_map.get(id);
+		player.load(url, options);
+		var heck = player.getCurrentSound(getCurrentSound_Callback);
+		console.log("handle="+heck);
 	}
 	
 	function SC_GetOembedURL(id, url)
@@ -327,10 +328,6 @@
 		id_track_map.set(id, track_obj);
 		
 		SC_LoadTrack(id, track_url);
-		
-		newSCWidget.getCurrentSound(getCurrentSound_Callback);
-		
-		//newSCWidget.play();
 	}
 	
 	document.onclick = function(event)
