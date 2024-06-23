@@ -269,12 +269,28 @@
 		
 		var player = id_scplayer_map.get(id);
 		player.load(url, options);
-		setTimeout(function() {
-			console.log("trying delayed getCurrentSound");
-			player.getCurrentSound(getCurrentSound_Callback); 
-		}, 1);
+		
+		//TODO make function iterate over loaded tracks, check for ones missing data, request
+		
+		setTimeout(function() { GetMissingTrackData(); }, 1000);
 		//var heck = player.getCurrentSound(getCurrentSound_Callback);
 		//console.log("handle="+heck);
+	}
+	
+	function GetMissingTrackData()
+	{
+		for (let [key, value] of id_track_map)
+		{
+			if(value.hasData != true)
+			{
+				var player = id_scplayer_map.get(key);
+				if(player)
+				{
+					player.getCurrentSound(getCurrentSound_Callback);
+					console.log("requesting sound data for " + key);
+				}
+			}
+		}
 	}
 	
 	function getCurrentSound_Callback(sound)
