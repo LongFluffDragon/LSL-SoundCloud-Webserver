@@ -279,6 +279,8 @@
 	{
 		console.log("GetMissingTrackData");
 		
+		var is_any_missing = false;
+		
 		for (let [key, value] of id_track_map)
 		{
 			if(value.hasData != true)
@@ -288,9 +290,13 @@
 				{
 					console.log("requesting sound data for " + key);
 					player.getCurrentSound(getCurrentSound_Callback);
+					is_any_missing = true;
 				}
 			}
 		}
+		
+		if(is_any_missing)
+			setTimeout(function() { GetMissingTrackData(); }, 5000);
 	}
 	
 	function getCurrentSound_Callback(sound)
@@ -374,7 +380,7 @@
 			var soundDuration = track_obj.duration;
 			var waveform = JSON.parse(jsonstr);
 			var hmul = 127.0 / parseFloat(waveform.height);
-			var kfps = waveform.width / (soundDuration / 1000.0);
+			var sps = waveform.width / (soundDuration / 1000.0);
 			
 			var encode_wf = "";
 			var val = 0;
@@ -403,11 +409,9 @@
 			
 			track_obj.enc_wf = encode_wf;
 			
-			//track_obj.waveform = waveform;
 			id_track_map.set(id, track_obj);
 			
-			console.log("waveform.height=" + waveform.height + " waveform.length=" + waveform.width +" keys="+waveform.samples);
-			console.log(hmul + " " + kfps);
+			console.log("waveform.height=" + waveform.height + " waveform.length=" + waveform.width + " sps=" + sps + " encoded=" + encode_wf);
 		}
 		// compress and encode keyframes
 		// reduce to 15 bit unicode chars: 5 bit magnitude, 10 bit length
