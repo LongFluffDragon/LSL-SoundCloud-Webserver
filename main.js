@@ -131,6 +131,12 @@
 	
 	function LSL_SaveTracks_Callback(id, body)
 	{
+		if(body == "END")
+		{
+			console.log("Successfully finished track save");
+			return;
+			
+		}
 		console.log("LSL_SaveTrack_Callback: " + body)
 		if(save_track_index >= id_track_map.size)
 		{
