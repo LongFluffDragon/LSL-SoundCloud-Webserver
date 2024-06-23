@@ -245,8 +245,8 @@
 		var track_url = decodeURIComponent(urlSubstr);
 		var track_obj = id_track_map.get(id);
 		track_obj.uri = track_url;
-		console.log("track.obj.uri=" + track_url);
 		id_track_map.set(id, track_obj);
+		console.log("track.obj.uri=" + track_url);
 		
 		SC_LoadTrack(id, track_url);
 	}
@@ -320,6 +320,7 @@
 					value.hasData = true;
 					value.title = sound.title;
 					value.duration = sound.duration;
+					id_track_map.set(id, value);
 					
 					console.log("properties in sound data:");
 					for(var propertyName in sound)
@@ -376,6 +377,7 @@
 			var kfps = waveform.width / (soundDuration / 1000.0);
 			
 			track_obj.waveform = waveform;
+			id_track_map.set(id, track_obj);
 			
 			console.log("waveform.height=" + waveform.height + " waveform.length=" + waveform.width +" keys="+waveform.samples);
 			console.log(hmul + " " + kfps);
