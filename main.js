@@ -242,7 +242,7 @@
 		
 		console.log("icon=" + oembedResult.thumbnail_url);
 		
-		var track_url = decodeURI(urlSubstr);
+		var track_url = decodeURIComponent(urlSubstr);
 		var track_obj = id_track_map.get(id);
 		track_obj.uri = track_url;
 		console.log("track.obj.uri=" + track_url);
