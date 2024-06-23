@@ -312,6 +312,21 @@
 		
 		console.log("got sound data for " + sound.id + ", updating display");
 		
+		for (let [key, value] of id_track_map)
+		{
+			if(value.emb_url.includes(sound.id))
+			{
+				console.log("found URL matching ID " + value_emb_url);
+				if(value.hasData != true)
+				{
+					value.hasData = true;
+					console.log("updating data, requesting waveform");
+					MakeXHR(key, sound.waveform_url, getWaveform_Callback, "", "GET");
+				}
+				break;
+			}
+		}
+		
 		// moved to oembed to get data earlier
 		
 		/*
@@ -330,7 +345,7 @@
 			document.getElementById("icon").src = sound.artwork_url;
 		}
 		*/
-		
+		/*
 		soundDuration = sound.duration / 1000.0;
 		console.log("track duration = " + soundDuration.toString());
 		
@@ -346,6 +361,7 @@
 	function getWaveform_Callback(id, jsonstr)
 	{
 		//console.log("waveform="+jsonstr);
+		console.log("got waveform for " + id);
 		var waveform = JSON.parse(jsonstr);
 		console.log("waveform.height=" + waveform.height + " waveform.length=" + waveform.width +" keys="+waveform.samples);
 		var hmul = 127.0 / parseFloat(waveform.height);
