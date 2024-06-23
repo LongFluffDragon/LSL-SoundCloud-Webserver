@@ -219,6 +219,61 @@
 		MakeXHR("", lslServer+"/next-track", SC_GetOembedURL, "", "GET");
 	}
 	
+	
+	function SC_GetOembedURL(id, url)
+	{
+		MakeXHR(id, "https://soundcloud.com/oembed?format=js&url="+url, SC_GetOembedURL_Callback, "", "GET");
+	}
+	
+	function SC_GetOembedURL_Callback(id, jsonstr)
+	{
+		//console.log(jsonstr);
+		if(jsonstr.substring(0, 1) === '(') // what the fuck is this round-edged safety json
+			jsonstr = jsonstr.substring(1, jsonstr.length - 2);
+		console.log(jsonstr);
+		oembedResult = JSON.parse(jsonstr);
+		console.log("SC_GetOembedURL_Callback for " + id + " = " + oembedResult);
+		var oembedHtml = oembedResult.html;
+		var start = oembedHtml.indexOf("url=");
+		var end = oembedHtml.indexOf("&", start);
+		console.log(start + " " + end);
+		var urlSubstr = oembedHtml.substring(start+4, end);
+		console.log("url=" + urlSubstr);
+		
+		//document.getElementById("titlespan").innerHTML = oembedResult.title;
+		//document.getElementById("icon").src = oembedResult.thumbnail_url;
+		
+		console.log("icon=" + oembedResult.thumbnail_url);
+		
+		var track_url = decodeURI(urlSubstr);
+		var track_obj = id_track_map.get(id);
+		track_obj.emb_url = track_url;
+		id_track_map.set(id, track_obj);
+		
+		SC_LoadTrack(id, track_url);
+	}
+	
+	function SC_LoadTrack(id, url)
+	{
+		var options = [];
+		options.auto_play = page_type == "player" ? true : false;
+		options.download = false;
+		options.show_artwork = true;
+		options.show_playcount = false;
+		options.sharing = false;
+		options.hide_related = true;
+		options.show_comments = false;
+		options.show_user = false;
+		options.show_reposts = false;
+		options.show_teaser = false;
+		
+		var player = id_scplayer_map.get(id);
+		player.load(url, options);
+		setTimeout(function() { player.getCurrentSound(getCurrentSound_Callback); }, 1000);
+		//var heck = player.getCurrentSound(getCurrentSound_Callback);
+		//console.log("handle="+heck);
+	}
+	
 	function getCurrentSound_Callback(sound)
 	{
 		if(sound == null)
@@ -278,64 +333,6 @@
 		// reduce to 15 bit unicode chars: 5 bit magnitude, 10 bit length
 	}
 	
-	function SC_LoadTrack(id, url)
-	{
-		var options = [];
-		options.auto_play = page_type == "player" ? true : false;
-		options.download = false;
-		options.show_artwork = true;
-		options.show_playcount = false;
-		options.sharing = false;
-		options.hide_related = true;
-		options.show_comments = false;
-		options.show_user = false;
-		options.show_reposts = false;
-		options.show_teaser = false;
-		options.callback = "SC_SoundLoad_Callback";
-		
-		var player = id_scplayer_map.get(id);
-		player.load(url, options);
-		//var heck = player.getCurrentSound(getCurrentSound_Callback);
-		//console.log("handle="+heck);
-	}
-	
-	function SC_Soundload_Callback()
-	{
-		console.log("SC_Soundload_Callback!");
-	}
-	
-	function SC_GetOembedURL(id, url)
-	{
-		MakeXHR(id, "https://soundcloud.com/oembed?format=js&url="+url, SC_GetOembedURL_Callback, "", "GET");
-	}
-	
-	function SC_GetOembedURL_Callback(id, jsonstr)
-	{
-		//console.log(jsonstr);
-		if(jsonstr.substring(0, 1) === '(') // what the fuck is this round-edged safety json
-			jsonstr = jsonstr.substring(1, jsonstr.length - 2);
-		console.log(jsonstr);
-		oembedResult = JSON.parse(jsonstr);
-		console.log("SC_GetOembedURL_Callback for " + id + " = " + oembedResult);
-		var oembedHtml = oembedResult.html;
-		var start = oembedHtml.indexOf("url=");
-		var end = oembedHtml.indexOf("&", start);
-		console.log(start + " " + end);
-		var urlSubstr = oembedHtml.substring(start+4, end);
-		console.log("url=" + urlSubstr);
-		
-		//document.getElementById("titlespan").innerHTML = oembedResult.title;
-		//document.getElementById("icon").src = oembedResult.thumbnail_url;
-		
-		console.log("icon=" + oembedResult.thumbnail_url);
-		
-		var track_url = decodeURI(urlSubstr);
-		var track_obj = id_track_map.get(id);
-		track_obj.emb_url = track_url;
-		id_track_map.set(id, track_obj);
-		
-		SC_LoadTrack(id, track_url);
-	}
 	
 	document.onclick = function(event)
 	{
