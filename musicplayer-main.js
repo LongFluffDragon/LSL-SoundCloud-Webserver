@@ -98,7 +98,7 @@
 		var ihtml = document.getElementById("TMP_sc_track_preview").cloneNode(true).innerHTML;
 		ihtml = ReplaceAll(ihtml, "%title%", track_url);
 		ihtml = ReplaceAll(ihtml, "%track%", track_id);
-		document.getElementById(SC_PREVIEW_SCROLLBOX).insertAdjacentHTML("beforeend",ihtml);
+		document.getElementById(SC_PREVIEW_SCROLLBOX).insertAdjacentHTML("beforeend", ihtml);
 		var track_obj = {src_url:track_url, uri:""};
 		id_track_map.set(if_id, track_obj);//"https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
 		SC_CreateIframe(if_id);
@@ -179,7 +179,7 @@
 		var ihtml = document.getElementById("TMP_sc_iframe").cloneNode(true).innerHTML;
 		ihtml = ReplaceAll(ihtml, "%id%", track_id);
 		console.log("creating iframe from template");
-		document.getElementById(insertTo).insertAdjacentHTML("beforeend",ihtml);
+		document.getElementById(track_id).insertAdjacentHTML("beforeend",ihtml);
 	}
 	
 	function SC_IframeTemplate_onload(iframe)
