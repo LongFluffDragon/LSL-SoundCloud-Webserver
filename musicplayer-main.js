@@ -296,22 +296,25 @@
 		var urlSubstr = oembedHtml.substring(start+4, end);
 		console.log("url=" + urlSubstr);
 		
+		//var track_url;
+		
 		if(page_type == "player") //never called in player mode
 		{
 			console.log()
 			document.getElementById("titlespan").innerHTML = oembedResult.title;
 			document.getElementById("icon").src = oembedResult.thumbnail_url;
+			//track_url = next_sc_track;
 		}
 		else
 		{
-			var track_url = decodeURIComponent(urlSubstr);
+			urlSubstr = decodeURIComponent(urlSubstr);
 			var track_obj = loaded_track_uri_map.get(id);
-			track_obj.uri = track_url;
+			track_obj.uri = urlSubstr;
 			loaded_track_uri_map.set(id, track_obj);
-			console.log("track.obj.uri=" + track_url);
+			console.log("track.obj.uri=" + urlSubstr);
 		}
 		
-		SC_LoadTrack(id, track_url);
+		SC_LoadTrack(id, urlSubstr);
 	}
 	
 	function SC_LoadTrack(id, url)
