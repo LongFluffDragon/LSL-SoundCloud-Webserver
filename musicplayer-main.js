@@ -160,7 +160,7 @@
 			console.log("LSL_SaveTrack_Callback: " + body)
 			if(save_track_index >= id_track_map.size)
 			{
-				MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, "END", "PUT");
+				MakeXHR("", lslServer+"/save", LSL_SavePlaylist_Callback, "END", "PUT");
 			}
 			else
 			{
@@ -174,7 +174,7 @@
 					track += String.fromCharCode(255 + track_obj.duration);
 					track += String.fromCharCode(255 + track_obj.encode_wf.length) + track_obj.encode_wf;
 					
-					MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, track, "PUT");
+					MakeXHR("", lslServer+"/save", LSL_SavePlaylist_Callback, track, "PUT");
 				}
 					
 				++save_track_index;
