@@ -101,7 +101,9 @@
 		document.getElementById(SC_PREVIEW_SCROLLBOX).insertAdjacentHTML("beforeend", ihtml);
 		var track_obj = {src_url:track_url, uri:""};
 		id_track_map.set(if_id, track_obj);//"https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
-		SC_CreateIframe(if_id, "preview_iframe_" + track_id);
+		var add_to = "preview_iframe_" + track_id;
+		console.log("Added '" + if_id + "' to id_track_map, creating iframe in " + add_to);
+		SC_CreateIframe(if_id, add_to);
 	}
 	
 	function Btn_RemoveTrackID(track)
@@ -191,6 +193,10 @@
 			id_track_map.set(iframe.id, track_obj);
 			console.log("Added '" + iframe.id + "' to id_track_map. Requesting track from LSL server for " + iframe.id);
 			LSL_GetNextTrack();
+		}
+		else
+		{
+			console.log("Track is already in id_track_map");
 		}
 		
 		jQuery(document).ready(function()
