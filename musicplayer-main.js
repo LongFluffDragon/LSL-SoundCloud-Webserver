@@ -330,10 +330,10 @@
 		var player = id_scplayer_map.get(id);
 		player.load(url, options);
 		
-		if(page_type == "config")
+		//if(page_type == "config")
 		    setTimeout(function() { GetMissingTrackData(); }, 1000);
-		else
-			GetMissingTrackData();
+		//else
+			//GetMissingTrackData();
 		
 	}
 	
@@ -420,6 +420,12 @@
 		
 		if(page_type == "player")
 		{
+			if(sound.artwork_url == null)
+			{
+				console.log("No artwork URL for track!");
+				continue;
+			}
+			
 			console.log("trying higher detail artwork for " + sound.artwork_url);
 			var img200 = ReplaceAll(sound.artwork_url, "large.jpg", "t200x200.jpg");
 			var img500 = ReplaceAll(sound.artwork_url, "large.jpg", "t500x500.jpg");
