@@ -12,6 +12,7 @@
 	var save_track_index = 0;
 	
 	var next_sc_track = "https://api.soundcloud.com/tracks/214406533"; // next soundcloud track the player should load
+	var next_sc_track_icon = "";
 	
 	var SC_PRV_ID_PFX = "sc_track_preview_";
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
@@ -250,7 +251,8 @@
 		if(page_type == "player")
 		{
 			console.log("player soundcloud widget " + iframe_id + " ready, playing next track " + next_sc_track);
-			SC_LoadTrack(iframe_id, next_sc_track);
+			//SC_LoadTrack(iframe_id, next_sc_track);
+			SC_GetOembedURL(iframe_id, next_sc_track);
 			//MakeXHR("", lslServer+"/save", LSL_GetNextTrack_Callback, track, "GET");
 		}
 		else
@@ -294,20 +296,20 @@
 		var urlSubstr = oembedHtml.substring(start+4, end);
 		console.log("url=" + urlSubstr);
 		
-		/*if(page_type == "player") //never called in player mode
+		if(page_type == "player") //never called in player mode
 		{
 			console.log()
 			document.getElementById("titlespan").innerHTML = oembedResult.title;
 			document.getElementById("icon").src = oembedResult.thumbnail_url;
-		}*/
-		
-		//console.log("icon=" + oembedResult.thumbnail_url);
-		
-		var track_url = decodeURIComponent(urlSubstr);
-		var track_obj = loaded_track_uri_map.get(id);
-		track_obj.uri = track_url;
-		loaded_track_uri_map.set(id, track_obj);
-		console.log("track.obj.uri=" + track_url);
+		}
+		else
+		{
+			var track_url = decodeURIComponent(urlSubstr);
+			var track_obj = loaded_track_uri_map.get(id);
+			track_obj.uri = track_url;
+			loaded_track_uri_map.set(id, track_obj);
+			console.log("track.obj.uri=" + track_url);
+		}
 		
 		SC_LoadTrack(id, track_url);
 	}
@@ -423,24 +425,25 @@
 			if(sound.artwork_url == null)
 			{
 				console.log("No artwork URL for track!");
-				continue;
-			}
-			
-			console.log("trying higher detail artwork for " + sound.artwork_url);
-			var img200 = ReplaceAll(sound.artwork_url, "large.jpg", "t200x200.jpg");
-			var img500 = ReplaceAll(sound.artwork_url, "large.jpg", "t500x500.jpg");
-		
-			if(image_exists(img500))
-			{
-				document.getElementById("icon").src = img500;
-			}
-			else if(image_exists(img200))
-			{
-				document.getElementById("icon").src = img200;
 			}
 			else
 			{
-				document.getElementById("icon").src = sound.artwork_url;
+				console.log("trying higher detail artwork for " + sound.artwork_url);
+				var img200 = ReplaceAll(sound.artwork_url, "large.jpg", "t200x200.jpg");
+				var img500 = ReplaceAll(sound.artwork_url, "large.jpg", "t500x500.jpg");
+			
+				if(image_exists(img500))
+				{
+					document.getElementById("icon").src = img500;
+				}
+				else if(image_exists(img200))
+				{
+					document.getElementById("icon").src = img200;
+				}
+				else
+				{
+					document.getElementById("icon").src = sound.artwork_url;
+				}
 			}
 		}
 		
