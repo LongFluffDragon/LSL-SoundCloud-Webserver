@@ -296,6 +296,8 @@
 		var urlSubstr = oembedHtml.substring(start+4, end);
 		console.log("url=" + urlSubstr);
 		
+		urlSubstr = decodeURIComponent(urlSubstr);
+		
 		//var track_url;
 		
 		if(page_type == "player") //never called in player mode
@@ -305,7 +307,7 @@
 			
 			if(oembedResult.thumbnail_url.includes("placeholder"))
 			{
-				MakeXHR("", oembedResult.author_url, SC_GetAuthorJSON_Callback, "", "GET");
+				MakeXHR("", "https://soundcloud.com/oembed?format=js&url="+oembedResult.author_url, SC_GetAuthorJSON_Callback, "", "GET");
 			}
 			else
 				document.getElementById("icon").src = oembedResult.thumbnail_url;
@@ -313,14 +315,14 @@
 			
 			//track_url = next_sc_track;
 		}
-		else
-		{
+		//else
+		//{
 			urlSubstr = decodeURIComponent(urlSubstr);
 			var track_obj = loaded_track_uri_map.get(id);
 			track_obj.uri = urlSubstr;
 			loaded_track_uri_map.set(id, track_obj);
 			console.log("track.obj.uri=" + urlSubstr);
-		}
+		//}
 		
 		SC_LoadTrack(id, urlSubstr);
 	}
