@@ -104,7 +104,7 @@
 		if(id_track_map.has(if_id))
 			return;
 		
-		console.log("Btn_AddTrackURL " + track_url);
+		console.log("AddTrackURL " + track_url);
 		var ihtml = document.getElementById("TMP_sc_track_preview").cloneNode(true).innerHTML;
 		ihtml = ReplaceAll(ihtml, "%title%", track_url);
 		ihtml = ReplaceAll(ihtml, "%track%", track_id);
@@ -136,9 +136,9 @@
 		document.getElementById(SC_PREVIEW_SCROLLBOX).innerHTML = "";
 		id_track_map.clear();
 		
-		for(var uri in track_uris)
+		for(var i in track_uris)
 		{
-			AddTrackURL(uri);
+			AddTrackURL(track_uris[i]);
 		}
 		//var uri = track_uris[0];
 		//MakeXHR(uri, lslServer+"/track/" + uri, LSL_LoadTrack_Callback, "", "GET");
