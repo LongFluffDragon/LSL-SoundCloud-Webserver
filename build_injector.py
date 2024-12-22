@@ -23,7 +23,7 @@ css = base64.b64encode(css.encode("ascii")).decode("ascii")
 templates = base64.b64encode(templates.encode("ascii")).decode("ascii")
 body = base64.b64encode(body.encode("ascii")).decode("ascii")
 
-injector = injector.replace("#CSS", css).replace("#TEMP", templates).replace("#BODY", body).replace("#BUILD_DATE", datetime.datetime.now())
+injector = injector.replace("#CSS", css).replace("#TEMP", templates).replace("#BODY", body).replace("#BUILD_DATE", datetime.datetime.now().strftime("%Y/%m/%d, %H:%M:%S"))
 
 
 with open("musicplayer-injector.js", "w") as injector_js:
