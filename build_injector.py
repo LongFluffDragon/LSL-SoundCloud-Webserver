@@ -26,6 +26,6 @@ body = base64.b64encode(body.encode("ascii")).decode("ascii")
 injector = injector.replace("#CSS", css).replace("#TEMP", templates).replace("#BODY", body)
 
 
-with open("injector.js", "w") as injector_js:
+with open("musicplayer-injector.js", "w") as injector_js:
 	injector_js.write(injector)
 	injector_js.close()

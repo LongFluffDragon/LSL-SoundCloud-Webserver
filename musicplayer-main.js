@@ -21,6 +21,9 @@
 	
 	var save_track_index = 0;
 	
+	var SC_PRV_ID_PFX = "sc_track_preview_";
+	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
+	
 	// basic library method vomit ect
 
 	function ReplaceAll(str, tkn, rep)
@@ -71,14 +74,14 @@
 	{
 		if(page_type == "player")
 		{
-			var ihtml = document.getElementById("sc_player_page").cloneNode(true).innerHTML;
+			var ihtml = document.getElementById("TMP_sc_player_page").cloneNode(true).innerHTML;
 			console.log("creating player from template");
 			document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
 			SC_CreateIframe("client_player_box");
 		}
 		else if(page_type == "config")
 		{
-			var ihtml = document.getElementById("sc_track_setup").cloneNode(true).innerHTML;
+			var ihtml = document.getElementById("TMP_sc_track_setup").cloneNode(true).innerHTML;
 			console.log("creating setup from template");
 			document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
 		}
@@ -90,14 +93,22 @@
 	{
 		var track_url = document.getElementById("text_input_url").value;
 		var track_id = Math.floor(Math.random()*2147483647).toString(16);
+		var if_id = SC_PRV_ID_PFX + track_id;
 		console.log("Btn_AddTrackURL " + track_url);
-		var ihtml = document.getElementById("sc_track_preview").cloneNode(true).innerHTML;
+		var ihtml = document.getElementById("TMP_sc_track_preview").cloneNode(true).innerHTML;
 		ihtml = ReplaceAll(ihtml, "%title%", track_url);
 		ihtml = ReplaceAll(ihtml, "%track%", track_id);
-		document.getElementById("sc_preview_scroll").insertAdjacentHTML("beforeend",ihtml);
+		document.getElementById(SC_PREVIEW_SCROLLBOX).insertAdjacentHTML("beforeend",ihtml);
 		var track_obj = {src_url:track_url, uri:""};
-		id_track_map.set("sc_iframe_preview_" + track_id, track_obj);//"https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
-		SC_CreateIframe("preview_" + track_id);
+		id_track_map.set(if_id, track_obj);//"https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
+		SC_CreateIframe(if_id);
+	}
+	
+	function Btn_RemoveTrackID(track)
+	{
+		console.log("Removing preview track: " + track);
+		id_track_map.delete(SC_PRV_ID_PFX + track);
+		document.getElementById(SC_PRV_ID_PFX + track).remove();
 	}
 	
 	function Btn_LoadTracks()
@@ -107,7 +118,7 @@
 	
 	function LSL_LoadTracks_Callback(id, body)
 	{
-		console.log("LSL_LoadTrack_Callback: " + body)
+		console.log("LSL_LoadTrack_Callback: " + body);
 	}
 	
 	function Btn_SaveTracks()
@@ -163,10 +174,10 @@
 
 	// soundcloud/controls related functionality
 	
-	function SC_CreateIframe(insertTo)
+	function SC_CreateIframe(track_id)
 	{
-		var ihtml = document.getElementById("sc_iframe").cloneNode(true).innerHTML;
-		ihtml = ReplaceAll(ihtml, "%id%", insertTo);
+		var ihtml = document.getElementById("TMP_sc_iframe").cloneNode(true).innerHTML;
+		ihtml = ReplaceAll(ihtml, "%id%", track_id);
 		console.log("creating iframe from template");
 		document.getElementById(insertTo).insertAdjacentHTML("beforeend",ihtml);
 	}
@@ -178,7 +189,7 @@
 		{
 			var track_obj = {src_url:"", uri:""};
 			id_track_map.set(iframe.id, track_obj);
-			console.log("Requesting track from LSL server for " + iframe.id);
+			console.log("Added '" + iframe.id + "' to id_track_map. Requesting track from LSL server for " + iframe.id);
 			LSL_GetNextTrack();
 		}
 		
@@ -223,7 +234,12 @@
 	
 	function LSL_GetNextTrack()
 	{
-		MakeXHR("", lslServer+"/next-track", SC_GetOembedURL, "", "GET");
+		MakeXHR("", lslServer+"/next-track", LSL_GetNextTrack_Callback, "", "GET");
+	}
+	
+	function LSL_GetNextTrack_Callback(body)
+	{
+		// needs URI + start time
 	}
 	
 	
