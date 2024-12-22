@@ -91,7 +91,8 @@
 	
 	function Btn_AddTrackURL()
 	{
-		var track_url = document.getElementById("text_input_url").value;
+		var input = document.getElementById("text_input_url");
+		var track_url = input.value;
 		var track_id = Math.floor(Math.random()*2147483647).toString(16);
 		var if_id = SC_PRV_ID_PFX + track_id;
 		console.log("Btn_AddTrackURL " + track_url);
@@ -104,6 +105,7 @@
 		var add_to = "preview_iframe_" + track_id;
 		console.log("Added '" + if_id + "' to id_track_map, creating iframe in " + add_to);
 		SC_CreateIframe(if_id, add_to);
+		input.value = "";
 	}
 	
 	function Btn_RemoveTrackID(track)
@@ -128,7 +130,7 @@
 	
 	function LSL_LoadTrack_Callback(handle, body)
 	{
-		console.log("LSL_LoadTrack_Callback: uri=" + uri + ", data=" + body);
+		console.log("LSL_LoadTrack_Callback: uri=" + handle + ", data=" + body);
 	}
 	
 	function Btn_SavePlaylist()
