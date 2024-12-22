@@ -286,9 +286,9 @@
 		//console.log(jsonstr);
 		if(jsonstr.substring(0, 1) === '(') // what the fuck is this round-edged safety json
 			jsonstr = jsonstr.substring(1, jsonstr.length - 2);
-		console.log("Track Data: " + jsonstr);
+		//console.log("Track Data: " + jsonstr);
 		var oembedResult = JSON.parse(jsonstr);
-		console.log("SC_GetOembedURL_Callback for " + id + " = " + oembedResult);
+		console.log("SC_GetOembedURL_Callback for " + id + ", TrackData: " + oembedResult);
 		var oembedHtml = oembedResult.html;
 		var start = oembedHtml.indexOf("url=");
 		var end = oembedHtml.indexOf("&", start);
@@ -307,6 +307,7 @@
 			
 			if(oembedResult.thumbnail_url.includes("placeholder"))
 			{
+				console.log("Missing thumbnail and art, requesting author thumbnail");
 				MakeXHR("", "https://soundcloud.com/oembed?format=js&url="+oembedResult.author_url, SC_GetAuthorJSON_Callback, "", "GET");
 			}
 			else
@@ -331,8 +332,9 @@
 	{
 		if(jsonstr.substring(0, 1) === '(') // what the fuck is this round-edged safety json
 			jsonstr = jsonstr.substring(1, jsonstr.length - 2);
-		console.log("Author Data: " + jsonstr);
 		var oembedResult = JSON.parse(jsonstr);
+		console.log("SC_GetAuthorJSON_Callback, Author Data: " + oembedResult);
+		document.getElementById("icon").src = oembedResult.thumbnail_url;
 	}
 	
 	function SC_LoadTrack(id, url)
