@@ -294,10 +294,13 @@
 		var urlSubstr = oembedHtml.substring(start+4, end);
 		console.log("url=" + urlSubstr);
 		
-		//document.getElementById("titlespan").innerHTML = oembedResult.title;
-		//document.getElementById("icon").src = oembedResult.thumbnail_url;
+		if(page_type == "player")
+		{
+			document.getElementById("titlespan").innerHTML = oembedResult.title;
+			document.getElementById("icon").src = oembedResult.thumbnail_url;
+		}
 		
-		console.log("icon=" + oembedResult.thumbnail_url);
+		//console.log("icon=" + oembedResult.thumbnail_url);
 		
 		var track_url = decodeURIComponent(urlSubstr);
 		var track_obj = loaded_track_uri_map.get(id);
@@ -310,7 +313,7 @@
 	
 	function SC_LoadTrack(id, url)
 	{
-		console.log("SC_LoadTrack " + url + " = " + id);
+		console.log("SC_LoadTrack " + id + " = " + url);
 		var options = [];
 		options.auto_play = page_type == "player" ? true : false;
 		options.download = false;
@@ -327,7 +330,9 @@
 		player.load(url, options);
 		
 		if(page_type == "config")
-			setTimeout(function() { GetMissingTrackData(); }, 1000);
+		    setTimeout(function() { GetMissingTrackData(); }, 1000);
+		else
+			GetMissingTrackData();
 		
 	}
 	
