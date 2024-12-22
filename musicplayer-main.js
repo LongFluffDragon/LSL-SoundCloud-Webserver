@@ -294,11 +294,12 @@
 		var urlSubstr = oembedHtml.substring(start+4, end);
 		console.log("url=" + urlSubstr);
 		
-		if(page_type == "player")
+		/*if(page_type == "player") //never called in player mode
 		{
+			console.log()
 			document.getElementById("titlespan").innerHTML = oembedResult.title;
 			document.getElementById("icon").src = oembedResult.thumbnail_url;
-		}
+		}*/
 		
 		//console.log("icon=" + oembedResult.thumbnail_url);
 		
@@ -417,35 +418,37 @@
 			}
 		}
 		
-		// moved to oembed to get data earlier
+		if(page_type == "player")
+		{
+			console.log("trying higher detail artwork for " + sound.artwork_url);
+			var img200 = ReplaceAll(sound.artwork_url, "large.jpg", "t200x200.jpg");
+			var img500 = ReplaceAll(sound.artwork_url, "large.jpg", "t500x500.jpg");
 		
-		/*
-		var img200 = ReplaceAll(sound.artwork_url, "large.jpg", "t200x200.jpg");
+			if(image_exists(img500))
+			{
+				document.getElementById("icon").src = img500;
+			}
+			else if(image_exists(img200))
+			{
+				document.getElementById("icon").src = img200;
+			}
+			else
+			{
+				document.getElementById("icon").src = sound.artwork_url;
+			}
+		}
 		
-		if(image_exists(img500))
-		{
-			document.getElementById("icon").src = img500;
-		}
-		else if(image_exists(img200))
-		{
-			document.getElementById("icon").src = img200;
-		}
-		else
-		{
-			document.getElementById("icon").src = sound.artwork_url;
-		}
-		*/
 		/*
 		soundDuration = sound.duration / 1000.0;
 		console.log("track duration = " + soundDuration.toString());
 		
 		MakeXHR("", sound.waveform_url, getWaveform_Callback, "", "GET");
-		
+		*/
 		console.log("properties in sound data:");
 		for(var propertyName in sound)
 		{
 			console.log(propertyName + "=" + sound[propertyName]);
-		}//*/
+		}
 	}
 	
 	function getWaveform_Callback(id, jsonstr)
