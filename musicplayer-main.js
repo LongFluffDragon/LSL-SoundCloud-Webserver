@@ -11,7 +11,7 @@
 	
 	var save_track_index = 0;
 	
-	var next_sc_track = "https://api.soundcloud.com/tracks/214406533"; // next soundcloud track the player should load
+	var next_sc_track = "https://api.soundcloud.com/tracks/229773401"; // next soundcloud track the player should load
 	var next_sc_track_icon = "";
 	
 	var SC_PRV_ID_PFX = "sc_track_preview_";
