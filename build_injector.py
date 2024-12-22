@@ -1,4 +1,5 @@
 import base64
+import datetime
 
 with open("src_injector.js", "r") as src_injector:
 	injector = str(src_injector.read())
@@ -22,8 +23,7 @@ css = base64.b64encode(css.encode("ascii")).decode("ascii")
 templates = base64.b64encode(templates.encode("ascii")).decode("ascii")
 body = base64.b64encode(body.encode("ascii")).decode("ascii")
 
-
-injector = injector.replace("#CSS", css).replace("#TEMP", templates).replace("#BODY", body)
+injector = injector.replace("#CSS", css).replace("#TEMP", templates).replace("#BODY", body).replace("#BUILD_DATE", datetime.datetime.now())
 
 
 with open("musicplayer-injector.js", "w") as injector_js:

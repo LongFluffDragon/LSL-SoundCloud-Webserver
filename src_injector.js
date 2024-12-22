@@ -1,12 +1,10 @@
 	
 	var pagecss = "#CSS";
-	
 	var pagetemplates = "#TEMP";
-	
 	var pagebody = "#BODY";
-
+	var build_date = "#BUILD_DATE";
 	
-	console.log("beginning injection");
+	console.log("Page Injector Build Date: " + build_date);
 	document.head.innerHTML = atob(pagetemplates);
 	var icss = document.createElement("style");
 	icss.type = "text/css";
