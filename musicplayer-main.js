@@ -108,7 +108,7 @@
 	{
 		console.log("Removing preview track: " + track);
 		id_track_map.delete(SC_PRV_ID_PFX + track);
-		document.getElementById(SC_PRV_ID_PFX + track).remove();
+		document.getElementById("preview_scroll_" + track).remove();
 	}
 	
 	function Btn_LoadTracks()
