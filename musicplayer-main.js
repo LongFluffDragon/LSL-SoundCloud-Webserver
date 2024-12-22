@@ -91,24 +91,24 @@
 	
 	function Btn_AddTrackURL()
 	{
-		var input = document.getElementById("text_input_url");
-		var track_url = input.value;
-		document.getElementById("text_input_url").value = ""; // weird passing stuff?
+		var track_url = document.getElementById("text_input_url").value;
+		document.getElementById("text_input_url").value = ""; // cant cache object, what fun
 		AddTrackURL(track_url);
 	}
 	
 	function AddTrackURL(track_url)
 	{
+		console.log("AddTrackURL " + track_url);
 		var track_id = Math.floor(Math.random()*2147483647).toString(16);
 		var if_id = SC_PRV_ID_PFX + track_id;
-		if(id_track_map.has(if_id))
-			return;
 		
-		console.log("AddTrackURL " + track_url);
+		// create the box for the preview
 		var ihtml = document.getElementById("TMP_sc_track_preview").cloneNode(true).innerHTML;
 		ihtml = ReplaceAll(ihtml, "%title%", track_url);
 		ihtml = ReplaceAll(ihtml, "%track%", track_id);
 		document.getElementById(SC_PREVIEW_SCROLLBOX).insertAdjacentHTML("beforeend", ihtml);
+		
+		// create the soundcloud player
 		var track_obj = {src_url:track_url, uri:""};
 		id_track_map.set(if_id, track_obj);
 		var add_to = "preview_iframe_" + track_id;
@@ -133,15 +133,15 @@
 		console.log("LSL_LoadPlaylist_Callback: " + body);
 		var track_uris = body.split("|");
 		
+		// erase current playlist menu
 		document.getElementById(SC_PREVIEW_SCROLLBOX).innerHTML = "";
 		id_track_map.clear();
 		
+		// load playlist from received URIs
 		for(var i in track_uris)
 		{
 			AddTrackURL(track_uris[i]);
 		}
-		//var uri = track_uris[0];
-		//MakeXHR(uri, lslServer+"/track/" + uri, LSL_LoadTrack_Callback, "", "GET");
 	}
 	
 	function LSL_LoadTrack_Callback(handle, body)
