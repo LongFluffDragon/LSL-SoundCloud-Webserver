@@ -341,7 +341,7 @@
 	
 	function getCurrentSound_Callback(sound)
 	{
-		console.log("gotCurrentSound?");
+		//console.log("gotCurrentSound?");
 		if(sound == null)
 		{
 			console.log("no sound loaded yet or an error occured");
@@ -356,10 +356,12 @@
 		
 		console.log("got sound data for " + sound.id + ", updating display");
 		
+		var match = false;
 		for (let [key, value] of id_track_map)
 		{
 			if(value.uri == sound.uri)
 			{
+				match = true;
 				console.log("found URL matching ID " + value.uri);
 				if(value.hasData != true)
 				{
@@ -377,6 +379,20 @@
 					MakeXHR(key, sound.waveform_url, getWaveform_Callback, "", "GET");
 				}
 				break;
+			}
+		}
+		
+		if(!match)
+		{
+			console.log("ERROR; no URI match found! properties in sound data:");
+			for(var propertyName in sound)
+			{
+				console.log(propertyName + "=" + sound[propertyName]);
+			}
+			console.log("URIs in id_track_map:");
+			for (let [key, value] of id_track_map)
+			{
+				console.log(key + ": " +value.uri);
 			}
 		}
 		
