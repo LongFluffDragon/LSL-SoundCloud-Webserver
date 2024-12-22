@@ -110,7 +110,7 @@
 		ihtml = ReplaceAll(ihtml, "%track%", track_id);
 		document.getElementById(SC_PREVIEW_SCROLLBOX).insertAdjacentHTML("beforeend", ihtml);
 		var track_obj = {src_url:track_url, uri:""};
-		//id_track_map.set(if_id, track_obj);
+		id_track_map.set(if_id, track_obj);
 		var add_to = "preview_iframe_" + track_id;
 		console.log("Added '" + if_id + "' to id_track_map, creating iframe in " + add_to);
 		SC_CreateIframe(if_id, add_to);
