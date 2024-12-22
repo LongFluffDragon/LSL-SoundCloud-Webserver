@@ -1,25 +1,17 @@
 
-	var lslServer;
+	/*
 	
-	/* example members
-		author_name: "ArenaNet"
-		author_url: "https://soundcloud.com/arenanet"
-		description: "Composed by Lena Chappelle"
-		height: 400
-		html: '<iframe width="100%" height="400" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?visual=true&url=https%3A%2F%2Fapi.soundcloud.com%2Ftracks%2F229773401&show_artwork=true"></iframe>'
-		provider_name: "SoundCloud"
-		provider_url: "https://soundcloud.com"
-		thumbnail_url: "https://i1.sndcdn.com/artworks-000133718345-oqwohz-t500x500.jpg"
-		title: "GW2 Heart of Thorns - Tarir, The Forgotten City by ArenaNet"
-		type: "rich"
-		version: 1
-		width: "100%"
-	} */
+		Disclaimer: javascript is a horrible little crab and i am making no effort to play by it's rules or respect it's crab-like tendencies
 	
-	var id_track_map = new Map();
-	var id_scplayer_map = new Map();
+	*/
+
+	var lslServer; // this exists, somewhere. It may even be a cloud of some kind!
+	var loaded_track_uri_map = new Map(); // IDs to source url + embed uri pairs
+	var id_scplayer_map = new Map(); // IDs to soundcloud iframe objects
 	
 	var save_track_index = 0;
+	
+	var next_sc_track = "https://api.soundcloud.com/tracks/214406533"; // next soundcloud track the player should load
 	
 	var SC_PRV_ID_PFX = "sc_track_preview_";
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
@@ -110,16 +102,16 @@
 		
 		// create the soundcloud player
 		var track_obj = {src_url:track_url, uri:""};
-		id_track_map.set(if_id, track_obj);
+		loaded_track_uri_map.set(if_id, track_obj);
 		var add_to = "preview_iframe_" + track_id;
-		console.log("Added '" + if_id + "' to id_track_map, creating iframe in " + add_to);
+		console.log("Added '" + if_id + "' to loaded_track_uri_map, creating iframe in " + add_to);
 		SC_CreateIframe(if_id, add_to);
 	}
 	
 	function Btn_RemoveTrackID(track)
 	{
 		console.log("Removing preview track: " + track);
-		id_track_map.delete(SC_PRV_ID_PFX + track);
+		loaded_track_uri_map.delete(SC_PRV_ID_PFX + track);
 		document.getElementById("preview_scroll_" + track).remove();
 	}
 	
@@ -135,7 +127,7 @@
 		
 		// erase current playlist menu
 		document.getElementById(SC_PREVIEW_SCROLLBOX).innerHTML = "";
-		id_track_map.clear();
+		loaded_track_uri_map.clear();
 		
 		// load playlist from received URIs
 		for(var i in track_uris)
@@ -153,7 +145,7 @@
 	{
 
 		/*var tracks = [];
-		for (let [key, value] of id_track_map)
+		for (let [key, value] of loaded_track_uri_map)
 		{
 			tracks.push(JSON.stringify(value));
 			// need to buffer and send each track one by one to avoid 2048 byte limit
@@ -176,13 +168,13 @@
 		else if(body == "NXT")
 		{
 			console.log("LSL_SaveTrack_Callback: " + body)
-			if(save_track_index >= id_track_map.size)
+			if(save_track_index >= loaded_track_uri_map.size)
 			{
 				MakeXHR("", lslServer+"/save", LSL_SavePlaylist_Callback, "END", "PUT");
 			}
 			else
 			{
-				var track_obj = Array.from(id_track_map.values())[save_track_index];
+				var track_obj = Array.from(loaded_track_uri_map.values())[save_track_index];
 				if(track_obj.uri.length > 0)
 				{
 					var track = "";
@@ -213,16 +205,15 @@
 	function SC_IframeTemplate_onload(iframe)
 	{
 		console.log("iframe loaded: " + iframe.id);
-		if(id_track_map.has(iframe.id) == false)
+		if(loaded_track_uri_map.has(iframe.id) == false)
 		{
-			var track_obj = {src_url:"", uri:""};
-			id_track_map.set(iframe.id, track_obj);
-			console.log("Added '" + iframe.id + "' to id_track_map. Requesting track from LSL server for " + iframe.id);
-			//LSL_GetNextTrack();
+			var track_obj = {src_url: "", uri: next_sc_track};
+			loaded_track_uri_map.set(iframe.id, track_obj);
+			console.log("Added '" + iframe.id + "' to loaded_track_uri_map. Requesting track from LSL server for " + iframe.id);
 		}
 		else
 		{
-			console.log("Track is already in id_track_map");
+			console.log("Track is already in loaded_track_uri_map");
 		}
 		
 		jQuery(document).ready(function()
@@ -256,12 +247,20 @@
 	
 	function SC_Widget_Event_READY(iframe_id)
 	{
-		console.log("soundcloud widget " + iframe_id + " ready, attempting to play");
-		var trackURL = id_track_map.get(iframe_id).src_url;
-		var scWidget = id_scplayer_map.get(iframe_id);
-		console.log("track URL = " + trackURL);
-		SC_GetOembedURL(iframe_id, trackURL);
-		//console.log("scWidget = " + scWidget);
+		if(page_type == "player")
+		{
+			console.log("soundcloud widget " + iframe_id + " ready, requesting next track");
+			SC_LoadTrack(id, track_url);
+			//MakeXHR("", lslServer+"/save", LSL_GetNextTrack_Callback, track, "GET");
+		}
+		else
+		{
+			console.log("soundcloud widget " + iframe_id + " ready, attempting to play");
+			var trackURL = loaded_track_uri_map.get(iframe_id).src_url;
+			var scWidget = id_scplayer_map.get(iframe_id);
+			console.log("track URL = " + trackURL);
+			SC_GetOembedURL(iframe_id, trackURL);
+		}
 	}
 	/*
 	function LSL_GetNextTrack()
@@ -301,9 +300,9 @@
 		console.log("icon=" + oembedResult.thumbnail_url);
 		
 		var track_url = decodeURIComponent(urlSubstr);
-		var track_obj = id_track_map.get(id);
+		var track_obj = loaded_track_uri_map.get(id);
 		track_obj.uri = track_url;
-		id_track_map.set(id, track_obj);
+		loaded_track_uri_map.set(id, track_obj);
 		console.log("track.obj.uri=" + track_url);
 		
 		SC_LoadTrack(id, track_url);
@@ -311,6 +310,7 @@
 	
 	function SC_LoadTrack(id, url)
 	{
+		console.log("SC_LoadTrack " + url + " = " + id);
 		var options = [];
 		options.auto_play = page_type == "player" ? true : false;
 		options.download = false;
@@ -326,11 +326,9 @@
 		var player = id_scplayer_map.get(id);
 		player.load(url, options);
 		
-		//TODO make function iterate over loaded tracks, check for ones missing data, request
+		if(page_type == "config")
+			setTimeout(function() { GetMissingTrackData(); }, 1000);
 		
-		setTimeout(function() { GetMissingTrackData(); }, 1000);
-		//var heck = player.getCurrentSound(getCurrentSound_Callback);
-		//console.log("handle="+heck);
 	}
 	
 	function GetMissingTrackData()
@@ -339,7 +337,7 @@
 		
 		var is_any_missing = false;
 		
-		for (let [key, value] of id_track_map)
+		for (let [key, value] of loaded_track_uri_map)
 		{
 			if(value.hasData != true)
 			{
@@ -375,7 +373,7 @@
 		console.log("got sound data for " + sound.id + ", updating display");
 		
 		var match = false;
-		for (let [key, value] of id_track_map)
+		for (let [key, value] of loaded_track_uri_map)
 		{
 			if(value.uri == sound.uri)
 			{
@@ -386,7 +384,7 @@
 					value.hasData = true;
 					value.title = sound.title;
 					value.duration = Math.round(sound.duration / 1000);
-					id_track_map.set(key, value);
+					loaded_track_uri_map.set(key, value);
 					
 					console.log("properties in sound data:");
 					for(var propertyName in sound)
@@ -407,8 +405,8 @@
 			{
 				console.log(propertyName + "=" + sound[propertyName]);
 			}
-			console.log("URIs in id_track_map:");
-			for (let [key, value] of id_track_map)
+			console.log("URIs in loaded_track_uri_map:");
+			for (let [key, value] of loaded_track_uri_map)
 			{
 				console.log(key + ": " +value.uri);
 			}
@@ -447,7 +445,7 @@
 	
 	function getWaveform_Callback(id, jsonstr)
 	{
-		var track_obj = id_track_map.get(id);
+		var track_obj = loaded_track_uri_map.get(id);
 		if(track_obj)
 		{
 			console.log("got waveform for " + id);
@@ -483,7 +481,7 @@
 			
 			track_obj.encode_wf = encode_wf;
 			
-			id_track_map.set(id, track_obj);
+			loaded_track_uri_map.set(id, track_obj);
 			
 			console.log("waveform.height=" + waveform.height + " waveform.length=" + waveform.width + " sps=" + sps + " encoded=" + encode_wf);
 		}
