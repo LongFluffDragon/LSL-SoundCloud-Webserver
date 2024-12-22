@@ -249,13 +249,13 @@
 	{
 		if(page_type == "player")
 		{
-			console.log("soundcloud widget " + iframe_id + " ready, requesting next track");
-			SC_LoadTrack(id, track_url);
+			console.log("player soundcloud widget " + iframe_id + " ready, playing next track " + next_sc_track);
+			SC_LoadTrack(iframe_id, next_sc_track);
 			//MakeXHR("", lslServer+"/save", LSL_GetNextTrack_Callback, track, "GET");
 		}
 		else
 		{
-			console.log("soundcloud widget " + iframe_id + " ready, attempting to play");
+			console.log("preview soundcloud widget " + iframe_id + " ready, loading track");
 			var trackURL = loaded_track_uri_map.get(iframe_id).src_url;
 			var scWidget = id_scplayer_map.get(iframe_id);
 			console.log("track URL = " + trackURL);
