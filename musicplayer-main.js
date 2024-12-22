@@ -128,7 +128,7 @@
 	
 	function LSL_LoadTrack_Callback(handle, body)
 	{
-		console_log("LSL_LoadTrack_Callback: uri=" + uri + ", data=" + body);
+		console.log("LSL_LoadTrack_Callback: uri=" + uri + ", data=" + body);
 	}
 	
 	function Btn_SavePlaylist()
