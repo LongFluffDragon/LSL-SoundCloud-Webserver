@@ -5,8 +5,8 @@
 
 <template id="TMP_sc_track_setup">
 	<div>
-		<button type="button" id="btn_load" onclick="Btn_LoadTracks()">LOAD TRACKS</button>
-		<button type="button" id="btn_save" onclick="Btn_SaveTracks()">SAVE CHANGES</button>
+		<button type="button" id="btn_load" onclick="Btn_LoadPlaylist()">LOAD TRACKS</button>
+		<button type="button" id="btn_save" onclick="Btn_SavePlaylist()">SAVE CHANGES</button>
 	</div>
 	<div>Enter Soundcloud track URL:</div>
 	<input type="url" id="text_input_url"></input>
@@ -27,10 +27,10 @@
 
 <template id="TMP_sc_track_preview">
 	<div id="preview_scroll_%track%">
-		<span>
+		<div>
 			<button type="button" id="btn_remove_track" onclick="Btn_RemoveTrackID('%track%')">DELETE</button>
-			<div>%title%</div>
-		</span>
+			%title%
+		</div>
 		<div id="preview_iframe_%track%"></div>
 	</div>
 </template>

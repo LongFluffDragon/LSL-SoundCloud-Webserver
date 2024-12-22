@@ -113,17 +113,25 @@
 		document.getElementById("preview_scroll_" + track).remove();
 	}
 	
-	function Btn_LoadTracks()
+	function Btn_LoadPlaylist()
 	{
-		MakeXHR("", lslServer+"/load", LSL_LoadTracks_Callback, "", "GET");
+		MakeXHR("", lslServer+"/tracks", LSL_LoadPlaylist_Callback, "", "GET");
 	}
 	
-	function LSL_LoadTracks_Callback(id, body)
+	function LSL_LoadPlaylist_Callback(handle, body)
 	{
-		console.log("LSL_LoadTrack_Callback: " + body);
+		console.log("LSL_LoadPlaylist_Callback: " + body);
+		var track_uris = body.split("|");
+		var uri = track_uris[0];
+		MakeXHR(uri, lslServer+"/track/" + uri, LSL_LoadTrack_Callback, "", "GET");
 	}
 	
-	function Btn_SaveTracks()
+	function LSL_LoadTrack_Callback(handle, body)
+	{
+		console_log("LSL_LoadTrack_Callback: uri=" + uri + ", data=" + body);
+	}
+	
+	function Btn_SavePlaylist()
 	{
 
 		/*var tracks = [];
@@ -136,10 +144,10 @@
 		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, encodeURIComponent(tracks), "PUT");*/
 		save_track_index = 0;
 		console.log("Beginning track save to LSL server");
-		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, "CLR", "PUT");
+		MakeXHR("", lslServer+"/save", LSL_SavePlaylist_Callback, "CLR", "PUT");
 	}
 	
-	function LSL_SaveTracks_Callback(id, body)
+	function LSL_SavePlaylist_Callback(handle, body)
 	{
 		if(body == "END")
 		{
@@ -192,7 +200,7 @@
 			var track_obj = {src_url:"", uri:""};
 			id_track_map.set(iframe.id, track_obj);
 			console.log("Added '" + iframe.id + "' to id_track_map. Requesting track from LSL server for " + iframe.id);
-			LSL_GetNextTrack();
+			//LSL_GetNextTrack();
 		}
 		else
 		{
@@ -237,11 +245,11 @@
 		SC_GetOembedURL(iframe_id, trackURL);
 		//console.log("scWidget = " + scWidget);
 	}
-	
+	/*
 	function LSL_GetNextTrack()
 	{
 		MakeXHR("", lslServer+"/next-track", LSL_GetNextTrack_Callback, "", "GET");
-	}
+	}*/
 	
 	function LSL_GetNextTrack_Callback(body)
 	{
