@@ -286,7 +286,7 @@
 		//console.log(jsonstr);
 		if(jsonstr.substring(0, 1) === '(') // what the fuck is this round-edged safety json
 			jsonstr = jsonstr.substring(1, jsonstr.length - 2);
-		console.log(jsonstr);
+		console.log("Track Data: " + jsonstr);
 		var oembedResult = JSON.parse(jsonstr);
 		console.log("SC_GetOembedURL_Callback for " + id + " = " + oembedResult);
 		var oembedHtml = oembedResult.html;
@@ -302,7 +302,15 @@
 		{
 			console.log()
 			document.getElementById("titlespan").innerHTML = oembedResult.title;
-			document.getElementById("icon").src = oembedResult.thumbnail_url;
+			
+			if(oembedResult.thumbnail_url.includes("placeholder"))
+			{
+				MakeXHR("", oembedResult.author_url, SC_GetAuthorJSON_Callback, "", "GET");
+			}
+			else
+				document.getElementById("icon").src = oembedResult.thumbnail_url;
+			
+			
 			//track_url = next_sc_track;
 		}
 		else
@@ -315,6 +323,14 @@
 		}
 		
 		SC_LoadTrack(id, urlSubstr);
+	}
+	
+	function SC_GetAuthorJSON_Callback(id, jsonstr)
+	{
+		if(jsonstr.substring(0, 1) === '(') // what the fuck is this round-edged safety json
+			jsonstr = jsonstr.substring(1, jsonstr.length - 2);
+		console.log("Author Data: " + jsonstr);
+		var oembedResult = JSON.parse(jsonstr);
 	}
 	
 	function SC_LoadTrack(id, url)
