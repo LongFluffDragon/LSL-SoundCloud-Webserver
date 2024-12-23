@@ -390,14 +390,14 @@
 		setTimeout(function() { GetMissingTrackData(); }, 1000);
 		
 		player.load(url, options);
-		player.bind(SC.Widget.Events.PLAY, SC_Widget_OnPlay_Callback());
+		player.bind(SC.Widget.Events.PLAY, SC_Widget_OnPlay_Callback(player));
 		
 	}
 	
-	function SC_Widget_OnPlay_Callback()//player)
+	function SC_Widget_OnPlay_Callback(player)
 	{
 		console.log("SC_Widget_OnPlay_Callback");
-		seekTo(0 - time_dif);
+		player.seekTo(30000);
 		/*
 		if(page_type == "player")
 		{
