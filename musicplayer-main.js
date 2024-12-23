@@ -12,7 +12,6 @@
 	var save_track_index = 0;
 	
 	var next_sc_track = "https://soundcloud.com/theguitahheroe/sky-peak-forest"; // next soundcloud track the player should load
-	var next_sc_track_icon = "";
 	
 	var SC_PRV_ID_PFX = "sc_track_preview_";
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
@@ -202,9 +201,18 @@
 		MakeXHR("", lslServer+"/next-track", LSL_GetNextTrack_Callback, "", "GET");
 	}
 	
-	function LSL_GetNextTrack_Callback(body)
+	function LSL_GetNextTrack_Callback(handle, body)
 	{
 		console.log("LSL_GetNextTrack_Callback: " + body);
+		var data = body.split("|");
+		var uri = data[0];
+		
+		if(uri.includes("api.soundcloud.com"))
+		{
+			next_sc_track = uri;
+			SC_CreateIframe("client_player_sc_iframe", "client_player_box");
+		}
+		
 	}
 	
 	//
