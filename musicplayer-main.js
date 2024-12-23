@@ -392,7 +392,7 @@
 		
 		player.load(url, options);
 		//setTimeout(function() { SC_Widget_OnPlay_Callback(player); }, 1000);
-		player.bind(SC.Widget.Events.PLAY, SC_Widget_OnPlay_Callback(player));
+		player.bind(SC.Widget.Events.PLAY_PROGRESS, SC_Widget_OnPlay_Callback(player));
 		main_sc_player_widget = player;
 		
 	}
@@ -402,7 +402,7 @@
 		console.log("SC_Widget_OnPlay_Callback");
 		setTimeout(function() {
 			main_sc_player_widget.seekTo(30000);
-			main_sc_player_widget.unbind(SC.Widget.Events.PLAY);
+			main_sc_player_widget.unbind(SC.Widget.Events.PLAY_PROGRESS);
 		}, 300);
 		/*
 		if(page_type == "player")
