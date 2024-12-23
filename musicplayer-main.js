@@ -399,7 +399,7 @@
 	function SC_Widget_OnPlay_Callback(player)
 	{
 		console.log("SC_Widget_OnPlay_Callback");
-		main_sc_player_widget = player.seekTo(30000);
+		main_sc_player_widget.seekTo(30000);
 		main_sc_player_widget.unbind(SC.Widget.Events.PLAY);
 		/*
 		if(page_type == "player")
