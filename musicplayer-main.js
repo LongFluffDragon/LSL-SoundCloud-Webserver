@@ -408,7 +408,7 @@
 				console.log("seeking to " + (0-time_dif));
 			}
 		}
-		setTimeout(function() { GetMissingTrackData(); }, 1000);
+		//setTimeout(function() { GetMissingTrackData(); }, 1000);
 	}
 	
 	function StartPlayingTrack(player)
