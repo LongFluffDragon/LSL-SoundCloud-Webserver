@@ -391,7 +391,8 @@
 		setTimeout(function() { GetMissingTrackData(); }, 1000);
 		
 		player.load(url, options);
-		player.bind(SC.Widget.Events.PLAY, SC_Widget_OnPlay_Callback(player));
+		setTimeout(function() { SC_Widget_OnPlay_Callback(player); }, 3000);
+		//player.bind(SC.Widget.Events.PLAY, SC_Widget_OnPlay_Callback(player));
 		main_sc_player_widget = player;
 		
 	}
