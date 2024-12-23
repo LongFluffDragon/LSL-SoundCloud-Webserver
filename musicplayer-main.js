@@ -369,7 +369,7 @@
 		options.show_teaser = false;
 		
 		var player = id_scplayer_map.get(id);
-		player.load(url, options);
+		player.load(url, options, SC_Widget_OnLoad_Callback);
 		
 		if(page_type == "player")
 		{
@@ -388,6 +388,12 @@
 			}
 		}
 		setTimeout(function() { GetMissingTrackData(); }, 1000);
+	}
+	
+	function SC_Widget_OnLoad_Callback(thing)
+	{
+		console.log("SC_Widget_OnLoad_Callback: " + thing);
+		thing.play();
 	}
 	
 	function StartPlayingTrack(player)
