@@ -572,6 +572,9 @@
 	{
 		var ihtml = document.getElementById("TMP_yt_iframe").cloneNode(true).innerHTML;
 		ihtml = ReplaceAll(ihtml, "%id%", id);
+		ihtml = ReplaceAll(ihtml, "%video%", "M7lc1UVf-VE");
+		ihtml = ReplaceAll(ihtml, "%this%", lslServer);
+		
 		console.log("creating youtube iframe from template");
 		document.getElementById(insert_to).insertAdjacentHTML("beforeend",ihtml);
 	}
@@ -579,6 +582,7 @@
     var ytplayer;
     function onYouTubeIframeAPIReady()
 	{
+		console.log("onYouTubeIframeAPIReady");
 		ytplayer = new YT.Player('player',
 		{
 			height: '390',
@@ -590,15 +594,16 @@
 			},
 			events:
 			{
-				'onReady': onPlayerReady,
+				'onReady': onYTPlayerReady,
 				//'onStateChange': onPlayerStateChange
 			}
 		});
     }
 
       // 4. The API will call this function when the video player is ready.
-    function onPlayerReady(event)
+    function onYTPlayerReady(event)
 	{
+		console.log("onYTPlayerReady");
 		event.target.playVideo();
     }
 
