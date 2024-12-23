@@ -397,7 +397,7 @@
 	function SC_Widget_OnPlay_Callback(player)
 	{
 		console.log("SC_Widget_OnPlay_Callback");
-		player.seekTo(30000);
+		//player.seekTo(30000);
 		/*
 		if(page_type == "player")
 		{
