@@ -403,7 +403,7 @@
 		setTimeout(function() {
 			main_sc_player_widget.seekTo(30000);
 			main_sc_player_widget.unbind(SC.Widget.Events.PLAY);
-		}, 100);
+		}, 3000);
 		/*
 		if(page_type == "player")
 		{
