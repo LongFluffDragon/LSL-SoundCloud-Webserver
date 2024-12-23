@@ -499,7 +499,7 @@
 			loaded_track_uri_map.set(id, track_obj);
 			
 			console.log("waveform.height=" + waveform.height + " waveform.length=" + waveform.width + " sps=" + sps + " encoded=" + encode_wf);
-			MakeXHR("", lslServer+"/waveform/" + encodeURIComponent(track_obj.uri), "", encode_wf, "PUT");
+			MakeXHR("", lslServer+"/waveform/" + track_obj.uri, "", encode_wf, "PUT");
 		}
 		// compress and encode keyframes
 		// reduce to 15 bit unicode chars: 5 bit magnitude, 10 bit length
