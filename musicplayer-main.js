@@ -582,7 +582,9 @@
 	
 	function YT_IframeTemplate_onload(iframe)
 	{
-		console.log(JSON.stringify(iframe, null, 1));
+		console.log(iframe);
+		console.log(JSON.stringify(iframe));
+		console.dir(iframe);
 		console.log("youtube iframe loaded: " + iframe.id);
 		if(loaded_track_uri_map.has(iframe.id) == false)
 		{
