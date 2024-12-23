@@ -410,8 +410,7 @@
 			console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
 			if(time_dif < 0)
 			{
-				player.seekTo(0 - time_dif);
-				player.play();
+				main_sc_player_widget.seekTo(0 - time_dif);
 				console.log("seeking to " + (0-time_dif));
 			}
 		}
