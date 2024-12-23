@@ -369,31 +369,6 @@
 		options.show_teaser = false;
 		
 		var player = id_scplayer_map.get(id);
-		player.load(url, options);
-		player.bind(SC.Widget.Events.LOAD_PROGRESS, SC_Widget_OnLoad_Callback(player));
-		/*
-		if(page_type == "player")
-		{
-			var time_dif = next_track_start_time - unixTime();
-			console.log("Track time_dif = " + time_dif);
-			if(time_dif > 1)
-			{
-				console.log("Delaying track start");
-				setTimeout(function() { StartPlayingTrack(player); }, time_dif * 1000);
-			}
-			else
-			{
-				console.log("Starting track immediately");
-				player.seekTo(0 - time_dif);
-				player.play();
-			}
-		}
-		setTimeout(function() { GetMissingTrackData(); }, 1000);*/
-	}
-	
-	function SC_Widget_OnLoad_Callback(player)
-	{
-		console.log("SC_Widget_OnLoad_Callback");
 		
 		if(page_type == "player")
 		{
@@ -406,10 +381,30 @@
 			}
 			else
 			{
+				options.auto_play = true;
 				console.log("Starting track immediately");
+				//player.seekTo(0 - time_dif);
+				//player.play();
+			}
+		}
+		setTimeout(function() { GetMissingTrackData(); }, 1000);
+		
+		player.load(url, options);
+		player.bind(SC.Widget.Events.PLAY, SC_Widget_OnPlay_Callback(player));
+		
+	}
+	
+	function SC_Widget_OnPlay_Callback(player)
+	{
+		if(page_type == "player")
+		{
+			var time_dif = next_track_start_time - unixTime();
+			console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
+			if(time_dif < 0)
+			{
 				player.seekTo(0 - time_dif);
 				player.play();
-				setTimeout(function() { StartPlayingTrack(player); }, 5000);
+				console.log("seeking to " + (0-time_dif));
 			}
 		}
 		setTimeout(function() { GetMissingTrackData(); }, 1000);
