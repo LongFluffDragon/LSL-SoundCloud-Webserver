@@ -276,6 +276,7 @@
 	
 	function SC_Widget_Event_READY(iframe_id)
 	{
+		console.log(" !! SC_Widget_Event_READY !! ");
 		if(page_type == "player")
 		{
 			console.log("player soundcloud widget " + iframe_id + " ready, playing next track " + next_sc_track);
@@ -400,10 +401,8 @@
 	function SC_Widget_OnPlay_Callback()
 	{
 		console.log("SC_Widget_OnPlay_Callback");
-		setTimeout(function() {
-			main_sc_player_widget.seekTo(30000);
-			main_sc_player_widget.unbind(SC.Widget.Events.PLAY_PROGRESS);
-		}, 300);
+		main_sc_player_widget.seekTo(30000);
+		main_sc_player_widget.unbind(SC.Widget.Events.PLAY_PROGRESS);
 		/*
 		if(page_type == "player")
 		{
