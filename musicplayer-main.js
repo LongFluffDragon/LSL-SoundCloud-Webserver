@@ -13,6 +13,7 @@
 	
 	var next_sc_track = "https://soundcloud.com/theguitahheroe/sky-peak-forest"; // next soundcloud track the player should load
 	var next_track_start_time;
+	var main_sc_player_widget;
 	
 	var SC_PRV_ID_PFX = "sc_track_preview_";
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
@@ -391,13 +392,15 @@
 		
 		player.load(url, options);
 		player.bind(SC.Widget.Events.PLAY, SC_Widget_OnPlay_Callback(player));
+		main_sc_player_widget = player;
 		
 	}
 	
 	function SC_Widget_OnPlay_Callback(player)
 	{
 		console.log("SC_Widget_OnPlay_Callback");
-		player.seekTo(30000);
+		main_sc_player_widget = player.seekTo(30000);
+		main_sc_player_widget.unbind(SC.Widget.Events.PLAY);
 		/*
 		if(page_type == "player")
 		{
