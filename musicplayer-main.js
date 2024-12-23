@@ -396,6 +396,7 @@
 	
 	function SC_Widget_OnPlay_Callback(player)
 	{
+		console.log("SC_Widget_OnPlay_Callback");
 		if(page_type == "player")
 		{
 			var time_dif = next_track_start_time - unixTime();
