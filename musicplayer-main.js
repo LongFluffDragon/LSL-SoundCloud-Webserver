@@ -392,12 +392,12 @@
 		
 		player.load(url, options);
 		//setTimeout(function() { SC_Widget_OnPlay_Callback(player); }, 1000);
-		player.bind(SC.Widget.Events.PLAY_PROGRESS, SC_Widget_OnPlay_Callback(player));
+		player.bind(SC.Widget.Events.PLAY_PROGRESS, SC_Widget_OnPlay_Callback);
 		main_sc_player_widget = player;
 		
 	}
 	
-	function SC_Widget_OnPlay_Callback(player)
+	function SC_Widget_OnPlay_Callback()
 	{
 		console.log("SC_Widget_OnPlay_Callback");
 		setTimeout(function() {
