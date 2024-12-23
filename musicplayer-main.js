@@ -369,7 +369,8 @@
 		options.show_teaser = false;
 		
 		var player = id_scplayer_map.get(id);
-		player.load(url, options, SC_Widget_OnLoad_Callback);
+		player.load(url, options);
+		player.bind(SC.Widget.Events.LOAD_PROGRESS, SC_Widget_OnLoad_Callback(player));
 		
 		if(page_type == "player")
 		{
@@ -390,10 +391,10 @@
 		setTimeout(function() { GetMissingTrackData(); }, 1000);
 	}
 	
-	function SC_Widget_OnLoad_Callback(thing)
+	function SC_Widget_OnLoad_Callback(thing, thing2)
 	{
-		console.log("SC_Widget_OnLoad_Callback: " + thing);
-		thing.play();
+		console.log("SC_Widget_OnLoad_Callback: " + thing + " : " + thing2);
+		
 	}
 	
 	function StartPlayingTrack(player)
