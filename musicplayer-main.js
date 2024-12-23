@@ -61,7 +61,9 @@
 		xhr.send(message);
 	}
 	
+	//
 	// main page code
+	//
 	
 	function InitPage()
 	{
@@ -70,7 +72,8 @@
 			var ihtml = document.getElementById("TMP_sc_player_page").cloneNode(true).innerHTML;
 			console.log("creating player from template");
 			document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
-			SC_CreateIframe("client_player_sc_iframe", "client_player_box");
+			LSL_GetNextTrack();
+			//SC_CreateIframe("client_player_sc_iframe", "client_player_box");
 		}
 		else if(page_type == "config")
 		{
@@ -80,7 +83,9 @@
 		}
 	}
 	
-	// config menu related functions
+	//
+	// config menu mode functions
+	//
 	
 	function Btn_AddTrackURL()
 	{
@@ -137,11 +142,6 @@
 		}
 	}
 	
-	function LSL_LoadTrack_Callback(handle, body)
-	{
-		console.log("LSL_LoadTrack_Callback: uri=" + handle + ", data=" + body);
-	}
-	
 	function Btn_SavePlaylist()
 	{
 
@@ -183,7 +183,7 @@
 					track += String.fromCharCode(255 + track_obj.uri.length) + track_obj.uri;
 					track += String.fromCharCode(255 + track_obj.title.length) + track_obj.title;
 					track += String.fromCharCode(255 + track_obj.duration);
-					track += String.fromCharCode(255 + track_obj.encode_wf.length) + track_obj.encode_wf;
+					//track += String.fromCharCode(255 + track_obj.encode_wf.length) + track_obj.encode_wf;
 					
 					MakeXHR("", lslServer+"/save", LSL_SavePlaylist_Callback, track, "PUT");
 				}
@@ -192,8 +192,24 @@
 			}
 		}
 	}
-
-	// soundcloud/controls related functionality
+	
+	//
+	// client player mode functions
+	//
+	
+	function LSL_GetNextTrack()
+	{
+		MakeXHR("", lslServer+"/next-track", LSL_GetNextTrack_Callback, "", "GET");
+	}
+	
+	function LSL_GetNextTrack_Callback(body)
+	{
+		console.log("LSL_GetNextTrack_Callback: " + body);
+	}
+	
+	//
+	// soundcloud widget/controls related functions
+	//
 	
 	function SC_CreateIframe(id, insert_to)
 	{
@@ -264,17 +280,6 @@
 			SC_GetOembedURL(iframe_id, trackURL);
 		}
 	}
-	/*
-	function LSL_GetNextTrack()
-	{
-		MakeXHR("", lslServer+"/next-track", LSL_GetNextTrack_Callback, "", "GET");
-	}*/
-	
-	function LSL_GetNextTrack_Callback(body)
-	{
-		// needs URI + start time
-	}
-	
 	
 	function SC_GetOembedURL(id, url)
 	{
