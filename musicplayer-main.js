@@ -436,7 +436,8 @@
 						console.log(propertyName + "=" + sound[propertyName]);
 					}
 					console.log("updating data, requesting waveform");
-					MakeXHR(key, sound.waveform_url, getWaveform_Callback, "", "GET");
+					if(page_type == "player")
+						MakeXHR(key, sound.waveform_url, getWaveform_Callback, "", "GET");
 				}
 				break;
 			}
@@ -454,19 +455,6 @@
 			{
 				console.log(key + ": " +value.uri);
 			}
-		}
-		
-		
-		/*
-		soundDuration = sound.duration / 1000.0;
-		console.log("track duration = " + soundDuration.toString());
-		
-		MakeXHR("", sound.waveform_url, getWaveform_Callback, "", "GET");
-		*/
-		console.log("properties in sound data:");
-		for(var propertyName in sound)
-		{
-			console.log(propertyName + "=" + sound[propertyName]);
 		}
 	}
 	
@@ -511,6 +499,7 @@
 			loaded_track_uri_map.set(id, track_obj);
 			
 			console.log("waveform.height=" + waveform.height + " waveform.length=" + waveform.width + " sps=" + sps + " encoded=" + encode_wf);
+			MakeXHR("", lslServer+"/waveform/" + track_obj.uri, "", encode_wf, "PUT");
 		}
 		// compress and encode keyframes
 		// reduce to 15 bit unicode chars: 5 bit magnitude, 10 bit length
