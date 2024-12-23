@@ -12,6 +12,7 @@
 	var save_track_index = 0;
 	
 	var next_sc_track = "https://soundcloud.com/theguitahheroe/sky-peak-forest"; // next soundcloud track the player should load
+	var next_track_start_time;
 	
 	var SC_PRV_ID_PFX = "sc_track_preview_";
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
@@ -207,6 +208,7 @@
 		console.log("LSL_GetNextTrack_Callback: " + body);
 		var data = body.split("|");
 		var uri = data[0];
+		next_track_start_time = Number(data[1]);
 		
 		if(uri.includes("api.soundcloud.com"))
 		{
@@ -355,7 +357,7 @@
 	{
 		console.log("SC_LoadTrack " + id + " = " + url);
 		var options = [];
-		options.auto_play = page_type == "player" ? true : false;
+		options.auto_play = false;//page_type == "player" ? true : false;
 		options.download = false;
 		options.show_artwork = true;
 		options.show_playcount = false;
@@ -369,11 +371,29 @@
 		var player = id_scplayer_map.get(id);
 		player.load(url, options);
 		
-		//if(page_type == "config")
-		    setTimeout(function() { GetMissingTrackData(); }, 1000);
-		//else
-			//GetMissingTrackData();
-		
+		if(page_type == "player")
+		{
+			var time_dif = next_track_start_time - unixTime();
+			console.log("Track time_dif = " + time_dif);
+			if(time_dif > 1)
+			{
+				console.log("Delaying track start");
+				setTimeout(function() { StartPlayingTrack(player); }, time_dif * 1000);
+			}
+			else
+			{
+				console.log("Starting track immediately");
+				player.seekTo(0 - time_dif);
+				player.play();
+			}
+		}
+		setTimeout(function() { GetMissingTrackData(); }, 1000);
+	}
+	
+	function StartPlayingTrack(player)
+	{
+		console.log("StartPlayingTrack");
+		player.play();
 	}
 	
 	function GetMissingTrackData()
@@ -504,6 +524,11 @@
 		}
 		// compress and encode keyframes
 		// reduce to 15 bit unicode chars: 5 bit magnitude, 10 bit length
+	}
+	
+	function unixTime()
+	{
+		return Math.floor(Date.now() / 1000);
 	}
 	
 	
