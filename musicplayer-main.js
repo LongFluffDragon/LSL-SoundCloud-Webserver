@@ -409,6 +409,7 @@
 				console.log("Starting track immediately");
 				player.seekTo(0 - time_dif);
 				player.play();
+				setTimeout(function() { StartPlayingTrack(player); }, 1000);
 			}
 		}
 		setTimeout(function() { GetMissingTrackData(); }, 1000);
