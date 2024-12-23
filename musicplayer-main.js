@@ -572,8 +572,8 @@
 	{
 		var ihtml = document.getElementById("TMP_yt_iframe").cloneNode(true).innerHTML;
 		ihtml = ReplaceAll(ihtml, "%id%", id);
-		ihtml = ReplaceAll(ihtml, "%video%", "M7lc1UVf-VE");
-		ihtml = ReplaceAll(ihtml, "%this%", lslServer);
+		ihtml = ReplaceAll(ihtml, "@video", "M7lc1UVf-VE");
+		ihtml = ReplaceAll(ihtml, "@origin", lslServer);
 		
 		console.log("creating youtube iframe from template");
 		document.getElementById(insert_to).insertAdjacentHTML("beforeend",ihtml);
