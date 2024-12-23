@@ -240,7 +240,6 @@
 		{
 			var track_obj = {src_url: "", uri: next_sc_track};
 			loaded_track_uri_map.set(iframe.id, track_obj);
-			console.log("Added '" + iframe.id + "' to loaded_track_uri_map. Requesting track from LSL server for " + iframe.id);
 		}
 		else
 		{
@@ -572,13 +571,35 @@
 	{
 		var ihtml = document.getElementById("TMP_yt_iframe").cloneNode(true).innerHTML;
 		ihtml = ReplaceAll(ihtml, "%id%", id);
-		ihtml = ReplaceAll(ihtml, "@video", "M7lc1UVf-VE");
-		ihtml = ReplaceAll(ihtml, "@origin", lslServer);
+		ihtml = ReplaceAll(ihtml, "%video%", "M7lc1UVf-VE");
+		ihtml = ReplaceAll(ihtml, "%origin%", lslServer);
 		
 		console.log("creating youtube iframe from template");
 		document.getElementById(insert_to).insertAdjacentHTML("beforeend",ihtml);
 	}
-	  
+	
+	var ytplayer;
+	
+	function YT_IframeTemplate_onload(iframe)
+	{
+		console.log("youtube iframe loaded: " + iframe.id);
+		if(loaded_track_uri_map.has(iframe.id) == false)
+		{
+			var track_obj = {src_url: "", uri: next_sc_track};
+			loaded_track_uri_map.set(iframe.id, track_obj);
+		}
+		else
+		{
+			console.log("Track is already in loaded_track_uri_map");
+		}
+		
+		jQuery(document).ready(function()
+		{
+			console.log("youtube player ready");
+			console.log(iframe.keys());
+		});
+	}
+	  /*
     var ytplayer;
     function onYouTubeIframeAPIReady()
 	{

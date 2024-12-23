@@ -38,6 +38,6 @@
 
 <template id="TMP_yt_iframe">
 	<iframe id="%id%" class="widget" style="position:relative;" width="512" height="166"
-	scrolling="no" frameborder="no"
-	src="http://www.youtube.com/embed/@video?enablejsapi=1&amp;origin=@origin"></iframe>
+	scrolling="no" frameborder="no" onload="YT_IframeTemplate_onload(this)"
+	src="http://www.youtube.com/embed/%video%?enablejsapi=1&amp;origin=%origin%"></iframe>
 </template>
