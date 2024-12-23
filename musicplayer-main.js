@@ -397,6 +397,7 @@
 	function SC_Widget_OnPlay_Callback()//player)
 	{
 		console.log("SC_Widget_OnPlay_Callback");
+		seekTo(0 - time_dif);
 		/*
 		if(page_type == "player")
 		{
