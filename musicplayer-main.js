@@ -401,7 +401,6 @@
 	function SC_Widget_OnStartPlay_Callback()
 	{
 		console.log("SC_Widget_OnPlay_Callback");
-		//main_sc_player_widget.seekTo(30000);
 		main_sc_player_widget.unbind(SC.Widget.Events.PLAY_PROGRESS);
 		
 		if(page_type == "player")
@@ -410,8 +409,7 @@
 			console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
 			if(time_dif < 0)
 			{
-				main_sc_player_widget.seekTo(0 - time_dif);
-				console.log("seeking to " + (0-time_dif));
+				main_sc_player_widget.seekTo(0 - time_dif * 1000);
 			}
 		}
 	}
