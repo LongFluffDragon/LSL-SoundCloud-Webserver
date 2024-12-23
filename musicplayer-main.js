@@ -211,12 +211,14 @@
 		var uri = data[0];
 		next_track_start_time = Number(data[1]);
 		
+		/*
 		if(uri.includes("api.soundcloud.com"))
 		{
 			next_sc_track = uri;
 			SC_CreateIframe("client_player_sc_iframe", "client_player_box");
 		}
-		
+		*/
+		YT_CreateIframe("client_player_yt_iframe", "client_player_box");
 	}
 	
 	//
@@ -400,6 +402,8 @@
 	
 	function SC_Widget_OnStartPlay_Callback()
 	{
+		//TODO fix event target ref use
+		
 		console.log("SC_Widget_OnPlay_Callback");
 		main_sc_player_widget.unbind(SC.Widget.Events.PLAY_PROGRESS);
 		
@@ -549,6 +553,77 @@
 		// compress and encode keyframes
 		// reduce to 15 bit unicode chars: 5 bit magnitude, 10 bit length
 	}
+	
+	//
+	// youtube widget related
+	//
+	/*
+	var tag = document.createElement('script');
+
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+      // 3. This function creates an <iframe> (and YouTube player)
+      //    after the API code downloads.
+	  */
+	  
+	function YT_CreateIframe(id, insert_to)
+	{
+		var ihtml = document.getElementById("TMP_yt_iframe").cloneNode(true).innerHTML;
+		ihtml = ReplaceAll(ihtml, "%id%", id);
+		console.log("creating youtube iframe from template");
+		document.getElementById(insert_to).insertAdjacentHTML("beforeend",ihtml);
+	}
+	  
+    var ytplayer;
+    function onYouTubeIframeAPIReady()
+	{
+		ytplayer = new YT.Player('player',
+		{
+			height: '390',
+			width: '640',
+			videoId: 'M7lc1UVf-VE',
+			playerVars:
+			{
+				'playsinline': 1
+			},
+			events:
+			{
+				'onReady': onPlayerReady,
+				//'onStateChange': onPlayerStateChange
+			}
+		});
+    }
+
+      // 4. The API will call this function when the video player is ready.
+    function onPlayerReady(event)
+	{
+		event.target.playVideo();
+    }
+
+      // 5. The API calls this function when the player's state changes.
+      //    The function indicates that when playing a video (state=1),
+      //    the player should play for six seconds and then stop.
+    
+	/*
+    function onPlayerStateChange(event)
+	{
+        if (event.data == YT.PlayerState.PLAYING && !done)
+		{
+			setTimeout(stopVideo, 6000);
+			done = true;
+        }
+    }
+	
+    function stopVideo()
+	{
+		ytplayer.stopVideo();
+    }*/
+	
+	//
+	// general utility functions
+	//
 	
 	function unixTime()
 	{
