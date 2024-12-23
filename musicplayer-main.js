@@ -390,13 +390,14 @@
 		setTimeout(function() { GetMissingTrackData(); }, 1000);
 		
 		player.load(url, options);
-		player.bind(SC.Widget.Events.PLAY, SC_Widget_OnPlay_Callback(player));
+		player.bind(SC.Widget.Events.PLAY, SC_Widget_OnPlay_Callback());
 		
 	}
 	
-	function SC_Widget_OnPlay_Callback(player)
+	function SC_Widget_OnPlay_Callback()//player)
 	{
 		console.log("SC_Widget_OnPlay_Callback");
+		/*
 		if(page_type == "player")
 		{
 			var time_dif = next_track_start_time - unixTime();
@@ -408,6 +409,7 @@
 				console.log("seeking to " + (0-time_dif));
 			}
 		}
+		*/
 		//setTimeout(function() { GetMissingTrackData(); }, 1000);
 	}
 	
