@@ -596,7 +596,7 @@
 		jQuery(document).ready(function()
 		{
 			console.log("youtube player ready");
-			console.log(iframe.keys());
+			console.log(Object.keys(iframe));
 		});
 	}
 	  /*
