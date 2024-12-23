@@ -593,7 +593,7 @@
 			console.log("Track is already in loaded_track_uri_map");
 		}
 		
-		jQuery(document).ready(function()
+		jQuery(document).ready(function(iframe)
 		{
 			console.log("youtube player ready");
 			console.log(JSON.stringify(iframe, null, 1));
