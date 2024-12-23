@@ -393,17 +393,17 @@
 		
 		player.load(url, options);
 		//setTimeout(function() { SC_Widget_OnPlay_Callback(player); }, 1000);
-		player.bind(SC.Widget.Events.PLAY_PROGRESS, SC_Widget_OnPlay_Callback);
+		player.bind(SC.Widget.Events.PLAY_PROGRESS, SC_Widget_OnStartPlay_Callback);
 		main_sc_player_widget = player;
 		
 	}
 	
-	function SC_Widget_OnPlay_Callback()
+	function SC_Widget_OnStartPlay_Callback()
 	{
 		console.log("SC_Widget_OnPlay_Callback");
-		main_sc_player_widget.seekTo(30000);
+		//main_sc_player_widget.seekTo(30000);
 		main_sc_player_widget.unbind(SC.Widget.Events.PLAY_PROGRESS);
-		/*
+		
 		if(page_type == "player")
 		{
 			var time_dif = next_track_start_time - unixTime();
@@ -415,8 +415,6 @@
 				console.log("seeking to " + (0-time_dif));
 			}
 		}
-		*/
-		//setTimeout(function() { GetMissingTrackData(); }, 1000);
 	}
 	
 	function StartPlayingTrack(player)
