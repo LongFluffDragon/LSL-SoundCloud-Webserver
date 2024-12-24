@@ -613,7 +613,7 @@
 					//"onStateChange": YTPlayerStateChange
 				}
 			});
-			
+			/*
 			setTimeout(function() {
 				console.dir(newYTPlayer);
 			
@@ -621,7 +621,7 @@
 			
 				console.log("TITLE="+iframe.title);
 			}, 2000);
-			
+			*/
 			if(page_type == "player")
 			{
 				document.getElementById("titlespan").innerHTML = "";
@@ -635,6 +635,8 @@
 	function YTPlayerReady(iframe_id, event)
 	{
 		console.log("YTPlayerReady: starting video " + iframe_id);
+		var iframe = document.getElementById(iframe_id);
+		console.log("TITLE="+iframe.title);
 		//event.target.playVideo();
 	}
 	
