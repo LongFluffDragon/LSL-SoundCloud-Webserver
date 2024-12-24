@@ -604,23 +604,27 @@
 			console.log("Track is already in loaded_track_uri_map");
 		}
 		
-		jQuery(document).ready(function()
-		{
+		
 			console.log("youtube iframe ready");
 			var track = loaded_track_uri_map.get(iframe.id).src_url;
 			var ytid = track.split("/").slice(-1);
 			console.log("youtube track url = " + track + ", ID = " + ytid);
 			var newYTPlayer = new YT.Player(iframe.id,
 			{
-				videoId: "M7lc1UVf-VE",
-				playerVars: { rel: '0' },
+				height: '390',
+				width: '640',
+				videoId: 'M7lc1UVf-VE',
+				playerVars:
+				{
+					'playsinline': 1
+				},
 				events:
 				{
 					"onReady": YTPlayerReady,
 					"onStateChange": YTPlayerStateChange
 				}
 			});
-		});
+		
 	}
 	
 	function YTPlayerReady(event)
