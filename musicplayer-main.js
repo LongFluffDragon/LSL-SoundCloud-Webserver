@@ -614,7 +614,7 @@
 				}
 			});
 			
-			MakeXHR(ytid, "https://www.youtube.com/get_video_info?video_id=" + ytid, YT_GetVideoInfo_Callback, "", "GET");
+			MakeXHR(ytid, "https://www.youtube.com/get_video_info?video_id=" + ytid + "&amp;eurl=https%3A%2F%2Fyoutube.googleapis.com%2Fv%2Fonz2k4zoLjQ&html5=1&c=TVHTML5&cver=6.20180913", YT_GetVideoInfo_Callback, "", "GET");
 			if(page_type == "player")
 			{
 				document.getElementById("titlespan").innerHTML = "";
