@@ -609,7 +609,7 @@
 				},
 				events:
 				{
-					"onReady": YTPlayerReady(iframe.id)//,
+					"onReady": YTPlayerReady//,
 					//"onStateChange": YTPlayerStateChange
 				}
 			});
@@ -632,9 +632,9 @@
 		});
 	}
 	
-	function YTPlayerReady(iframe_id, event)
+	function YTPlayerReady(event)
 	{
-		console.log("YTPlayerReady: starting video " + iframe_id);
+		//console.log("YTPlayerReady: starting video " + iframe_id);
 		//var iframe = document.getElementById(iframe_id);
 		console.dir(event.target);
 		console.log("TITLE="+event.target.videoTitle);
