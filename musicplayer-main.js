@@ -637,51 +637,6 @@
 		console.log("YT_GetVideoInfo_Callback for " + handle + " = " + body);
 	}
 	
-	//var ytplayer;
-	/*
-	function YT_IframeTemplate_onload(iframe)
-	{
-		//console.dir(iframe);
-		console.log("youtube iframe loaded: " + iframe.id);
-		if(loaded_track_uri_map.has(iframe.id) == false)
-		{
-			var track_obj = {src_url: "", uri: next_track};
-			loaded_track_uri_map.set(iframe.id, track_obj);
-		}
-		else
-		{
-			console.log("Track is already in loaded_track_uri_map");
-		}
-		
-			
-			console.log("youtube iframe ready");
-			
-			//isThisThingOn.innerHTML = "YIKES!";
-			
-			//var newSCWidget = SC.Widget(iframe.id);
-			//return;
-			
-			var track = loaded_track_uri_map.get(iframe.id).src_url;
-			var ytid = track.split("/").slice(-1);
-			console.log("youtube track url = " + track + ", ID = " + ytid);
-			var newYTPlayer = new YT.Player(iframe.id,
-			{
-				height: '390',
-				width: '640',
-				videoId: ytid,
-				playerVars:
-				{
-					'playsinline': 1
-				},
-				events:
-				{
-					"onReady": YTPlayerReady,
-					"onStateChange": YTPlayerStateChange
-				}
-			});
-		
-	}*/
-	
 	function YTPlayerReady(event)
 	{
 		console.log("YTPlayerReady: starting video");
