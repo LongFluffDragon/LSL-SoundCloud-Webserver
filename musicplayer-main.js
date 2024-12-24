@@ -327,11 +327,8 @@
 		
 		urlSubstr = decodeURIComponent(urlSubstr);
 		
-		//var track_url;
-		
-		if(page_type == "player") //never called in player mode
+		if(page_type == "player")
 		{
-			console.log()
 			document.getElementById("titlespan").innerHTML = oembedResult.title;
 			
 			if(oembedResult.thumbnail_url.includes("placeholder"))
@@ -341,18 +338,14 @@
 			}
 			else
 				document.getElementById("icon").src = oembedResult.thumbnail_url;
-			
-			
-			//track_url = next_track;
 		}
-		//else
-		//{
-			urlSubstr = decodeURIComponent(urlSubstr);
-			var track_obj = loaded_track_uri_map.get(id);
-			track_obj.uri = urlSubstr;
-			loaded_track_uri_map.set(id, track_obj);
-			console.log("track.obj.uri=" + urlSubstr);
-		//}
+		
+		urlSubstr = decodeURIComponent(urlSubstr);
+		var track_obj = loaded_track_uri_map.get(id);
+		track_obj.uri = urlSubstr;
+		loaded_track_uri_map.set(id, track_obj);
+		console.log("track.obj.uri=" + urlSubstr);
+		
 		
 		SC_LoadTrack(id, urlSubstr);
 	}
@@ -603,6 +596,7 @@
 			
 			var track = loaded_track_uri_map.get(iframe.id).src_url;
 			var ytid = track.split("/").slice(-1);
+			
 			console.log("youtube track url = " + track + ", ID = " + ytid);
 			var newYTPlayer = new YT.Player(iframe.id,
 			{
@@ -619,7 +613,20 @@
 					"onStateChange": YTPlayerStateChange
 				}
 			});
+			
+			//if(page_type == "player")
+			//{
+				document.getElementById("titlespan").innerHTML = "";
+				document.getElementById("icon").src = "https://img.youtube.com/vi/" + ytid + "/0.jpg"
+				MakeXHR(ytid, "https://www.youtube.com/get_video_info?video_id=" + ytid, YT_GetVideoInfo_Callback, "", "GET");
+			//}
+		
 		});
+	}
+	
+	function YT_GetVideoInfo_Callback(handle, body)
+	{
+		console.log("YT_GetVideoInfo_Callback for " + handle + " = " + body);
 	}
 	
 	//var ytplayer;
