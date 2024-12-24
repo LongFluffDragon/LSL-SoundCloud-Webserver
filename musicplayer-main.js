@@ -118,7 +118,7 @@
 		{
 			SC_CreateIframe(if_id, add_to);
 		}
-		else if(uri.includes("youtube"))
+		else if(track_url.includes("youtube"))
 		{
 			YT_CreateIframe(if_id, add_to);
 		}
