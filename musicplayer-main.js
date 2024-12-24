@@ -604,7 +604,7 @@
 			console.log("Track is already in loaded_track_uri_map");
 		}
 		
-			setTimeout(function() {  
+			
 			console.log("youtube iframe ready");
 			
 			//isThisThingOn.innerHTML = "YIKES!";
@@ -615,7 +615,7 @@
 			var track = loaded_track_uri_map.get(iframe.id).src_url;
 			var ytid = track.split("/").slice(-1);
 			console.log("youtube track url = " + track + ", ID = " + ytid);
-			var newYTPlayer = new YT.Player(iframe.id,
+			var newYTPlayer = new YT.Player("HECK",
 			{
 				height: '390',
 				width: '640',
@@ -630,8 +630,6 @@
 					"onStateChange": YTPlayerStateChange
 				}
 			});
-			
-			}, 10000);
 		
 	}
 	
