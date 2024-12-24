@@ -607,7 +607,7 @@
 		
 			console.log("youtube iframe ready");
 			
-			var isThisThingOn = document.getElementByID(iframe.id);
+			var isThisThingOn = document.getElementById(iframe.id);
 			
 			console.log("ithing: " + isThisThingOn);
 			
