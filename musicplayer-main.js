@@ -614,12 +614,13 @@
 				}
 			});
 			
-			//if(page_type == "player")
-			//{
+			MakeXHR(ytid, "https://www.youtube.com/get_video_info?video_id=" + ytid, YT_GetVideoInfo_Callback, "", "GET");
+			if(page_type == "player")
+			{
 				document.getElementById("titlespan").innerHTML = "";
 				document.getElementById("icon").src = "https://img.youtube.com/vi/" + ytid + "/0.jpg"
-				MakeXHR(ytid, "https://www.youtube.com/get_video_info?video_id=" + ytid, YT_GetVideoInfo_Callback, "", "GET");
-			//}
+				
+			}
 		
 		});
 	}
