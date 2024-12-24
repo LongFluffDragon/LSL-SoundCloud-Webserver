@@ -612,7 +612,7 @@
 			console.log("youtube track url = " + track + ", ID = " + ytid);
 			var newYTPlayer = new YT.Player(iframe.id,
 			{
-				videoId: ytid,
+				videoId: "M7lc1UVf-VE",
 				playerVars: { rel: '0' },
 				events:
 				{
