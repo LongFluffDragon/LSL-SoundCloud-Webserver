@@ -614,11 +614,13 @@
 				}
 			});
 			
-			console.dir(newYTPlayer);
+			setTimeout(function() {
+				console.dir(newYTPlayer);
 			
-			iframe = document.getElementById(id);
+				iframe = document.getElementById(id);
 			
-			console.log("TITLE="+iframe.title);
+				console.log("TITLE="+iframe.title);
+			}, 2000);
 			
 			if(page_type == "player")
 			{
