@@ -562,10 +562,10 @@
 	  
 	function YT_CreateIframe(id, insert_to)
 	{
+		// this is a div that magically turns into an iframe for reason we wont think about too carefully
+		// using an iframe from the start causes youtube to have a screaming meltdown for some reason we also wont think about
 		var ihtml = document.getElementById("TMP_yt_notframe").cloneNode(true).innerHTML;
 		ihtml = ReplaceAll(ihtml, "%id%", id);
-		//ihtml = ReplaceAll(ihtml, "%video%", "M7lc1UVf-VE");
-		//ihtml = ReplaceAll(ihtml, "%origin%", lslServer);
 		
 		console.log("creating youtube iframe from template");
 		document.getElementById(insert_to).insertAdjacentHTML("beforeend",ihtml);
@@ -614,7 +614,8 @@
 				}
 			});
 			
-			MakeXHR(ytid, "https://www.youtube.com/get_video_info?video_id=" + ytid + "&amp;eurl=https%3A%2F%2Fyoutube.googleapis.com%2Fv%2Fonz2k4zoLjQ&html5=1&c=TVHTML5&cver=6.20180913", YT_GetVideoInfo_Callback, "", "GET");
+			console.log("TITLE="+iframe.title);
+			
 			if(page_type == "player")
 			{
 				document.getElementById("titlespan").innerHTML = "";
