@@ -608,20 +608,32 @@
 		
 		jQuery(document).ready(function()
 		{
-			console.log("youtube player ready");
+			console.log("youtube iframe ready");
 			var track = loaded_track_uri_map.get(iframe.id).src_url;
-			console.log("youtube track url = " + track);
+			var ytid = track.split("/").slice(-1);
+			console.log("youtube track url = " + track + ", ID = " + ytid);
 			var newYTPlayer = new YT.Player(iframe.id,
 			{
-				videoId: 'RK1K2bCg4J8',
+				videoId: ytid,
 				//playerVars: { rel: '0' },
 				events:
 				{
-					"onReady": playerInitialize,
-					"onStateChange": playerStateChange
+					"onReady": YTPlayerReady,
+					"onStateChange": YTPlayerStateChange
 				}
 			});
 		});
+	}
+	
+	function YTPlayerReady(event)
+	{
+		console.log("YTPlayerReady: starting video");
+		event.target.playVideo();
+	}
+	
+	function YTPlayerStateChange(event)
+	{
+		
 	}
 	  /*
     var ytplayer;
