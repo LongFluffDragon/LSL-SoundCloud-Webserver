@@ -614,6 +614,10 @@
 				}
 			});
 			
+			console.dir(newYTPlayer);
+			
+			iframe = document.getElementById(id);
+			
 			console.log("TITLE="+iframe.title);
 			
 			if(page_type == "player")
