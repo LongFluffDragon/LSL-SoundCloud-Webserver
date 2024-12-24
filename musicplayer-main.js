@@ -635,8 +635,9 @@
 	function YTPlayerReady(iframe_id, event)
 	{
 		console.log("YTPlayerReady: starting video " + iframe_id);
-		var iframe = document.getElementById(iframe_id);
-		console.log("TITLE="+iframe.title);
+		//var iframe = document.getElementById(iframe_id);
+		console.dir(event.target);
+		console.log("TITLE="+event.target.videoTitle);
 		//event.target.playVideo();
 	}
 	
