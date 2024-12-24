@@ -566,30 +566,60 @@
 	//
 	// youtube widget related
 	//
-	/*
-	var tag = document.createElement('script');
-
-    tag.src = "https://www.youtube.com/iframe_api";
-    var firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
-
-      // 3. This function creates an <iframe> (and YouTube player)
-      //    after the API code downloads.
-	  */
 	  
 	function YT_CreateIframe(id, insert_to)
 	{
-		var ihtml = document.getElementById("TMP_yt_iframe").cloneNode(true).innerHTML;
+		var ihtml = document.getElementById("TMP_yt_notframe").cloneNode(true).innerHTML;
 		ihtml = ReplaceAll(ihtml, "%id%", id);
 		//ihtml = ReplaceAll(ihtml, "%video%", "M7lc1UVf-VE");
 		//ihtml = ReplaceAll(ihtml, "%origin%", lslServer);
 		
 		console.log("creating youtube iframe from template");
 		document.getElementById(insert_to).insertAdjacentHTML("beforeend",ihtml);
+		
+		if(loaded_track_uri_map.has(iframe.id) == false)
+		{
+			var track_obj = {src_url: "", uri: next_track};
+			loaded_track_uri_map.set(iframe.id, track_obj);
+		}
+		else
+		{
+			console.log("Track is already in loaded_track_uri_map");
+		}
+		
+		jQuery(document).ready(function()
+		{
+			
+			console.log("youtube not-iframe ready");
+			
+			//isThisThingOn.innerHTML = "YIKES!";
+			
+			//var newSCWidget = SC.Widget(iframe.id);
+			//return;
+			
+			var track = loaded_track_uri_map.get(iframe.id).src_url;
+			var ytid = track.split("/").slice(-1);
+			console.log("youtube track url = " + track + ", ID = " + ytid);
+			var newYTPlayer = new YT.Player(iframe.id,
+			{
+				height: '390',
+				width: '640',
+				videoId: ytid,
+				playerVars:
+				{
+					'playsinline': 1
+				},
+				events:
+				{
+					"onReady": YTPlayerReady,
+					"onStateChange": YTPlayerStateChange
+				}
+			});
+		}
 	}
 	
 	//var ytplayer;
-	
+	/*
 	function YT_IframeTemplate_onload(iframe)
 	{
 		//console.dir(iframe);
@@ -631,7 +661,7 @@
 				}
 			});
 		
-	}
+	}*/
 	
 	function YTPlayerReady(event)
 	{
