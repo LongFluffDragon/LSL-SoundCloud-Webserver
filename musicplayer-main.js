@@ -577,19 +577,23 @@
 		console.log("creating youtube iframe from template");
 		document.getElementById(insert_to).insertAdjacentHTML("beforeend",ihtml);
 		
-		if(loaded_track_uri_map.has(iframe.id) == false)
-		{
-			var track_obj = {src_url: "", uri: next_track};
-			loaded_track_uri_map.set(iframe.id, track_obj);
-		}
-		else
-		{
-			console.log("Track is already in loaded_track_uri_map");
-		}
+		
 		
 		jQuery(document).ready(function()
 		{
-			
+			var iframe = document.getElementById(id);
+			if(iframe == null)
+				return;
+			if(loaded_track_uri_map.has(id) == false)
+			{
+				var track_obj = {src_url: "", uri: next_track};
+				loaded_track_uri_map.set(iframe.id, track_obj);
+			}
+			else
+			{
+				console.log("Track is already in loaded_track_uri_map");
+			}
+		
 			console.log("youtube not-iframe ready");
 			
 			//isThisThingOn.innerHTML = "YIKES!";
