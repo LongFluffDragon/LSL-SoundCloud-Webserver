@@ -615,7 +615,7 @@
 					"onStateChange": YTPlayerStateChange
 				}
 			});
-		}
+		});
 	}
 	
 	//var ytplayer;
