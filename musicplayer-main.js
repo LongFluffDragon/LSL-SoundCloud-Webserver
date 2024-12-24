@@ -607,7 +607,11 @@
 		
 			console.log("youtube iframe ready");
 			
-			var newSCWidget = SC.Widget(iframe.id);
+			var isThisThingOn = document.getElementByID(iframe.id);
+			
+			console.log("ithing: " + isThisThingOn);
+			
+			//var newSCWidget = SC.Widget(iframe.id);
 			return;
 			
 			var track = loaded_track_uri_map.get(iframe.id).src_url;
