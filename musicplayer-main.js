@@ -609,7 +609,9 @@
 			
 			var isThisThingOn = document.getElementById(iframe.id);
 			
-			console.log("ithing: " + isThisThingOn);
+			console.dir(isThisThingOn);
+			
+			isThisThingOn.innerHTML = "YIKES!";
 			
 			//var newSCWidget = SC.Widget(iframe.id);
 			return;
