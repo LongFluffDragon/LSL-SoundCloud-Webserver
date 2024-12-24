@@ -592,7 +592,7 @@
 	
 	function YT_IframeTemplate_onload(iframe)
 	{
-		console.dir(iframe);
+		//console.dir(iframe);
 		console.log("youtube iframe loaded: " + iframe.id);
 		if(loaded_track_uri_map.has(iframe.id) == false)
 		{
@@ -604,17 +604,13 @@
 			console.log("Track is already in loaded_track_uri_map");
 		}
 		
-		
+			setTimeout(function() {  
 			console.log("youtube iframe ready");
 			
-			var isThisThingOn = document.getElementById(iframe.id);
-			
-			console.dir(isThisThingOn);
-			
-			isThisThingOn.innerHTML = "YIKES!";
+			//isThisThingOn.innerHTML = "YIKES!";
 			
 			//var newSCWidget = SC.Widget(iframe.id);
-			return;
+			//return;
 			
 			var track = loaded_track_uri_map.get(iframe.id).src_url;
 			var ytid = track.split("/").slice(-1);
@@ -634,6 +630,8 @@
 					"onStateChange": YTPlayerStateChange
 				}
 			});
+			
+			}, 1000);
 		
 	}
 	
