@@ -626,7 +626,7 @@
 	function YTPlayerReady(event)
 	{
 		console.log("YTPlayerReady: starting video");
-		event.target.playVideo();
+		//event.target.playVideo();
 	}
 	
 	function YTPlayerStateChange(event)
