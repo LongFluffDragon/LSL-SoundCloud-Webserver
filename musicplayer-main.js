@@ -11,7 +11,7 @@
 	
 	var save_track_index = 0;
 	
-	var next_sc_track = "https://soundcloud.com/theguitahheroe/sky-peak-forest"; // next soundcloud track the player should load
+	var next_track = ""; // next soundcloud track the player should load
 	var next_track_start_time;
 	var main_sc_player_widget;
 	
@@ -102,18 +102,26 @@
 		var track_id = Math.floor(Math.random()*2147483647).toString(16);
 		var if_id = SC_PRV_ID_PFX + track_id;
 		
-		// create the box for the preview
+		// create the preview panel
 		var ihtml = document.getElementById("TMP_sc_track_preview").cloneNode(true).innerHTML;
 		ihtml = ReplaceAll(ihtml, "%title%", track_url);
 		ihtml = ReplaceAll(ihtml, "%track%", track_id);
 		document.getElementById(SC_PREVIEW_SCROLLBOX).insertAdjacentHTML("beforeend", ihtml);
 		
-		// create the soundcloud player
+		// record the track source and uri object
 		var track_obj = {src_url:track_url, uri:""};
 		loaded_track_uri_map.set(if_id, track_obj);
 		var add_to = "preview_iframe_" + track_id;
 		console.log("Added '" + if_id + "' to loaded_track_uri_map, creating iframe in " + add_to);
-		SC_CreateIframe(if_id, add_to);
+		
+		if(track_url.includes("api.soundcloud.com"))
+		{
+			SC_CreateIframe(if_id, add_to);
+		}
+		else if(uri.includes("youtube"))
+		{
+			YT_CreateIframe(if_id, add_to);
+		}
 	}
 	
 	function Btn_RemoveTrackID(track)
@@ -211,14 +219,16 @@
 		var uri = data[0];
 		next_track_start_time = Number(data[1]);
 		
-		/*
 		if(uri.includes("api.soundcloud.com"))
 		{
-			next_sc_track = uri;
+			next_track = uri;
 			SC_CreateIframe("client_player_sc_iframe", "client_player_box");
 		}
-		*/
-		YT_CreateIframe("client_player_yt_iframe", "client_player_box");
+		else if(uri.includes("youtube"))
+		{
+			next_track = uri;
+			YT_CreateIframe("client_player_yt_iframe", "client_player_box");
+		}
 	}
 	
 	//
@@ -238,7 +248,7 @@
 		console.log("iframe loaded: " + iframe.id);
 		if(loaded_track_uri_map.has(iframe.id) == false)
 		{
-			var track_obj = {src_url: "", uri: next_sc_track};
+			var track_obj = {src_url: "", uri: next_track};
 			loaded_track_uri_map.set(iframe.id, track_obj);
 		}
 		else
@@ -280,9 +290,9 @@
 		console.log(" !! SC_Widget_Event_READY !! ");
 		if(page_type == "player")
 		{
-			console.log("player soundcloud widget " + iframe_id + " ready, playing next track " + next_sc_track);
-			//SC_LoadTrack(iframe_id, next_sc_track);
-			SC_GetOembedURL(iframe_id, next_sc_track);
+			console.log("player soundcloud widget " + iframe_id + " ready, playing next track " + next_track);
+			//SC_LoadTrack(iframe_id, next_track);
+			SC_GetOembedURL(iframe_id, next_track);
 			//MakeXHR("", lslServer+"/save", LSL_GetNextTrack_Callback, track, "GET");
 		}
 		else
@@ -333,7 +343,7 @@
 				document.getElementById("icon").src = oembedResult.thumbnail_url;
 			
 			
-			//track_url = next_sc_track;
+			//track_url = next_track;
 		}
 		//else
 		//{
@@ -571,14 +581,14 @@
 	{
 		var ihtml = document.getElementById("TMP_yt_iframe").cloneNode(true).innerHTML;
 		ihtml = ReplaceAll(ihtml, "%id%", id);
-		ihtml = ReplaceAll(ihtml, "%video%", "M7lc1UVf-VE");
-		ihtml = ReplaceAll(ihtml, "%origin%", lslServer);
+		//ihtml = ReplaceAll(ihtml, "%video%", "M7lc1UVf-VE");
+		//ihtml = ReplaceAll(ihtml, "%origin%", lslServer);
 		
 		console.log("creating youtube iframe from template");
 		document.getElementById(insert_to).insertAdjacentHTML("beforeend",ihtml);
 	}
 	
-	var ytplayer;
+	//var ytplayer;
 	
 	function YT_IframeTemplate_onload(iframe)
 	{
@@ -588,7 +598,7 @@
 		console.log("youtube iframe loaded: " + iframe.id);
 		if(loaded_track_uri_map.has(iframe.id) == false)
 		{
-			var track_obj = {src_url: "", uri: next_sc_track};
+			var track_obj = {src_url: "", uri: next_track};
 			loaded_track_uri_map.set(iframe.id, track_obj);
 		}
 		else
@@ -599,7 +609,18 @@
 		jQuery(document).ready(function()
 		{
 			console.log("youtube player ready");
-			
+			var track = loaded_track_uri_map.get(iframe.id).src_url;
+			console.log("youtube track url = " + track);
+			var newYTPlayer = new YT.Player(iframe.id,
+			{
+				videoId: 'RK1K2bCg4J8',
+				//playerVars: { rel: '0' },
+				events:
+				{
+					"onReady": playerInitialize,
+					"onStateChange": playerStateChange
+				}
+			});
 		});
 	}
 	  /*
