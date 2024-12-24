@@ -592,8 +592,6 @@
 	
 	function YT_IframeTemplate_onload(iframe)
 	{
-		console.log(iframe);
-		console.log(JSON.stringify(iframe));
 		console.dir(iframe);
 		console.log("youtube iframe loaded: " + iframe.id);
 		if(loaded_track_uri_map.has(iframe.id) == false)
@@ -615,7 +613,7 @@
 			var newYTPlayer = new YT.Player(iframe.id,
 			{
 				videoId: ytid,
-				//playerVars: { rel: '0' },
+				playerVars: { rel: '0' },
 				events:
 				{
 					"onReady": YTPlayerReady,
