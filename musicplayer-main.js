@@ -615,7 +615,7 @@
 			var track = loaded_track_uri_map.get(iframe.id).src_url;
 			var ytid = track.split("/").slice(-1);
 			console.log("youtube track url = " + track + ", ID = " + ytid);
-			var newYTPlayer = new YT.Player("HECK",
+			var newYTPlayer = new YT.Player("main_body",
 			{
 				height: '390',
 				width: '640',
