@@ -643,17 +643,29 @@
 		{
 			document.getElementById("titlespan").innerHTML = event.target.videoTitle;
 			document.getElementById("icon").src = "https://img.youtube.com/vi/" + ytid + "/0.jpg"
+			
+			var time_dif = next_track_start_time - unixTime();
+			console.log("YTPlayerReady: Track time_dif = " + time_dif);
+			
+			if(time_dif < 1)
+			{
+				event.target.seekTo(0, true);
+				event.target.playVideo();
+			}
+			else
+			{
+				setTimeout(function() { event.target.playVideo(); }, time_dif * 1000);
+			}
 		}
 		else
 		{
 			var track_obj = loaded_track_uri_map.get(event.target.g.id);
-			console.dir(track_obj);
+			//console.dir(track_obj);
 			track_obj.title = event.target.videoTitle;
 			track_obj.duration = event.target.getDuration();
 			loaded_track_uri_map.set(event.target.g.id, track_obj);
 			console.dir(track_obj);
 		}
-		//event.target.playVideo();
 	}
 	
 	function YTPlayerStateChange(event)
