@@ -599,7 +599,9 @@
 				track_obj = loaded_track_uri_map.get(id);
 				track = track_obj.src_url;
 				console.log("src_url = "+track);
-				ytid = getYoutubeId(track);
+				ytid = getYoutubeId(track); // sus
+				if(ytid == null)
+					ytid = track.split("/").slice(-1);
 				track_obj.uri = "youtube.com/embed/" + ytid;
 				loaded_track_uri_map.set(id, track_obj);
 				console.log("Track is already in loaded_track_uri_map");
