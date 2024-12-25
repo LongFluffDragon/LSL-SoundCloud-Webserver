@@ -625,8 +625,9 @@
 	function YTPlayerReady(event)
 	{
 		console.dir(event.target);
-		console.dir("src = " + event.target.g().src);
-		console.dir("iframe id = " + event.target.g().id);
+		console.log("src = " + event.target.src);
+		console.log("iframe id = " + event.target.id);
+		console.log("iframe id = " + event.target.g.id);
 		
 		if(page_type == "player")
 		{
