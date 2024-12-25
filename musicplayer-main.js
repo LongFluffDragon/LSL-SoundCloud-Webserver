@@ -590,15 +590,16 @@
 			{
 				track_obj = loaded_track_uri_map.get(id);
 				track = track_obj.src_url;
+				console.log("src_url = "+track);
 				ytid = getYoutubeId(track);
 				track_obj.uri = "youtube.com/embed/" + ytid;
 				loaded_track_uri_map.set(id, track_obj);
 				console.log("Track is already in loaded_track_uri_map");
 			}
 		
+			console.log("track id = " + ytid);
 			console.log("youtube not-iframe ready");
 			
-			console.log("track id = " + ytid);
 			
 			//var ytid = track.split("/").slice(-1);
 			
