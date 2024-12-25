@@ -5,7 +5,7 @@
 	
 	*/
 
-	var lslServer; // this exists, somewhere. It may even be a cloud of some kind!
+	var lslServer = window.location.href;
 	var loaded_track_uri_map = new Map(); // IDs to source url + embed uri pairs
 	var id_scplayer_map = new Map(); // IDs to soundcloud iframe objects
 	
@@ -114,11 +114,11 @@
 		var add_to = "preview_iframe_" + track_id;
 		console.log("Added '" + if_id + "' to loaded_track_uri_map, creating iframe in " + add_to);
 		
-		if(track_url.includes("api.soundcloud.com"))
+		if(track_url.includes("soundcloud"))
 		{
 			SC_CreateIframe(if_id, add_to);
 		}
-		else if(track_url.includes("youtube"))
+		else if(track_url.includes("youtu"))
 		{
 			YT_CreateIframe(if_id, add_to);
 		}
@@ -219,12 +219,12 @@
 		var uri = data[0];
 		next_track_start_time = Number(data[1]);
 		
-		if(uri.includes("api.soundcloud.com"))
+		if(uri.includes("soundcloud"))
 		{
 			next_track = uri;
 			SC_CreateIframe("client_player_sc_iframe", "client_player_box");
 		}
-		else if(uri.includes("youtube"))
+		else if(uri.includes("youtu"))
 		{
 			next_track = uri;
 			YT_CreateIframe("client_player_yt_iframe", "client_player_box");
@@ -345,7 +345,6 @@
 		track_obj.uri = urlSubstr;
 		loaded_track_uri_map.set(id, track_obj);
 		console.log("track.obj.uri=" + urlSubstr);
-		
 		
 		SC_LoadTrack(id, urlSubstr);
 	}
@@ -570,32 +569,38 @@
 		console.log("creating youtube iframe from template");
 		document.getElementById(insert_to).insertAdjacentHTML("beforeend",ihtml);
 		
-		
-		
 		jQuery(document).ready(function()
 		{
 			var iframe = document.getElementById(id);
 			if(iframe == null)
 				return;
+			
+			var ytid;
+			var track;
+			var track_obj;
+			
 			if(loaded_track_uri_map.has(id) == false)
 			{
-				var track_obj = {src_url: "", uri: next_track};
+				track = next_track;
+				track_obj = {src_url: "", uri: track};
 				loaded_track_uri_map.set(iframe.id, track_obj);
+				ytid = getYoutubeId(track);
 			}
 			else
 			{
+				track_obj = loaded_track_uri_map.get(id);
+				track = track_obj.src_url;
+				ytid = getYoutubeId(track);
+				track_obj.uri = "youtube.com/embed/" + ytid;
+				loaded_track_uri_map.set(id, track_obj);
 				console.log("Track is already in loaded_track_uri_map");
 			}
 		
 			console.log("youtube not-iframe ready");
 			
-			//isThisThingOn.innerHTML = "YIKES!";
+			console.log("track id = " + ytid);
 			
-			//var newSCWidget = SC.Widget(iframe.id);
-			//return;
-			
-			var track = loaded_track_uri_map.get(iframe.id).src_url;
-			var ytid = track.split("/").slice(-1);
+			//var ytid = track.split("/").slice(-1);
 			
 			console.log("youtube track url = " + track + ", ID = " + ytid);
 			var newYTPlayer = new YT.Player(iframe.id,
@@ -613,31 +618,18 @@
 					//"onStateChange": YTPlayerStateChange
 				}
 			});
-			/*
-			setTimeout(function() {
-				console.dir(newYTPlayer);
-			
-				iframe = document.getElementById(id);
-			
-				console.log("TITLE="+iframe.title);
-			}, 2000);
-			*/
-			if(page_type == "player")
-			{
-				document.getElementById("titlespan").innerHTML = "";
-				document.getElementById("icon").src = "https://img.youtube.com/vi/" + ytid + "/0.jpg"
-				
-			}
-		
 		});
 	}
 	
 	function YTPlayerReady(event)
 	{
-		//console.log("YTPlayerReady: starting video " + iframe_id);
-		//var iframe = document.getElementById(iframe_id);
 		console.dir(event.target);
-		console.log("TITLE="+event.target.videoTitle);
+		
+		if(page_type == "player")
+		{
+			document.getElementById("titlespan").innerHTML = event.target.videoTitle;
+			document.getElementById("icon").src = "https://img.youtube.com/vi/" + ytid + "/0.jpg"
+		}
 		//event.target.playVideo();
 	}
 	
@@ -645,56 +637,17 @@
 	{
 		
 	}
-	  /*
-    var ytplayer;
-    function onYouTubeIframeAPIReady()
-	{
-		console.log("onYouTubeIframeAPIReady");
-		ytplayer = new YT.Player('player',
-		{
-			height: '390',
-			width: '640',
-			videoId: 'M7lc1UVf-VE',
-			playerVars:
-			{
-				'playsinline': 1
-			},
-			events:
-			{
-				'onReady': onYTPlayerReady,
-				//'onStateChange': onPlayerStateChange
-			}
-		});
-    }
-
-      // 4. The API will call this function when the video player is ready.
-    function onYTPlayerReady(event)
-	{
-		console.log("onYTPlayerReady");
-		event.target.playVideo();
-    }
-
-      // 5. The API calls this function when the player's state changes.
-      //    The function indicates that when playing a video (state=1),
-      //    the player should play for six seconds and then stop.
-    
-	/*
-    function onPlayerStateChange(event)
-	{
-        if (event.data == YT.PlayerState.PLAYING && !done)
-		{
-			setTimeout(stopVideo, 6000);
-			done = true;
-        }
-    }
 	
-    function stopVideo()
+	function getYoutubeId(url)
 	{
-		ytplayer.stopVideo();
-    }*/
+		const regExp = "^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*";
+		const match = url.match(regExp);
+
+		return (match && match[2].length === 11) ? match[2] : null;
+	}
 	
 	//
-	// general utility functions
+	// General utility
 	//
 	
 	function unixTime()
@@ -702,7 +655,7 @@
 		return Math.floor(Date.now() / 1000);
 	}
 	
-	
+	/*
 	document.onclick = function(event)
 	{
 		if(page_type != "player")
@@ -712,15 +665,9 @@
 		//var target = 'target' in event? event.target : event.srcElement;
 		
 		//newSCWidget.play();
-	}
+	}*/
 	
-	console.log("var page_type = " + page_type);
-	
-	lslServer = window.location.href;
+	//lslServer = window.location.href;
 
 	InitPage();
-	
-	//SC_CreateIframe("iframebox");
-	
-	//SC_GetOembedURL("https://soundcloud.com/arenanet/gw2-heart-of-thorns-tarir-the-forgotten-city");
 	
