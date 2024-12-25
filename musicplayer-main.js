@@ -109,7 +109,7 @@
 		document.getElementById(SC_PREVIEW_SCROLLBOX).insertAdjacentHTML("beforeend", ihtml);
 		
 		// record the track source and uri object
-		var track_obj = {src_url:track_url, uri:""};
+		var track_obj = {src_url:track_url, uri:"", title:"unknown", duration:-1};
 		loaded_track_uri_map.set(if_id, track_obj);
 		var add_to = "preview_iframe_" + track_id;
 		console.log("Added '" + if_id + "' to loaded_track_uri_map, creating iframe in " + add_to);
@@ -603,7 +603,7 @@
 			
 			//var ytid = track.split("/").slice(-1);
 			
-			console.log("youtube track url = " + track + ", ID = " + ytid);
+			console.log("youtube track url = " + track_obj.uri);
 			var newYTPlayer = new YT.Player(iframe.id,
 			{
 				height: '390',
@@ -625,11 +625,17 @@
 	function YTPlayerReady(event)
 	{
 		console.dir(event.target);
+		console.dir("src = " + event.target.g().src);
+		console.dir("iframe id = " + event.target.g().id);
 		
 		if(page_type == "player")
 		{
 			document.getElementById("titlespan").innerHTML = event.target.videoTitle;
 			document.getElementById("icon").src = "https://img.youtube.com/vi/" + ytid + "/0.jpg"
+		}
+		else
+		{
+			loaded_track_uri_map.set(key, value);
 		}
 		//event.target.playVideo();
 	}
