@@ -98,6 +98,7 @@
 	
 	function AddTrackURL(track_url)
 	{
+		track_url = ReplaceAll(track_url, "&", "&amp;"); // we hates it, precious
 		console.log("AddTrackURL " + track_url);
 		var track_id = Math.floor(Math.random()*2147483647).toString(16);
 		var if_id = SC_PRV_ID_PFX + track_id;
@@ -107,6 +108,8 @@
 		ihtml = ReplaceAll(ihtml, "%title%", track_url);
 		ihtml = ReplaceAll(ihtml, "%track%", track_id);
 		document.getElementById(SC_PREVIEW_SCROLLBOX).insertAdjacentHTML("beforeend", ihtml);
+		
+		// TODO: URL causes crash, fucking ampersands https://www.youtube.com/watch?v=smJrVboIOjA&list=PLhPt7n-ALrSAR_jze4rKBbRNxo0rQ467J&index=78
 		
 		// record the track source and uri object
 		var track_obj = {};// = {src_url:track_url, uri:"", title:"unknown", duration:-1};
