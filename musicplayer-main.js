@@ -109,7 +109,7 @@
 		document.getElementById(SC_PREVIEW_SCROLLBOX).insertAdjacentHTML("beforeend", ihtml);
 		
 		// record the track source and uri object
-		var track_obj;// = {src_url:track_url, uri:"", title:"unknown", duration:-1};
+		var track_obj = {};// = {src_url:track_url, uri:"", title:"unknown", duration:-1};
 		track_obj.src_url = track_url;
 		track_obj.uri = "";
 		track_obj.title = "unknown";
@@ -252,7 +252,7 @@
 		console.log("iframe loaded: " + iframe.id);
 		if(loaded_track_uri_map.has(iframe.id) == false)
 		{
-			var track_obj;// = {src_url: "", uri: next_track};
+			var track_obj = {};// = {src_url: "", uri: next_track};
 			track_obj.uri = next_track;
 			track_obj.src_url = "";
 			loaded_track_uri_map.set(iframe.id, track_obj);
@@ -588,7 +588,9 @@
 			if(loaded_track_uri_map.has(id) == false)
 			{
 				track = next_track;
-				track_obj = {src_url: "", uri: track};
+				track_obj = {};//{src_url: "", uri: track};
+				track_obj.uri = track;
+				track_obj.src_url = "";
 				loaded_track_uri_map.set(iframe.id, track_obj);
 				ytid = getYoutubeId(track);
 			}
