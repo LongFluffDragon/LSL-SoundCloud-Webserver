@@ -625,9 +625,10 @@
 	function YTPlayerReady(event)
 	{
 		console.dir(event.target);
-		console.log("src = " + event.target.src);
-		console.log("iframe id = " + event.target.id);
+		console.log("src = " + event.target.g.src);
 		console.log("iframe id = " + event.target.g.id);
+		
+		var ytid = getYoutubeId(event.target.g.src);
 		
 		if(page_type == "player")
 		{
@@ -636,7 +637,9 @@
 		}
 		else
 		{
-			loaded_track_uri_map.set(key, value);
+			var track_obj = loaded_track_uri_map.get(event.target.g.id);
+			console.dir(obj);
+			//loaded_track_uri_map.set(key, value);
 		}
 		//event.target.playVideo();
 	}
