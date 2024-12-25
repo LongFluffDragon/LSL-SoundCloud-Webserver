@@ -109,7 +109,11 @@
 		document.getElementById(SC_PREVIEW_SCROLLBOX).insertAdjacentHTML("beforeend", ihtml);
 		
 		// record the track source and uri object
-		var track_obj = {src_url:track_url, uri:"", title:"unknown", duration:-1};
+		var track_obj;// = {src_url:track_url, uri:"", title:"unknown", duration:-1};
+		track_obj.src_url = track_url;
+		track_obj.uri = "";
+		track_obj.title = "unknown";
+		track_obj.duration = -1;
 		loaded_track_uri_map.set(if_id, track_obj);
 		var add_to = "preview_iframe_" + track_id;
 		console.log("Added '" + if_id + "' to loaded_track_uri_map, creating iframe in " + add_to);
@@ -248,7 +252,9 @@
 		console.log("iframe loaded: " + iframe.id);
 		if(loaded_track_uri_map.has(iframe.id) == false)
 		{
-			var track_obj = {src_url: "", uri: next_track};
+			var track_obj;// = {src_url: "", uri: next_track};
+			track_obj.uri = next_track;
+			track_obj.src_url = "";
 			loaded_track_uri_map.set(iframe.id, track_obj);
 		}
 		else
@@ -642,7 +648,7 @@
 			console.dir(track_obj);
 			track_obj.title = event.target.videoTitle;
 			track_obj.duration = event.target.getDuration();
-			loaded_track_uri_map.set(key, value);
+			loaded_track_uri_map.set(event.target.g.id, track_obj);
 			console.dir(track_obj);
 		}
 		//event.target.playVideo();
