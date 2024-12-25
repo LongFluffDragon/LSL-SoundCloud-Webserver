@@ -649,7 +649,7 @@
 			
 			if(time_dif < 1)
 			{
-				event.target.seekTo(0, true);
+				event.target.seekTo(0 - time_dif, true);
 				event.target.playVideo();
 			}
 			else
