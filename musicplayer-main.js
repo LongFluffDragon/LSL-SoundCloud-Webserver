@@ -216,7 +216,11 @@
 	
 	function LSL_GetNextTrack()
 	{
-		MakeXHR("", lslServer+"/next-track", LSL_GetNextTrack_Callback, "", "GET");
+		document.getElementById("client_player_box").innerHTML = "";
+		jQuery(document).ready(function()
+		{
+			MakeXHR("", lslServer+"/next-track", LSL_GetNextTrack_Callback, "", "GET");
+		}
 	}
 	
 	function LSL_GetNextTrack_Callback(handle, body)
@@ -225,8 +229,6 @@
 		var data = body.split("|");
 		var uri = data[0];
 		next_track_start_time = Number(data[1]);
-		
-		document.getElementById("client_player_box").innerHTML = "";
 		
 		if(uri.includes("soundcloud"))
 		{
