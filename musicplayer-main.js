@@ -220,7 +220,7 @@
 		jQuery(document).ready(function()
 		{
 			MakeXHR("", lslServer+"/next-track", LSL_GetNextTrack_Callback, "", "GET");
-		}
+		});
 	}
 	
 	function LSL_GetNextTrack_Callback(handle, body)
