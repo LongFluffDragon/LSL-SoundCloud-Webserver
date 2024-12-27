@@ -226,6 +226,8 @@
 		var uri = data[0];
 		next_track_start_time = Number(data[1]);
 		
+		document.getElementById("client_player_box").innerHTML = "";
+		
 		if(uri.includes("soundcloud"))
 		{
 			next_track = uri;
@@ -406,6 +408,7 @@
 		player.load(url, options);
 		//setTimeout(function() { SC_Widget_OnPlay_Callback(player); }, 1000);
 		player.bind(SC.Widget.Events.PLAY_PROGRESS, SC_Widget_OnStartPlay_Callback);
+		player.bind(SC.Widget.Events.FINISH, SC_Widget_OnFinish_Callback);
 		main_sc_player_widget = player;
 		
 	}
@@ -432,6 +435,12 @@
 	{
 		console.log("StartPlayingTrack");
 		player.play();
+	}
+	
+	function SC_Widget_OnFinish_Callback()
+	{
+		console.log("Soundcloud track finished playing, requesting next in 1s");
+		setTimeout( function () { LSL_GetNextTrack() }, 1000 );
 	}
 	
 	function GetMissingTrackData()
@@ -628,8 +637,8 @@
 				},
 				events:
 				{
-					"onReady": YTPlayerReady//,
-					//"onStateChange": YTPlayerStateChange
+					"onReady": YTPlayerReady,
+					"onStateChange": YTPlayerStateChange
 				}
 			});
 		});
@@ -675,7 +684,11 @@
 	
 	function YTPlayerStateChange(event)
 	{
-		
+		if(event.data == YT.PlayerState.ENDED)
+		{
+			console.log("Youtube track finished playing, requesting next in 1s");
+			setTimeout( function () { LSL_GetNextTrack() }, 1000 );
+		}
 	}
 	
 	function getYoutubeId(url)
