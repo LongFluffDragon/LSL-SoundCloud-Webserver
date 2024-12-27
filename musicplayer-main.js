@@ -216,6 +216,7 @@
 	
 	function LSL_GetNextTrack()
 	{
+		loaded_track_uri_map.clear();
 		document.getElementById("client_player_box").innerHTML = "";
 		jQuery(document).ready(function()
 		{
