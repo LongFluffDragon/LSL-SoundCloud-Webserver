@@ -217,6 +217,7 @@
 	function LSL_GetNextTrack()
 	{
 		loaded_track_uri_map.clear();
+		id_scplayer_map.clear();
 		document.getElementById("client_player_box").innerHTML = "";
 		jQuery(document).ready(function()
 		{
@@ -612,6 +613,7 @@
 			else
 			{
 				track_obj = loaded_track_uri_map.get(id);
+				console.dir(track_obj);
 				track = track_obj.src_url;
 				console.log("src_url = "+track);
 				ytid = getYoutubeId(track); // sus
