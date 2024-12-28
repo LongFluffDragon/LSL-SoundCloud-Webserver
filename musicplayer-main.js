@@ -163,7 +163,7 @@
 		BuildPlaylistSelect(0);
 	}
 	
-	function BuildPlaylistSelect(var index)
+	function BuildPlaylistSelect(index)
 	{
 		var sel = document.getElementById("sel_playlist");
 		sel.innerHTML = "";
