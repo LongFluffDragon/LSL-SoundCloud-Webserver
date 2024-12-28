@@ -175,6 +175,7 @@
 			sel.appendChild(option);
 		}
 		sel.value = index;
+		edit_playlist = playlist_list[0];
 	}
 	
 	function Btn_LoadPlaylist()
@@ -213,6 +214,7 @@
 			playlist_list.push(name);
 			console.log("Added new empty playlist "+name);
 			BuildPlaylistSelect(playlist_list.length-1);
+			edit_playlist = name;
 		}
 	}
 	
@@ -222,7 +224,14 @@
 		if(conf.toLowerCase().includes("delete"))
 		{
 			console.log("Deleting "+edit_playlist);
+			MakeXHR("", lslServer + "/delete/" + edit_playlist, LSL_DelPlaylist_Callback, "", "GET");
 		}
+	}
+	
+	function LSL_DelPlaylist_Callback(handle, body)
+	{
+		playlist_list.remove(body);
+		BuildPlaylistSelect(0);
 	}
 	
 	function Btn_SavePlaylist()
