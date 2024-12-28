@@ -165,7 +165,11 @@
 	
 	function Btn_LoadPlaylist()
 	{
+		var index = document.getElementById("sel_playlist").value;
+		var getpl = playlist_list[index];
+		console.log("get playlist " + getpl + " at " + index);
 		//MakeXHR("", lslServer+"/tracks", LSL_LoadPlaylist_Callback, "", "GET");
+		edit_playlist = getpl;
 		MakeXHR("", lslServer + "/playlist/" + edit_playlist, LSL_LoadPlaylist_Callback, "", "GET");
 	}
 	
@@ -185,6 +189,16 @@
 			AddTrackURL(track_uris[i]);
 		}
 		
+	}
+	
+	function Btn_AddPlaylist()
+	{
+		window.prompt("Enter a name for the new playlist", "Playlist" + (playlist_list.length+1));
+	}
+	
+	function Btn_DelPlaylist()
+	{
+		window.prompt("Enter 'delete' to confirm deletion of "+edit_playlist, "");
 	}
 	
 	function Btn_SavePlaylist()
