@@ -15,6 +15,7 @@
 	var next_track_start_time;
 	var main_sc_player_widget;
 	
+	var playlist_list; // array of available playlists
 	var edit_playlist = "Default"; // current playlist being edited
 	
 	var SC_PRV_ID_PFX = "sc_track_preview_";
@@ -150,14 +151,14 @@
 	
 	function LSL_GetPlaylists_Callback(handle, body)
 	{
-		var playlistlist = body.split("#|");
+		playlist_list = body.split("#|");
 		var sel = document.getElementById("sel_playlist");
 		sel.innerHTML = "";
-		for(var pl in playlistlist)
+		for(var n in playlist_list)
 		{
 			var option = document.createElement("option");
-			option.value = pl;
-			option.text = pl;
+			option.value = n;
+			option.text = playlist_list[n];
 			sel.appendChild(option);
 		}
 	}
