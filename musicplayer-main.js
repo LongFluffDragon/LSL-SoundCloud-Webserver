@@ -213,7 +213,7 @@
 				{
 					console.log("Error: track URI length is 0 for " + save_track_index);
 					for (let [key, value] of loaded_track_uri_map)
-						console.log( key + ": " + value);
+						console.div(value);
 				}
 					
 				++save_track_index;
