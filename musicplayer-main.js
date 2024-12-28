@@ -144,6 +144,14 @@
 		document.getElementById("preview_scroll_" + track).remove();
 	}
 	
+	function PlaylistSelectChange()
+	{
+		var index = document.getElementById("sel_playlist").value;
+		var getpl = playlist_list[index];
+		console.log("selected playlist " + getpl + " at " + index);
+		edit_playlist = getpl;
+	}
+	
 	function LSL_GetPlaylists()
 	{
 		MakeXHR("", lslServer + "/playlists", LSL_GetPlaylists_Callback, "", "GET");
