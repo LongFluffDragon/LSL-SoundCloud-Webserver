@@ -14,14 +14,28 @@ string html_init = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
    <script>var page_type = '";
 
 string html_init_tail = "';</script>
-<script src=\"http://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js\"></script>
+<script src=\"https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js\"></script>
 <script src=\"https://www.youtube.com/iframe_api\"></script>
-<script src=\"http://w.soundcloud.com/player/api.js\"></script>
+<script src=\"https://w.soundcloud.com/player/api.js\"></script>
 <script src=\"https://longfluffdragon.github.io/LSL-SoundCloud-Webserver/musicplayer-injector.js?version=#VER\"></script>
 <script src=\"https://longfluffdragon.github.io/LSL-SoundCloud-Webserver/musicplayer-main.js?version=#VER\"></script></html>";
 
+
+// current playing track data
+string current_playlist;
 string current_track; // uri of upcoming/currently playing track
+integer start_time;
+integer end_time;
 string track_waveform; // encoded waveform binary data for active soundcloud track
+
+// playlist data
+list playlists = ["Default"];
+list playlist_keys; // URIs/LSD keys for current playlist
+float playlist_randomness = .2;
+//integer playlist_progress;
+
+string saving_playlist; // name of current playlist data being received to save to LSD
+list playlist_track_hash;
 
 refreshURL()
 {
@@ -80,7 +94,8 @@ default
         string rawpath =  llGetHTTPHeader(id, "x-path-info");
         list path =  llParseString2List(rawpath, ["/"], []);
         string ip = llGetHTTPHeader(id, "x-remote-ip");
-        llOwnerSay("received " + method + " from " + ip + "\nheader=" + header + "\npath=" + llDumpList2String(path, "/") + "\nbody=" + llUnescapeURL(body));
+        string ua = llGetHTTPHeader(id, "user-agent");
+        llOwnerSay("received " + method + " from " + ip + " [" + ua + "]\nheader=" + header + "\npath=" + llDumpList2String(path, "/") + "\nbody=" + llUnescapeURL(body));
 
         string rndver = (string)((integer)llFrand(0xFFFFFFF)); // remove this from shipping
         
@@ -107,7 +122,7 @@ default
         }
         else if(header == "")
         {
-            llOwnerSay("NoHeader");
+            //llOwnerSay("NoHeader");
                 
             llSetContentType(id, CONTENT_TYPE_XHTML);
             //llOwnerSay("\nPage request from " + ip + "\nuser-agent=" + llGetHTTPHeader(id, "user-agent") + "\nheader=" + header + "\npath=" + rawpath);
@@ -132,21 +147,44 @@ default
 
                 if(p2 == "save")
                 {
-                    if(body == "CLR")
+                    if(body == "CLR") // start saving a playlist
                     {
-                        llLinksetDataReset();
+                        saving_playlist = llList2String(path, 3);
+                        if(saving_playlist == "")
+                        {
+                            llOwnerSay("Error: playlist name is null");
+                            return;
+                        }
+                        llOwnerSay("Saving playlist " + saving_playlist);
+                        //llLinksetDataReset();
+                        playlist_track_hash = [];
+                        //llLinksetDataDelete(saving_playlist);
                         llHTTPResponse(id, 200, "NXT");
                     }
-                    else if(body == "END")
+                    else if(body == "END") // finish saving a playlist
                     {
+                        string dpl =  llDumpList2String(playlist_track_hash, "|");
+                        llLinksetDataWrite(saving_playlist, dpl);
+                        
                         llOwnerSay("got final entry, confirming end");
+                        llOwnerSay(saving_playlist + ": " + dpl);
                         llHTTPResponse(id, 200, "END");
-                        list lsdk = llLinksetDataListKeys(0,-1);
-                        llOwnerSay("Saved track URIs: " + llList2CSV(lsdk));
+                        //list lsdk = llLinksetDataListKeys(0,-1);
+                        //llOwnerSay("Saved track URIs: " + llList2CSV(lsdk));
                     }
-                    else
+                    else if(llList2String(path, 3) == saving_playlist) // save a track to playlist
                     {
-                        integer uri_len = llOrd(body, 0) - 255;
+                        list track = llParseStringKeepNulls(body, ["#|"], []); 
+                        string hash = llGetSubString(llComputeHash(llList2String(track, 0), "sha256"),0,15);
+                        //llOwnerSay(llList2String(track, 0) + " sha256 = " + hash);
+                        playlist_track_hash += [hash];
+                        llLinksetDataWrite(hash, body);
+                        llOwnerSay("Saved " + llList2String(track, 0) + " with ID " + hash);
+                        
+                        llHTTPResponse(id, 200, "NXT");
+                        
+                        /*
+                        integer uri_len = llOrd(body, 0) - 255;t
                         string uri = llGetSubString(body, 1, uri_len);
 
                         body = llGetSubString(body, uri_len+1, -1);
@@ -162,13 +200,51 @@ default
                             llOwnerSay("Wrote "+uri+": "+body);
                             llHTTPResponse(id, 200, "NXT");
                         }
+                        */
                     }
+                    else
+                    {
+                        llHTTPResponse(id, 400, "Not a valid playlist save operation at this time");
+                    }
+                }
+                
+                else if(p2 == "playlists") // load list of playlists
+                {
+                    llHTTPResponse(id, 200, llDumpList2String(playlists, "#|"));
+                }
+                
+                else if(p2 == "playlist") // load a single playlist
+                {
+                    string gpl = llLinksetDataRead(llList2String(path, 3));
+                    list pl;
+                    if(gpl != "")
+                    {
+                        pl = llParseStringKeepNulls(gpl, ["|"], []);
+                        integer n = llGetListLength(pl);
+                        while(~--n)
+                            pl = llListReplaceList(pl, llList2List(llParseString2List(llLinksetDataRead(llList2String(pl, n)), ["#|"], []), 0, 0), n, n);
+                        llOwnerSay("playlist = " + llList2CSV(pl));
+                    }
+                    llHTTPResponse(id, 200, llDumpList2String(pl, "|"));
+                }
+                
+                else if (p2 == "delete")
+                {
+                    string pl = llList2String(path, 3);
+                    llOwnerSay("Deleting playlist " + pl);
+                    llLinksetDataDelete(pl);
+                    llHTTPResponse(id, 200, pl);
                 }
 
                 else if(p2 == "tracks")
                 {
                     list uris = llLinksetDataListKeys(0, -1);
                     llHTTPResponse(id, 200, llDumpList2String(uris, "|"));
+                }
+                
+                else
+                {
+                    llHTTPResponse(id, 400, "Invalid path/request syntax");
                 }
                 /*
                 else if(p2 == "track")
@@ -181,11 +257,39 @@ default
 
             else if(p0  == "next-track")
             {
+                integer t = llGetUnixTime();
+                
+                if( (t > end_time + 600))
+                {
+                    llOwnerSay("Resetting tracks");
+                    
+                    playlist_keys = llParseString2List(llLinksetDataRead("Default"), ["|"], []);
+                    //playlist_keys = llListRandomize(playlist_keys, 1);
+                    //playlist_progress = -1;
+                }
+                
+                if(t > end_time)
+                {
+                    llOwnerSay("Changing track");
+                    //++playlist_progress;
+                    //if(playlist_progress)
+                    integer ln = llGetListLength(playlist_keys) - 2; // never select the last entry to avoid repeating tracks
+                    integer next = llRound(llFrand(ln * playlist_randomness));
+                    list track_data = llParseStringKeepNulls(llLinksetDataRead(llList2String(playlist_keys, next)), ["#|"], []);
+                    current_track = llList2String(track_data, 0);//llList2String(playlist_keys, next);
+                    playlist_keys = llDeleteSubList(playlist_keys, next, next) + [current_track];
+                    llOwnerSay("Post-shuffle: " + llList2CSV(playlist_keys));
+                    start_time = t+10;
+                    end_time = start_time + llList2Integer(track_data, 2); // temp, parse duration of track from lsd value
+                }
+                /*
                 list uris = llLinksetDataListKeys(0, -1);
                 string uri = llList2String(uris, llRound(llFrand(llGetListLength(uris)-1)));
                 current_track = uri; // temporary
-                llOwnerSay("Sending track "+uri);
-                llHTTPResponse(id, 200, uri + "|" + (string)(llGetUnixTime() - 30));
+                */
+                
+                llOwnerSay("Sending track "+ current_track + " to " + ip);
+                llHTTPResponse(id, 200, current_track + "|" + (string)start_time);
             }
             
             else if(p0  == "waveform")
