@@ -145,7 +145,7 @@
 	function Btn_LoadPlaylist()
 	{
 		//MakeXHR("", lslServer+"/tracks", LSL_LoadPlaylist_Callback, "", "GET");
-		MakeXHR("", lslServer + "/playlist" + edit_playlist, LSL_LoadPlaylist_Callback, "", "GET");
+		MakeXHR("", lslServer + "/playlist/" + edit_playlist, LSL_LoadPlaylist_Callback, "", "GET");
 	}
 	
 	function LSL_LoadPlaylist_Callback(handle, body)
