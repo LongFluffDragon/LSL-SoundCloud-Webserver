@@ -201,12 +201,21 @@
 	
 	function Btn_AddPlaylist()
 	{
-		window.prompt("Enter a name for the new playlist", "Playlist" + (playlist_list.length+1));
+		var name = window.prompt("Enter a name for the new playlist", "Playlist" + (playlist_list.length+1));
+		if(playlist_list.includes(name) == false)
+		{
+			playlist_list.push(name);
+			console.log("Added new empty playlist "+name);
+		}
 	}
 	
 	function Btn_DelPlaylist()
 	{
-		window.prompt("Enter 'delete' to confirm deletion of "+edit_playlist, "");
+		var conf = window.prompt("Enter 'delete' to confirm deletion of "+edit_playlist, "");
+		if(conf.toLowerCase().includes("delete"))
+		{
+			console.log("Deleting "+edit_playlist);
+		}
 	}
 	
 	function Btn_SavePlaylist()
