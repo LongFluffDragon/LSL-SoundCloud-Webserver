@@ -101,6 +101,7 @@
 	function AddTrackURL(track_url)
 	{
 		track_url = ReplaceAll(track_url, "&", "&amp;"); // we hates it, precious
+		
 		console.log("AddTrackURL " + track_url);
 		var track_id = Math.floor(Math.random()*2147483647).toString(16);
 		var if_id = SC_PRV_ID_PFX + track_id;
@@ -119,16 +120,17 @@
 		track_obj.uri = "";
 		track_obj.title = "unknown";
 		track_obj.duration = -1;
-		loaded_track_uri_map.set(if_id, track_obj);
 		var add_to = "preview_iframe_" + track_id;
 		console.log("Added '" + if_id + "' to loaded_track_uri_map, creating iframe in " + add_to);
 		
 		if(track_url.includes("soundcloud"))
 		{
+			loaded_track_uri_map.set(if_id, track_obj);
 			SC_CreateIframe(if_id, add_to);
 		}
 		else if(track_url.includes("youtu"))
 		{
+			loaded_track_uri_map.set(if_id, track_obj);
 			YT_CreateIframe(if_id, add_to);
 		}
 	}
