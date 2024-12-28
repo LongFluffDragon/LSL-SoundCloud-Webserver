@@ -160,6 +160,11 @@
 	function LSL_GetPlaylists_Callback(handle, body)
 	{
 		playlist_list = body.split("#|");
+		BuildPlaylistSelect(0);
+	}
+	
+	function BuildPlaylistSelect(var index)
+	{
 		var sel = document.getElementById("sel_playlist");
 		sel.innerHTML = "";
 		for(var n in playlist_list)
@@ -169,6 +174,7 @@
 			option.text = playlist_list[n];
 			sel.appendChild(option);
 		}
+		sel.value = index;
 	}
 	
 	function Btn_LoadPlaylist()
@@ -206,6 +212,7 @@
 		{
 			playlist_list.push(name);
 			console.log("Added new empty playlist "+name);
+			BuildPlaylistSelect(playlist_list.length-1);
 		}
 	}
 	
