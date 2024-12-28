@@ -15,6 +15,8 @@
 	var next_track_start_time;
 	var main_sc_player_widget;
 	
+	var edit_playlist = "Default"; // current playlist being edited
+	
 	var SC_PRV_ID_PFX = "sc_track_preview_";
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
 	
@@ -172,7 +174,7 @@
 		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, encodeURIComponent(tracks), "PUT");*/
 		save_track_index = 0;
 		console.log("Beginning track save to LSL server");
-		MakeXHR("", lslServer+"/save", LSL_SavePlaylist_Callback, "CLR", "PUT");
+		MakeXHR("", lslServer + "/save/" + edit_playlist, LSL_SavePlaylist_Callback, "CLR", "PUT");
 	}
 	
 	function LSL_SavePlaylist_Callback(handle, body)
@@ -196,13 +198,16 @@
 				if(track_obj.uri.length > 0)
 				{
 					var track = "";
-					
+					/*
 					track += String.fromCharCode(255 + track_obj.uri.length) + track_obj.uri;
 					track += String.fromCharCode(255 + track_obj.title.length) + track_obj.title;
 					track += String.fromCharCode(255 + track_obj.duration);
 					//track += String.fromCharCode(255 + track_obj.encode_wf.length) + track_obj.encode_wf;
+					*/
 					
-					MakeXHR("", lslServer+"/save", LSL_SavePlaylist_Callback, track, "PUT");
+					track = track_obj.uri + "#|" track_obj.title + "#|" + track_obj.duration;
+					
+					MakeXHR("", lslServer + "/save/" + edit_playlist, LSL_SavePlaylist_Callback, track, "PUT");
 				}
 					
 				++save_track_index;
@@ -508,8 +513,11 @@
 						console.log(propertyName + "=" + sound[propertyName]);
 					}
 					console.log("updating data, requesting waveform");
-					if(page_type == "player")
+					
+					// dont get waveform, not compatible with youtube
+					/*if(page_type == "player")
 						MakeXHR(key, sound.waveform_url, getWaveform_Callback, "", "GET");
+					*/
 				}
 				break;
 			}
