@@ -190,7 +190,7 @@
 			console.log("LSL_SaveTrack_Callback: " + body)
 			if(save_track_index >= loaded_track_uri_map.size)
 			{
-				MakeXHR("", lslServer+"/save", LSL_SavePlaylist_Callback, "END", "PUT");
+				MakeXHR("", lslServer + "/save/" + edit_playlist, LSL_SavePlaylist_Callback, "END", "PUT");
 			}
 			else
 			{
@@ -209,6 +209,7 @@
 					
 					MakeXHR("", lslServer + "/save/" + edit_playlist, LSL_SavePlaylist_Callback, track, "PUT");
 				}
+				console.log("Error: track URI length is 0 for " + save_track_index);
 					
 				++save_track_index;
 			}
