@@ -194,7 +194,7 @@
 			}
 			else
 			{
-				var track_obj = loaded_track_uri_map.keys().toArray()[save_track_index];
+				var track_obj = loaded_track_uri_map.values().toArray()[save_track_index];
 				//var track_obj = Array.from(loaded_track_uri_map.values())[save_track_index];
 				if(track_obj.uri.length > 0)
 				{
