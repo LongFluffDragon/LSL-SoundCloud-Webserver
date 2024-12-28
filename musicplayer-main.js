@@ -205,7 +205,7 @@
 					//track += String.fromCharCode(255 + track_obj.encode_wf.length) + track_obj.encode_wf;
 					*/
 					
-					track = track_obj.uri + "#|" track_obj.title + "#|" + track_obj.duration;
+					track = track_obj.uri + "#|" + track_obj.title + "#|" + track_obj.duration;
 					
 					MakeXHR("", lslServer + "/save/" + edit_playlist, LSL_SavePlaylist_Callback, track, "PUT");
 				}
