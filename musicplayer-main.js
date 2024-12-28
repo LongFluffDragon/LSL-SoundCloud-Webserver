@@ -194,7 +194,8 @@
 			}
 			else
 			{
-				var track_obj = Array.from(loaded_track_uri_map.values())[save_track_index];
+				var track_obj = loaded_track_uri_map.keys().toArray()[save_track_index];
+				//var track_obj = Array.from(loaded_track_uri_map.values())[save_track_index];
 				if(track_obj.uri.length > 0)
 				{
 					var track = "";
@@ -213,7 +214,7 @@
 				{
 					console.log("Error: track URI length is 0 for " + save_track_index);
 					for (let [key, value] of loaded_track_uri_map)
-						console.div(value);
+						console.dir(value);
 				}
 					
 				++save_track_index;
