@@ -84,6 +84,7 @@
 			var ihtml = document.getElementById("TMP_sc_track_setup").cloneNode(true).innerHTML;
 			console.log("creating setup from template");
 			document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
+			LSL_GetPlaylists();
 		}
 	}
 	
@@ -140,6 +141,25 @@
 		console.log("Removing preview track: " + track);
 		loaded_track_uri_map.delete(SC_PRV_ID_PFX + track);
 		document.getElementById("preview_scroll_" + track).remove();
+	}
+	
+	function LSL_GetPlaylists()
+	{
+		MakeXHR("", lslServer + "/playlists", LSL_GetPlaylists_Callback, "", "GET");
+	}
+	
+	function LSL_GetPlaylists_Callback(handle, body)
+	{
+		var playlistlist = body.split("#|");
+		var sel = document.getElementById("sel_playlist");
+		sel.innerHTML = "";
+		for(var pl in playlistlist)
+		{
+			var option = document.createElement("option");
+			option.value = pl;
+			option.text = pl;
+			sel.appendChild(option);
+		}
 	}
 	
 	function Btn_LoadPlaylist()
