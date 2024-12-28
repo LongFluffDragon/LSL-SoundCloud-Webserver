@@ -152,18 +152,6 @@
 	{
 		console.log("LSL_LoadPlaylist_Callback: " + body);
 		
-		var track_uris = body.split("#|");
-		// erase current playlist menu
-		document.getElementById(SC_PREVIEW_SCROLLBOX).innerHTML = "";
-		loaded_track_uri_map.clear();
-		
-		// load playlist from received URIs
-		for(var i in track_uris)
-		{
-			AddTrackURL(track_uris[i]);
-		}
-		
-		/*
 		var track_uris = body.split("|");
 		
 		// erase current playlist menu
@@ -175,7 +163,7 @@
 		{
 			AddTrackURL(track_uris[i]);
 		}
-		*/
+		
 	}
 	
 	function Btn_SavePlaylist()
