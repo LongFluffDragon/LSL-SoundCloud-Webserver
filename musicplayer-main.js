@@ -209,7 +209,12 @@
 					
 					MakeXHR("", lslServer + "/save/" + edit_playlist, LSL_SavePlaylist_Callback, track, "PUT");
 				}
-				console.log("Error: track URI length is 0 for " + save_track_index);
+				else
+				{
+					console.log("Error: track URI length is 0 for " + save_track_index);
+					for (let [key, value] of loaded_track_uri_map)
+						console.log( key + ": " + value);
+				}
 					
 				++save_track_index;
 			}
