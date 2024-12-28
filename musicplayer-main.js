@@ -449,8 +449,11 @@
 	
 	function SC_Widget_OnFinish_Callback()
 	{
-		console.log("Soundcloud track finished playing, requesting next in 1s");
-		setTimeout( function () { LSL_GetNextTrack() }, 1000 );
+		if(page_type == "player")
+		{
+			console.log("Soundcloud track finished playing, requesting next in 1s");
+			setTimeout( function () { LSL_GetNextTrack() }, 1000 );
+		}
 	}
 	
 	function GetMissingTrackData()
@@ -698,7 +701,7 @@
 	
 	function YTPlayerStateChange(event)
 	{
-		if(event.data == YT.PlayerState.ENDED)
+		if(event.data == YT.PlayerState.ENDED && page_type == "player")
 		{
 			console.log("Youtube track finished playing, requesting next in 1s");
 			setTimeout( function () { LSL_GetNextTrack() }, 1000 );
