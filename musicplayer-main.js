@@ -437,7 +437,13 @@
 				MakeXHR("", "https://soundcloud.com/oembed?format=js&url="+oembedResult.author_url, SC_GetAuthorJSON_Callback, "", "GET");
 			}
 			else
-				document.getElementById("icon").src = oembedResult.thumbnail_url;
+			{
+				//document.getElementById("icon").src = oembedResult.thumbnail_url;
+				var icon = document.getElementById("icon");
+				icon.src = oembedResult.thumbnail_url;
+				icon.style.height = '480px';
+				icon.style.width = '480px';
+			}
 		}
 		
 		urlSubstr = decodeURIComponent(urlSubstr);
@@ -455,7 +461,11 @@
 			jsonstr = jsonstr.substring(1, jsonstr.length - 2);
 		var oembedResult = JSON.parse(jsonstr);
 		console.log("SC_GetAuthorJSON_Callback, Author Data: " + oembedResult);
-		document.getElementById("icon").src = oembedResult.thumbnail_url;
+		//document.getElementById("icon").src = oembedResult.thumbnail_url;
+		var icon = document.getElementById("icon");
+		icon.src = oembedResult.thumbnail_url;
+		icon.style.height = '480px';
+		icon.style.width = '480px';
 	}
 	
 	function SC_LoadTrack(id, url)
@@ -752,7 +762,10 @@
 		if(page_type == "player")
 		{
 			document.getElementById("titlespan").innerHTML = event.target.videoTitle;
-			document.getElementById("icon").src = "https://img.youtube.com/vi/" + ytid + "/0.jpg"
+			var icon = document.getElementById("icon");
+			icon.src = "https://img.youtube.com/vi/" + ytid + "/0.jpg"
+			icon.style.height = '360px';
+			icon.style.width = '480px';
 			
 			var time_dif = next_track_start_time - unixTime();
 			console.log("YTPlayerReady: Track time_dif = " + time_dif);
