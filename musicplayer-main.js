@@ -21,6 +21,8 @@
 	var SC_PRV_ID_PFX = "sc_track_preview_";
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
 	
+	var session_id = crypto.randomBytes(16).toString('base64');
+	
 	// basic library method vomit ect
 
 	function ReplaceAll(str, tkn, rep)
@@ -77,6 +79,8 @@
 			var ihtml = document.getElementById("TMP_sc_player_page").cloneNode(true).innerHTML;
 			console.log("creating player from template");
 			document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
+			console.log("session id is " + session_id);
+			LSL_Poll();
 			LSL_GetNextTrack();
 			//SC_CreateIframe("client_player_sc_iframe", "client_player_box");
 		}
@@ -150,6 +154,15 @@
 		var getpl = playlist_list[index];
 		console.log("selected playlist " + getpl + " at " + index);
 		edit_playlist = getpl;
+	}
+	
+	//
+	// Communication with server LSL script
+	//
+	
+	function LSL_Poll()
+	{
+		MakeXHR("", lslServer + "/poll/" + session_id, LSL_Poll_Callback, "", "GET");
 	}
 	
 	function LSL_GetPlaylists()
