@@ -20,10 +20,8 @@
 	
 	var SC_PRV_ID_PFX = "sc_track_preview_";
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
-	
-	const sid_src = new Uint32Array(10);
-	
-	const session_id = self.crypto.getRandomValues(sid_src).toString("hex");//.randomUUID();
+
+	var session_id;
 	
 	// basic library method vomit ect
 
@@ -81,6 +79,12 @@
 			var ihtml = document.getElementById("TMP_sc_player_page").cloneNode(true).innerHTML;
 			console.log("creating player from template");
 			document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
+			
+			const sid_src = new Uint8Array(8);
+			const sid_bytes = self.crypto.getRandomValues(sid_src);//.randomUUID();
+			for(var i in sid_bytes)
+				session_id += sid_bytes[i].toString("hex");
+			
 			console.log("session id is " + session_id);
 			LSL_Poll();
 			LSL_GetNextTrack();
