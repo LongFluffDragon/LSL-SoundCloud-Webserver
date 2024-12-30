@@ -83,7 +83,7 @@
 			const sid_src = new Uint8Array(8);
 			const sid_bytes = self.crypto.getRandomValues(sid_src);//.randomUUID();
 			for(var i in sid_bytes)
-				session_id += sid_bytes[i].toString("hex");
+				session_id += sid_bytes[i].toString(32);
 			
 			console.log("session id is " + session_id);
 			LSL_Poll();
