@@ -21,7 +21,7 @@
 	var SC_PRV_ID_PFX = "sc_track_preview_";
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
 	
-	var session_id = crypto.randomBytes(16).toString('base64');
+	var session_id = Window.crypto;//.randomBytes(16).toString('base64');
 	
 	// basic library method vomit ect
 
