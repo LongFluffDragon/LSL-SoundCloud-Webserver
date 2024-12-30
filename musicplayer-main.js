@@ -21,7 +21,7 @@
 	var SC_PRV_ID_PFX = "sc_track_preview_";
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
 	
-	var session_id = Window.crypto.randomUUID();
+	var session_id = self.crypto.randomUUID();
 	
 	// basic library method vomit ect
 
