@@ -21,7 +21,7 @@
 	var SC_PRV_ID_PFX = "sc_track_preview_";
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
 	
-	var session_id = Window.crypto;//.randomBytes(16).toString('base64');
+	var session_id = Window.crypto.randomUUID();
 	
 	// basic library method vomit ect
 
@@ -163,6 +163,11 @@
 	function LSL_Poll()
 	{
 		MakeXHR("", lslServer + "/poll/" + session_id, LSL_Poll_Callback, "", "GET");
+	}
+	
+	function LSL_Poll_Callback(handle, body)
+	{
+		
 	}
 	
 	function LSL_GetPlaylists()
