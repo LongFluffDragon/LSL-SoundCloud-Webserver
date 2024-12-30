@@ -21,7 +21,8 @@
 	var SC_PRV_ID_PFX = "sc_track_preview_";
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
 
-	var session_id;
+	var session_id = "";
+	var last_poll = 0;
 	
 	// basic library method vomit ect
 
@@ -88,6 +89,7 @@
 			console.log("session id is " + session_id);
 			LSL_Poll();
 			LSL_GetNextTrack();
+			setInterval( PollIfRequired, 1000);
 			//SC_CreateIframe("client_player_sc_iframe", "client_player_box");
 		}
 		else if(page_type == "config")
@@ -166,14 +168,24 @@
 	// Communication with server LSL script
 	//
 	
+	function PollIfRequired()
+	{
+		if(unixTime() > (last_poll + 30))
+			LSL_Poll();
+	}
+	
 	function LSL_Poll()
 	{
+		last_poll = unixTime();
 		MakeXHR("", lslServer + "/poll/" + session_id, LSL_Poll_Callback, "", "GET");
 	}
 	
 	function LSL_Poll_Callback(handle, body)
 	{
+		console.log("LSL_Poll_Callback: " + body);
+		const args = body.split("|");
 		
+		LSL_Poll();
 	}
 	
 	function LSL_GetPlaylists()
