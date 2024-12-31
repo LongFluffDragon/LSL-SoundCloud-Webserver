@@ -233,6 +233,7 @@
 		
 		var playlist_data = body.split("|"); // 0:shuffle, 1+: URIs
 		edit_playlist_shuffle = Number(playlist_data[0]);
+		console.log("Track shuffle value = " + edit_playlist_shuffle);
 		var shuffle = document.getElementById("track_randomness")
 		shuffle.value = edit_playlist_shuffle * shuffle.max;
 		var track_uris = playlist_data.slice( (playlist_data[0].length < 4 ? 1 : 0), -1);
