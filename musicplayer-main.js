@@ -326,7 +326,7 @@
 					
 					track = track_obj.uri + "#|" + track_obj.title + "#|" + track_obj.duration;
 					
-					MakeXHR("", lslServer + "/save/" + edit_playlist, LSL_SavePlaylist_Callback, track, "PUT");
+					MakeXHR("", lslServer + "/save/" + edit_playlist + "/uri", LSL_SavePlaylist_Callback, track, "PUT");
 				}
 				else
 				{
