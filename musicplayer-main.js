@@ -17,6 +17,7 @@
 	
 	var playlist_list; // array of available playlists
 	var edit_playlist = "Default"; // current playlist being edited
+	var edit_playlist_shuffle = 0;
 	
 	var SC_PRV_ID_PFX = "sc_track_preview_";
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
@@ -46,6 +47,7 @@
 	{
 		var xhr = new XMLHttpRequest();
 		xhr.open(method, url, true);
+		xhr.timeout = 360000;
 		xhr.onload = function()
 		{
 			if (xhr.readyState==4)
@@ -65,6 +67,7 @@
 		xhr.onerror = function()
 		{
 			console.log("XHR " + url + " error " + xhr.statusText);
+			// TODO add user-visible error handling
 		};
 		xhr.send(message);
 	}
@@ -81,14 +84,14 @@
 			console.log("creating player from template");
 			document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
 			
-			const sid_src = new Uint8Array(8);
+			const sid_src = new Uint32Array(3);
 			const sid_bytes = self.crypto.getRandomValues(sid_src);//.randomUUID();
 			for(var i in sid_bytes)
 				session_id += sid_bytes[i].toString(32);
 			
 			console.log("session id is " + session_id);
 			LSL_Poll();
-			LSL_GetNextTrack();
+			//LSL_GetNextTrack();
 			setInterval( PollIfRequired, 1000);
 			//SC_CreateIframe("client_player_sc_iframe", "client_player_box");
 		}
@@ -170,7 +173,7 @@
 	
 	function PollIfRequired()
 	{
-		if(unixTime() > (last_poll + 30))
+		if(unixTime() > (last_poll + 240))
 			LSL_Poll();
 	}
 	
@@ -228,7 +231,9 @@
 	{
 		console.log("LSL_LoadPlaylist_Callback: " + body);
 		
-		var track_uris = body.split("|");
+		var playlist_data = body.split("|"); // 0:shuffle, 1+: URIs
+		edit_playlist_shuffle = Number(playlist_data[0]);
+		var track_uris = playlist_data.slice(1, -1);
 		
 		// erase current playlist menu
 		document.getElementById(SC_PREVIEW_SCROLLBOX).innerHTML = "";
@@ -283,7 +288,7 @@
 		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, encodeURIComponent(tracks), "PUT");*/
 		save_track_index = 0;
 		console.log("Beginning track save to LSL server");
-		MakeXHR("", lslServer + "/save/" + edit_playlist, LSL_SavePlaylist_Callback, "CLR", "PUT");
+		MakeXHR("", lslServer + "/save/" + edit_playlist + "/" + edit_playlist_shuffle, LSL_SavePlaylist_Callback, "CLR", "PUT");
 	}
 	
 	function LSL_SavePlaylist_Callback(handle, body)
@@ -871,4 +876,3 @@
 	//lslServer = window.location.href;
 
 	InitPage();
-	
