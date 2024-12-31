@@ -288,6 +288,7 @@
 		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, encodeURIComponent(tracks), "PUT");*/
 		save_track_index = 0;
 		console.log("Beginning track save to LSL server");
+		edit_playlist_shuffle = document.getElementById("track_randomness").value;
 		MakeXHR("", lslServer + "/save/" + edit_playlist + "/" + edit_playlist_shuffle, LSL_SavePlaylist_Callback, "CLR", "PUT");
 	}
 	
