@@ -292,7 +292,7 @@
 		console.log("Beginning track save to LSL server");
 		var shuffle = document.getElementById("track_randomness");
 		edit_playlist_shuffle = shuffle.value / shuffle.max;
-		MakeXHR("", lslServer + "/save/" + edit_playlist + "/" + edit_playlist_shuffle, LSL_SavePlaylist_Callback, "CLR", "PUT");
+		MakeXHR("", lslServer + "/save/start/" + edit_playlist, LSL_SavePlaylist_Callback, edit_playlist_shuffle, "PUT");
 	}
 	
 	function LSL_SavePlaylist_Callback(handle, body)
@@ -308,24 +308,14 @@
 			console.log("LSL_SaveTrack_Callback: " + body)
 			if(save_track_index >= loaded_track_uri_map.size)
 			{
-				MakeXHR("", lslServer + "/save/" + edit_playlist, LSL_SavePlaylist_Callback, "END", "PUT");
+				MakeXHR("", lslServer + "/save/" + edit_playlist + "/end", LSL_SavePlaylist_Callback, "END", "PUT");
 			}
 			else
 			{
 				var track_obj = loaded_track_uri_map.values().toArray()[save_track_index];
-				//var track_obj = Array.from(loaded_track_uri_map.values())[save_track_index];
 				if(track_obj.uri.length > 0)
 				{
-					var track = "";
-					/*
-					track += String.fromCharCode(255 + track_obj.uri.length) + track_obj.uri;
-					track += String.fromCharCode(255 + track_obj.title.length) + track_obj.title;
-					track += String.fromCharCode(255 + track_obj.duration);
-					//track += String.fromCharCode(255 + track_obj.encode_wf.length) + track_obj.encode_wf;
-					*/
-					
-					track = track_obj.uri + "#|" + track_obj.title + "#|" + track_obj.duration;
-					
+					var track = track_obj.uri + "#|" + track_obj.title + "#|" + track_obj.duration;
 					MakeXHR("", lslServer + "/save/" + edit_playlist + "/uri", LSL_SavePlaylist_Callback, track, "PUT");
 				}
 				else
