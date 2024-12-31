@@ -233,7 +233,8 @@
 		
 		var playlist_data = body.split("|"); // 0:shuffle, 1+: URIs
 		edit_playlist_shuffle = Number(playlist_data[0]);
-		document.getElementById("track_randomness").value = edit_playlist_shuffle;
+		var shuffle = document.getElementById("track_randomness")
+		shuffle.value = edit_playlist_shuffle * shuffle.max;
 		var track_uris = playlist_data.slice(1, -1);
 		
 		// erase current playlist menu
@@ -289,7 +290,8 @@
 		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, encodeURIComponent(tracks), "PUT");*/
 		save_track_index = 0;
 		console.log("Beginning track save to LSL server");
-		edit_playlist_shuffle = document.getElementById("track_randomness").value;
+		var shuffle = document.getElementById("track_randomness");
+		edit_playlist_shuffle = shuffle.value / shuffle.max;
 		MakeXHR("", lslServer + "/save/" + edit_playlist + "/" + edit_playlist_shuffle, LSL_SavePlaylist_Callback, "CLR", "PUT");
 	}
 	
