@@ -235,7 +235,7 @@
 		edit_playlist_shuffle = Number(playlist_data[0]);
 		var shuffle = document.getElementById("track_randomness")
 		shuffle.value = edit_playlist_shuffle * shuffle.max;
-		var track_uris = playlist_data.slice(1, -1);
+		var track_uris = playlist_data.slice(playlist_data[0].length < 4 : 1 ? 0, -1);
 		
 		// erase current playlist menu
 		document.getElementById(SC_PREVIEW_SCROLLBOX).innerHTML = "";
