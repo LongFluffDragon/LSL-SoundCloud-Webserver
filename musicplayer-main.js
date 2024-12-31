@@ -233,6 +233,7 @@
 		
 		var playlist_data = body.split("|"); // 0:shuffle, 1+: URIs
 		edit_playlist_shuffle = Number(playlist_data[0]);
+		document.getElementById("track_randomness").value = edit_playlist_shuffle;
 		var track_uris = playlist_data.slice(1, -1);
 		
 		// erase current playlist menu
