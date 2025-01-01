@@ -190,8 +190,8 @@
 		
 		if(args[0] == "playtrack")
 		{
-			var uri = data[1];
-			next_track_start_time = Number(data[2]);
+			var uri = args[1];
+			next_track_start_time = Number(args[2]);
 			
 			if(uri.includes("soundcloud"))
 			{
