@@ -61,7 +61,7 @@
 				}
 				else
 				{
-					console.log("XHR " + url + "; non-ok status "+xhr.status);
+					console.log("XHR " + url + "; non-ok status "+xhr.status + " " + xhr.response);
 				}
 			}
 		};
