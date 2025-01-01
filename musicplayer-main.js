@@ -173,8 +173,10 @@
 	
 	function PollIfRequired()
 	{
+		/*
 		if(unixTime() > (last_poll + 60))
 			LSL_Poll();
+		*/
 	}
 	
 	function LSL_Poll()
@@ -186,32 +188,32 @@
 	function LSL_Poll_Callback(handle, body)
 	{
 		console.log("LSL_Poll_Callback: " + body);
-		if(body == "exp") // expired poll, avoid letting it time out naturally
-			return; 
-			
-		const args = body.split("|");
-		
-		if(args[0] == "playtrack")
+		if(body != "exp") // expired poll, avoid letting it time out naturally
 		{
-			var uri = args[1];
-			next_track_start_time = Number(args[2]);
+			const args = body.split("|");
 			
-			loaded_track_uri_map.clear();
-			id_scplayer_map.clear();
-			document.getElementById("client_player_box").innerHTML = "";
-			next_track = uri;
-			
-			jQuery(document).ready(function()
+			if(args[0] == "playtrack")
 			{
-				if(next_track.includes("soundcloud"))
+				var uri = args[1];
+				next_track_start_time = Number(args[2]);
+				
+				loaded_track_uri_map.clear();
+				id_scplayer_map.clear();
+				document.getElementById("client_player_box").innerHTML = "";
+				next_track = uri;
+				
+				jQuery(document).ready(function()
 				{
-					SC_CreateIframe("client_player_sc_iframe", "client_player_box");
-				}
-				else if(next_track.includes("youtu"))
-				{
-					YT_CreateIframe("client_player_yt_iframe", "client_player_box");
-				}
-			});
+					if(next_track.includes("soundcloud"))
+					{
+						SC_CreateIframe("client_player_sc_iframe", "client_player_box");
+					}
+					else if(next_track.includes("youtu"))
+					{
+						YT_CreateIframe("client_player_yt_iframe", "client_player_box");
+					}
+				});
+			}
 		}
 		
 		LSL_Poll();
