@@ -49,6 +49,7 @@
 		xhr.timeout = 45000;
 		xhr.open(method, url, true);
 		xhr.timeout = 45000;
+		const heckt = Date.now();
 		xhr.onload = function()
 		{
 			if (xhr.readyState==4)
@@ -61,7 +62,7 @@
 				}
 				else
 				{
-					console.log("XHR " + url + "; non-ok status "+xhr.status + " " + xhr.response);
+					console.log("XHR " + url + "; non-ok status "+xhr.status + " after " + ((Date.now() - heckt) / 1000) +  ", response=" + xhr.response);
 				}
 			}
 		};
