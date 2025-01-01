@@ -46,8 +46,8 @@
 	function MakeXHR(handle, url, callbackFunction, message, method)
 	{
 		var xhr = new XMLHttpRequest();
-		xhr.open(method, url, true);
 		xhr.timeout = 360000;
+		xhr.open(method, url, true);
 		xhr.onload = function()
 		{
 			if (xhr.readyState==4)
@@ -186,6 +186,9 @@
 	function LSL_Poll_Callback(handle, body)
 	{
 		console.log("LSL_Poll_Callback: " + body);
+		if(body == "exp") // expired poll, avoid letting it time out naturally
+			return; 
+			
 		const args = body.split("|");
 		
 		if(args[0] == "playtrack")
