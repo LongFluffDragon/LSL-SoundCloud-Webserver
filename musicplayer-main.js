@@ -173,7 +173,7 @@
 	
 	function PollIfRequired()
 	{
-		if(unixTime() > (last_poll + 240))
+		if(unixTime() > (last_poll + 60))
 			LSL_Poll();
 	}
 	
