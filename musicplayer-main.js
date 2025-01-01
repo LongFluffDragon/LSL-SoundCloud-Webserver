@@ -46,7 +46,7 @@
 	function MakeXHR(handle, url, callbackFunction, message, method)
 	{
 		var xhr = new XMLHttpRequest();
-		xhr.timeout = 360000;
+		xhr.timeout = 61000;
 		xhr.open(method, url, true);
 		xhr.onload = function()
 		{
