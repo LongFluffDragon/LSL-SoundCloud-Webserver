@@ -188,6 +188,23 @@
 		console.log("LSL_Poll_Callback: " + body);
 		const args = body.split("|");
 		
+		if(args[0] == "playtrack")
+		{
+			var uri = data[1];
+			next_track_start_time = Number(data[2]);
+			
+			if(uri.includes("soundcloud"))
+			{
+				next_track = uri;
+				SC_CreateIframe("client_player_sc_iframe", "client_player_box");
+			}
+			else if(uri.includes("youtu"))
+			{
+				next_track = uri;
+				YT_CreateIframe("client_player_yt_iframe", "client_player_box");
+			}
+		}
+		
 		LSL_Poll();
 	}
 	
@@ -348,7 +365,7 @@
 		});
 	}
 	
-	function LSL_GetNextTrack_Callback(handle, body)
+	function LSL_GetNextTrack_Callback(handle, body) // deprecated
 	{
 		console.log("LSL_GetNextTrack_Callback: " + body);
 		var data = body.split("|");
