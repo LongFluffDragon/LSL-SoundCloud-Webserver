@@ -26,6 +26,8 @@
 	var session_id = "";
 	var last_poll = 0;
 	
+	var poll_delay_adapt = 20;
+	
 	// basic library method vomit ect
 
 	function ReplaceAll(str, tkn, rep)
@@ -49,7 +51,7 @@
 		var xhr = new XMLHttpRequest();
 		//xhr.timeout = 45000;
 		xhr.open(method, url, true);
-		const heckt = Date.now();
+		const st = Date.now();
 		xhr.onload = function()
 		{
 			if (xhr.readyState==4)
@@ -62,12 +64,20 @@
 				}
 				else
 				{
+					const dur = (Date.now() - st) / 1000;
 					if(xhr.status == 503)
 					{
 						console.log("503: probably an LSL event queue overflow, retrying request..");
 						setTimeout(function(){ MakeXHR(handle, url, callbackFunction, message, method) }, 2500);
 					}
-					console.log("XHR " + url + "; non-ok status "+xhr.status + " after " + ((Date.now() - heckt) / 1000) +  ", response=" + xhr.response);
+					else if(xhr.status == 504)
+					{
+						var dif = dur - poll_delay_adapt;
+						poll_delay_adapt = max(min(poll_delay_adapt - dif, 22), 15);
+						console.log("504: probably SL server timeout of 25s, adjusting delay to " + poll_delay_adapt);
+						
+					}
+					console.log("XHR " + url + "; non-ok status "+xhr.status + " after " + dur +  ", response=" + xhr.response);
 				}
 			}
 		};
@@ -180,7 +190,7 @@
 	
 	function PollIfRequired()
 	{
-		if(unixTime() > (last_poll + 20))
+		if(unixTime() > (last_poll + poll_delay_adapt))
 			LSL_Poll();
 	}
 	
