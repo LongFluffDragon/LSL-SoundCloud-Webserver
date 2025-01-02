@@ -11,8 +11,8 @@
 	
 	var save_track_index = 0;
 	
-	var next_track = ""; // next soundcloud track the player should load
-	var next_track_start_time;
+	var current_track_uri = ""; // next soundcloud track the player should load
+	var current_track_uri_start_time;
 	var main_sc_player_widget;
 	
 	var playlist_list; // array of available playlists
@@ -186,7 +186,7 @@
 	function LSL_Poll()
 	{
 		last_poll = unixTime();
-		MakeXHR("", lslServer + "/poll/" + session_id + "/" + next_track, LSL_Poll_Callback, "", "GET");
+		MakeXHR("", lslServer + "/poll/" + session_id + "/" + current_track_uri, LSL_Poll_Callback, "", "GET");
 	}
 	
 	function LSL_Poll_Callback(handle, body)
@@ -199,20 +199,20 @@
 			if(args[0] == "playtrack")
 			{
 				var uri = args[1];
-				next_track_start_time = Number(args[2]);
+				current_track_uri_start_time = Number(args[2]);
 				
 				loaded_track_uri_map.clear();
 				id_scplayer_map.clear();
 				document.getElementById("client_player_box").innerHTML = "";
-				next_track = uri;
+				current_track_uri = uri;
 				
 				jQuery(document).ready(function()
 				{
-					if(next_track.includes("soundcloud"))
+					if(current_track_uri.includes("soundcloud"))
 					{
 						SC_CreateIframe("client_player_sc_iframe", "client_player_box");
 					}
-					else if(next_track.includes("youtu"))
+					else if(current_track_uri.includes("youtu"))
 					{
 						YT_CreateIframe("client_player_yt_iframe", "client_player_box");
 					}
@@ -384,16 +384,16 @@
 		console.log("LSL_GetNextTrack_Callback: " + body);
 		var data = body.split("|");
 		var uri = data[0];
-		next_track_start_time = Number(data[1]);
+		current_track_uri_start_time = Number(data[1]);
 		
 		if(uri.includes("soundcloud"))
 		{
-			next_track = uri;
+			current_track_uri = uri;
 			SC_CreateIframe("client_player_sc_iframe", "client_player_box");
 		}
 		else if(uri.includes("youtu"))
 		{
-			next_track = uri;
+			current_track_uri = uri;
 			YT_CreateIframe("client_player_yt_iframe", "client_player_box");
 		}
 	}
@@ -415,8 +415,8 @@
 		console.log("iframe loaded: " + iframe.id);
 		if(loaded_track_uri_map.has(iframe.id) == false)
 		{
-			var track_obj = {};// = {src_url: "", uri: next_track};
-			track_obj.uri = next_track;
+			var track_obj = {};// = {src_url: "", uri: current_track_uri};
+			track_obj.uri = current_track_uri;
 			track_obj.src_url = "";
 			loaded_track_uri_map.set(iframe.id, track_obj);
 		}
@@ -459,9 +459,9 @@
 		console.log(" !! SC_Widget_Event_READY !! ");
 		if(page_type == "player")
 		{
-			console.log("player soundcloud widget " + iframe_id + " ready, playing next track " + next_track);
-			//SC_LoadTrack(iframe_id, next_track);
-			SC_GetOembedURL(iframe_id, next_track);
+			console.log("player soundcloud widget " + iframe_id + " ready, playing next track " + current_track_uri);
+			//SC_LoadTrack(iframe_id, current_track_uri);
+			SC_GetOembedURL(iframe_id, current_track_uri);
 			//MakeXHR("", lslServer+"/save", LSL_GetNextTrack_Callback, track, "GET");
 		}
 		else
@@ -558,7 +558,7 @@
 		
 		if(page_type == "player")
 		{
-			var time_dif = next_track_start_time - unixTime();
+			var time_dif = current_track_uri_start_time - unixTime();
 			console.log("Track time_dif = " + time_dif);
 			if(time_dif > 1)
 			{
@@ -592,7 +592,7 @@
 		
 		if(page_type == "player")
 		{
-			var time_dif = next_track_start_time - unixTime();
+			var time_dif = current_track_uri_start_time - unixTime();
 			console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
 			if(time_dif < 0)
 			{
@@ -775,7 +775,7 @@
 			
 			if(loaded_track_uri_map.has(id) == false)
 			{
-				track = next_track;
+				track = current_track_uri;
 				track_obj = {};//{src_url: "", uri: track};
 				track_obj.uri = track;
 				track_obj.src_url = "";
@@ -839,7 +839,7 @@
 			icon.style.width = '480px';
 			icon.style.top = '60px';
 			
-			var time_dif = next_track_start_time - unixTime();
+			var time_dif = current_track_uri_start_time - unixTime();
 			console.log("YTPlayerReady: Track time_dif = " + time_dif);
 			
 			if(time_dif < 1)
