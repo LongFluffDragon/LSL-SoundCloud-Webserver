@@ -394,9 +394,9 @@
 	function LSL_GetNextTrack_Callback(handle, body)
 	{
 		console.log("LSL_GetNextTrack_Callback: " + body);
-		var data = body.split("|");
-		var uri = data[0];
-		current_track_start_time = Number(data[1]);
+		var args = body.split("|");
+		var uri = args[0];
+		current_track_start_time = Number(args[1]);
 		current_track_id = args[3];
 		
 		if(uri.includes("soundcloud"))
