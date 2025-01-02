@@ -385,7 +385,7 @@
 	function LSL_GetNextTrack()
 	{
 		console.log("Requesting next track from LSL server");
-		DeletePlayer();
+		//DeletePlayer();
 		jQuery(document).ready(function()
 		{
 			MakeXHR("", lslServer+"/next-track", LSL_GetNextTrack_Callback, "", "GET");
@@ -424,7 +424,10 @@
 				setTimeout(function(){ LSL_GetNextTrack() }, Math.random() * 10000 + 2500);
 			}
 			else
+			{
+				console.log("Error: future track is null, requesting next track immediately");
 				LSL_GetNextTrack();
+			}
 		});
 	}
 	
