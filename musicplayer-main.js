@@ -11,8 +11,9 @@
 	
 	var save_track_index = 0;
 	
-	var current_track_uri = ""; // next soundcloud track the player should load
-	var current_track_uri_start_time;
+	var current_track_id = ""; // hash ID of current track for identification with server
+	var current_track_uri = ""; // URI of current soundcloud/youtube track
+	var current_track_start_time;
 	var main_sc_player_widget;
 	
 	var playlist_list; // array of available playlists
@@ -186,7 +187,7 @@
 	function LSL_Poll()
 	{
 		last_poll = unixTime();
-		MakeXHR("", lslServer + "/poll/" + session_id + "/" + current_track_uri, LSL_Poll_Callback, "", "GET");
+		MakeXHR("", lslServer + "/poll/" + session_id + "/" + current_track_id, LSL_Poll_Callback, "", "GET");
 	}
 	
 	function LSL_Poll_Callback(handle, body)
@@ -199,12 +200,13 @@
 			if(args[0] == "playtrack")
 			{
 				var uri = args[1];
-				current_track_uri_start_time = Number(args[2]);
+				current_track_start_time = Number(args[2]);
 				
 				loaded_track_uri_map.clear();
 				id_scplayer_map.clear();
 				document.getElementById("client_player_box").innerHTML = "";
 				current_track_uri = uri;
+				current_track_id = args[3];
 				
 				jQuery(document).ready(function()
 				{
@@ -384,7 +386,7 @@
 		console.log("LSL_GetNextTrack_Callback: " + body);
 		var data = body.split("|");
 		var uri = data[0];
-		current_track_uri_start_time = Number(data[1]);
+		current_track_start_time = Number(data[1]);
 		
 		if(uri.includes("soundcloud"))
 		{
@@ -558,7 +560,7 @@
 		
 		if(page_type == "player")
 		{
-			var time_dif = current_track_uri_start_time - unixTime();
+			var time_dif = current_track_start_time - unixTime();
 			console.log("Track time_dif = " + time_dif);
 			if(time_dif > 1)
 			{
@@ -592,7 +594,7 @@
 		
 		if(page_type == "player")
 		{
-			var time_dif = current_track_uri_start_time - unixTime();
+			var time_dif = current_track_start_time - unixTime();
 			console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
 			if(time_dif < 0)
 			{
@@ -839,7 +841,7 @@
 			icon.style.width = '480px';
 			icon.style.top = '60px';
 			
-			var time_dif = current_track_uri_start_time - unixTime();
+			var time_dif = current_track_start_time - unixTime();
 			console.log("YTPlayerReady: Track time_dif = " + time_dif);
 			
 			if(time_dif < 1)
