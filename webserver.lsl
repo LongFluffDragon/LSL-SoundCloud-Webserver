@@ -23,7 +23,7 @@ string html_init_tail = "';</script>
 <script src=\"https://longfluffdragon.github.io/LSL-SoundCloud-Webserver/musicplayer-main.js?version=#VER\"></script></html>";
 
 // current playing track data
-string current_playlist = "Default";
+string current_playlist;
 string current_track_id; // hash ID of current/next playing track
 string current_track_uri; // uri of upcoming/currently playing track
 string future_track_id; // hash ID of current/next playing track
@@ -47,7 +47,7 @@ integer next_cleanup;
 //integer polltm = 60; // requests are timed out by the SL server in 25, but consider a client disconnected if a minute passes without polling
 
 // playlist data
-list playlists = ["Default"];
+list playlists;// = ["Default"];
 list playlist_keys; // URIs/LSD keys for current playlist
 float playlist_randomness = .2;
 //integer playlist_progress;
@@ -78,6 +78,21 @@ RefreshURL()
     llReleaseURL(srv_url);
     srv_url = llRequestURL();
 }
+
+SetMedia()
+{
+    end_time = 0; // force a track refresh on next request
+    llSetPrimMediaParams(3, [ PRIM_MEDIA_CURRENT_URL, ""]);
+    if(~player_state)
+    {
+        llSetPrimMediaParams(3, [
+            PRIM_MEDIA_AUTO_PLAY, TRUE,
+            PRIM_MEDIA_HEIGHT_PIXELS, 1024,
+            PRIM_MEDIA_WIDTH_PIXELS, 1024,
+            PRIM_MEDIA_CURRENT_URL, srv_url
+        ]);
+    }
+}
 /*
 list parseTrackData(string body)
 {
@@ -96,6 +111,22 @@ list parseTrackData(string body)
 }
 */
 
+LoadPlaylists()
+{
+    playlists = llParseString2List(llLinksetDataRead("playlists"), ["#|"], []);
+    current_playlist = llLinksetDataRead("current_playlist");
+    
+    if(!llGetListLength(playlists))
+    {
+        playlists = ["Default"];
+        current_playlist = "Default";
+        //current_playlist_keys = [];
+        //llLinksetDataWrite("");
+    }
+    
+    if(current_playlist == "" || llListFindList(playlists, [current_playlist]))
+        current_playlist = llList2String(playlists, 0);
+}
 
 ReadCurrentPlaylist()
 {
@@ -198,7 +229,7 @@ BuildMenu(string agent, integer page, integer mode, integer channel)
     {
         menu += ["Close Menu", "Music On", "Music Off", "Playlists"];
         if(admin_lv > 1)
-            menu += ["Setup"];
+            menu += ["Setup", "Print"];
     }
     
     else if(mode == 1)
@@ -242,6 +273,7 @@ default
         RefreshURL();
         admins = llParseString2List(llLinksetDataRead("admins"), ["|"], []);
         llListen(cfg_channel, "", "", "");
+        LoadPlaylists();
     }
 
     touch_start(integer n)
@@ -283,16 +315,38 @@ default
             llRegionSayTo(k, 0, desc+url);
             remenu = FALSE;
         }
+        else if(m == "Print" && admin_lv > 0)
+        {
+            integer pl = llGetListLength(playlists);
+            while(~--pl)
+            {
+                string pln = llList2String(playlists, pl);
+                list tracks = llParseString2List(llLinksetDataRead(pln), ["|"], []);
+                llOwnerSay("Playlist: " + pln);
+                integer k = llGetListLength(tracks);
+                integer i=1;
+                for(; i<k; ++i)
+                {
+                    list track_data = llParseStringKeepNulls(llLinksetDataRead(llList2String(tracks, i)), ["#|"], []);
+                    llOwnerSay("  " + llList2CSV(track_data));
+                }
+            }
+        }
+        /*
         else if(m == "Users" && admin_lv > 1)
         {
             mode=1;
             page=0;
-        }
+        }*/
         else if(m == "Music Off")
         {
+            player_state = -1;
+            SetMedia();
         }
         else if(m == "Music On")
         {
+            player_state = 0;
+            SetMedia();
         }
         else if(m == "Playlists")
         {
@@ -316,10 +370,11 @@ default
         else if(~(i=llListFindList(playlists, [m])))
         {
             current_playlist = m;
+            llLinksetDataWrite("current_playlist", m);
             if(DBG) llOwnerSay("DEBUG set playlist");
             mode=0;
             page=-1;
-            ReadCurrentPlaylist();
+            SetMedia();
         }
         else
             remenu = FALSE;
@@ -333,12 +388,6 @@ default
         if(c & (CHANGED_REGION_START|CHANGED_REGION))
             RefreshURL();
     }
-
-    /*
-    http_response(key id, integer sts, list md, string body)
-    {
-
-    }*/
 
     http_request(key rqid, string method, string body)
     {
@@ -370,13 +419,8 @@ default
                 next_url_try = 0x7FFFFFFF;
                 srv_url = body;
                 llSetText("", ZERO_VECTOR, 0.0);
-                llSetTimerEvent(1);
-                llSetPrimMediaParams(3, [
-                    PRIM_MEDIA_AUTO_PLAY, TRUE,
-                    PRIM_MEDIA_HEIGHT_PIXELS, 1024,
-                    PRIM_MEDIA_WIDTH_PIXELS, 1024,
-                    PRIM_MEDIA_CURRENT_URL, srv_url
-                ]);
+                
+                SetMedia();
                 return;
             }
         }
@@ -413,6 +457,7 @@ default
                 
                 if(llGetListLength(path) == 2)
                 {
+                    llOwnerSay("Sending config webpage");
                     llHTTPResponse(rqid, 200, llDumpList2String(llParseStringKeepNulls(html_init + "config" + html_init_tail, ["#VER"], []), rndver ));
                    // llHTTPResponse(rqid, 200, html_init + "config" + html_init_tail);
                     return;
@@ -451,9 +496,17 @@ default
                         {
                             string dpl =  llDumpList2String(playlist_track_hash, "|");
                             llLinksetDataWrite(saving_playlist, dpl);
+                            llOwnerSay("Saved playlist " + saving_playlist);
+                            
+                            if(!~llListFindList(playlists, [saving_playlist]))
+                            {
+                                playlists += [saving_playlist];
+                                llLinksetDataWrite("playlists", llDumpList2String(playlists, "#|"));
+                                if(saving_playlist == current_playlist)
+                                    SetMedia();
+                            }
                             
                             if(DBG) llOwnerSay("got final entry, confirming end");
-                            if(DBG) llOwnerSay(saving_playlist + ": " + dpl);
                             llHTTPResponse(rqid, 200, "END");
                             //list lsdk = llLinksetDataListKeys(0,-1);
                             //if(DBG) llOwnerSay("Saved track URIs: " + llList2CSV(lsdk));
@@ -494,8 +547,12 @@ default
                 {
                     string pl = llList2String(path, 3);
                     if(DBG) llOwnerSay("Deleting playlist " + pl);
+                    integer i = llListFindList(playlists, [pl]);
+                    if(~i)
+                        playlists = llDeleteSubList(playlists, i, i);
                     llLinksetDataDelete(pl);
                     llHTTPResponse(rqid, 200, pl);
+                    LoadPlaylists();
                 }
                 /*
                 else if(p2 == "tracks")
@@ -561,13 +618,13 @@ default
             else if(p0  == "next-track")
             {
                 integer t = llGetUnixTime();
-                
+                /*
                 if( (t > end_time + 600))
                 {
                     if(DBG) llOwnerSay("Resetting tracks");
                     
                     ReadCurrentPlaylist();
-                }
+                }*/
                 
                 if(t > end_time)
                 {
@@ -623,16 +680,19 @@ default
 
     timer()
     {
+        llSetTimerEvent(0);
+        srv_url = llRequestURL();
+        /*
         integer t = llGetUnixTime();
-        
         if(next_url_try < t)
         {
-            next_url_try = llGetUnixTime()+300; 
+            next_url_try = llGetUnixTime()+300;
             srv_url = llRequestURL();
         }
+        /*
         else
         {
-            /*
+            
             if(pending_update)
             {
                 integer n = llGetListLength(pending_update);
@@ -675,8 +735,8 @@ default
             {
                 ChangeTrack();
             }
-            */
-        }
+            
+        }*/
     }
 }
 
