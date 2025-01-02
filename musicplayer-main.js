@@ -179,7 +179,7 @@
 	
 	function PollIfRequired()
 	{
-		if(unixTime() > (last_poll + 10))
+		if(unixTime() > (last_poll + 20))
 			LSL_Poll();
 	}
 	
@@ -218,9 +218,8 @@
 					}
 				});
 			}
+			LSL_Poll();
 		}
-		
-		LSL_Poll();
 	}
 	
 	function LSL_GetPlaylists()
