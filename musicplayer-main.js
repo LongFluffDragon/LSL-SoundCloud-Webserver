@@ -283,7 +283,7 @@
 		console.log("Track shuffle value = " + edit_playlist_shuffle);
 		var shuffle = document.getElementById("track_randomness")
 		shuffle.value = edit_playlist_shuffle * shuffle.max;
-		var track_uris = playlist_data.slice( (playlist_data[0].length < 4 ? 1 : 0), -1);
+		var track_uris = playlist_data.slice( (playlist_data[0].length < 4 ? 1 : 0), playlist_data.length);
 		console.log("Track URIs: " + track_uris);
 		// erase current playlist menu
 		document.getElementById(SC_PREVIEW_SCROLLBOX).innerHTML = "";
