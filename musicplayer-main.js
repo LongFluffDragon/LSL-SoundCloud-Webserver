@@ -66,10 +66,8 @@
 						console.log("503: probably an LSL event queue overflow, retrying request..");
 						setTimeout(function(){ MakeXHR(handle, url, callbackFunction, message, method) }, 2500);
 					}
-					else
-					{
-						console.log("XHR " + url + "; non-ok status "+xhr.status + " after " + ((Date.now() - heckt) / 1000) +  ", response=" + xhr.response);
-					}
+					console.log("XHR " + url + "; non-ok status "+xhr.status + " after " + ((Date.now() - heckt) / 1000) +  ", response=" + xhr.response);
+					
 					
 				}
 			}
