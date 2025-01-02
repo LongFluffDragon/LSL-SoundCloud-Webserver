@@ -67,8 +67,6 @@
 						setTimeout(function(){ MakeXHR(handle, url, callbackFunction, message, method) }, 2500);
 					}
 					console.log("XHR " + url + "; non-ok status "+xhr.status + " after " + ((Date.now() - heckt) / 1000) +  ", response=" + xhr.response);
-					
-					
 				}
 			}
 		};
@@ -98,7 +96,7 @@
 				session_id += sid_bytes[i].toString(32);
 			
 			console.log("session id is " + session_id);
-			LSL_Poll();
+			//LSL_Poll();
 			//LSL_GetNextTrack();
 			setInterval( PollIfRequired, 1000);
 			//SC_CreateIframe("client_player_sc_iframe", "client_player_box");
@@ -181,10 +179,8 @@
 	
 	function PollIfRequired()
 	{
-		/*
-		if(unixTime() > (last_poll + 60))
+		if(unixTime() > (last_poll + 10))
 			LSL_Poll();
-		*/
 	}
 	
 	function LSL_Poll()
