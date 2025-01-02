@@ -11,9 +11,11 @@
 	
 	var save_track_index = 0;
 	
-	var current_track_id = ""; // hash ID of current track for identification with server
+	//var current_track_id = ""; // hash ID of current track for identification with server
 	var current_track_uri = ""; // URI of current soundcloud/youtube track
-	var current_track_start_time;
+	var current_track_start_time = 0;
+	var future_track_uri = "";
+	var futue_track_start_time = 0;
 	var main_sc_player_widget;
 	
 	var playlist_list; // array of available playlists
@@ -382,9 +384,8 @@
 	
 	function LSL_GetNextTrack()
 	{
-		loaded_track_uri_map.clear();
-		id_scplayer_map.clear();
-		document.getElementById("client_player_box").innerHTML = "";
+		console.log("Requesting next track from LSL server");
+		DeletePlayer();
 		jQuery(document).ready(function()
 		{
 			MakeXHR("", lslServer+"/next-track", LSL_GetNextTrack_Callback, "", "GET");
@@ -395,18 +396,55 @@
 	{
 		console.log("LSL_GetNextTrack_Callback: " + body);
 		var args = body.split("|");
-		var uri = args[0];
-		current_track_start_time = Number(args[1]);
-		current_track_id = args[3];
 		
-		if(uri.includes("soundcloud"))
+		if(current_track_uri != args[0])
 		{
-			current_track_uri = uri;
+			current_track_uri = args[0];
+			current_track_start_time = Number(args[1]);
+			CreatePlayer()
+		}
+		
+		future_track_uri = args[2];
+		future_track_start_time = Number(args[3]);
+		
+	}
+	
+	function PlayFutureTrack()
+	{
+		DeletePlayer();
+		jQuery(document).ready(function()
+		{
+			if(future_track_uri != "")
+			{
+				console.log("Using future track as new current track: " + future_track_uri);
+				current_track_uri = future_track_uri;
+				current_track_start_time = future_track_start_time;
+				future_track_uri = "";
+				CreatePlayer();
+				setTimeout(function(){ LSL_GetNextTrack() }, Math.random() * 10000 + 2500);
+			}
+			else
+				LSL_GetNextTrack();
+		});
+	}
+	
+	function DeletePlayer()
+	{
+		console.log("Deleting current player widget");
+		loaded_track_uri_map.clear();
+		id_scplayer_map.clear();
+		document.getElementById("client_player_box").innerHTML = "";
+	}
+	
+	function CreatePlayer()
+	{
+		console.log("Creating new player widget");
+		if(current_track_uri.includes("soundcloud"))
+		{
 			SC_CreateIframe("client_player_sc_iframe", "client_player_box");
 		}
-		else if(uri.includes("youtu"))
+		else if(current_track_uri.includes("youtu"))
 		{
-			current_track_uri = uri;
 			YT_CreateIframe("client_player_yt_iframe", "client_player_box");
 		}
 	}
@@ -625,7 +663,7 @@
 		if(page_type == "player")
 		{
 			console.log("Soundcloud track finished playing, requesting next in 1s");
-			setTimeout( function () { LSL_GetNextTrack() }, 1000 );
+			setTimeout( function () { PlayFutureTrack() }, 1000 );
 		}
 	}
 	
@@ -881,7 +919,7 @@
 		if(event.data == YT.PlayerState.ENDED && page_type == "player")
 		{
 			console.log("Youtube track finished playing, requesting next in 1s");
-			setTimeout( function () { LSL_GetNextTrack() }, 1000 );
+			setTimeout( function () { PlayFutureTrack() }, 1000 );
 		}
 	}
 	
