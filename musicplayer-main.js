@@ -186,7 +186,7 @@
 	function LSL_Poll()
 	{
 		last_poll = unixTime();
-		MakeXHR("", lslServer + "/poll/" + session_id, LSL_Poll_Callback, "", "GET");
+		MakeXHR("", lslServer + "/poll/" + session_id + "/" + next_track, LSL_Poll_Callback, "", "GET");
 	}
 	
 	function LSL_Poll_Callback(handle, body)
