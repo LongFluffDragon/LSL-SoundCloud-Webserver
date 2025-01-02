@@ -73,7 +73,7 @@
 					else if(xhr.status == 504)
 					{
 						var dif = dur - poll_delay_adapt;
-						poll_delay_adapt = max(min(poll_delay_adapt - dif, 22), 15);
+						poll_delay_adapt = Math.max(Math.min(poll_delay_adapt - dif, 22), 15);
 						console.log("504: probably SL server timeout of 25s, adjusting delay to " + poll_delay_adapt);
 						
 					}
