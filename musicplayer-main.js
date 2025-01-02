@@ -46,9 +46,8 @@
 	function MakeXHR(handle, url, callbackFunction, message, method)
 	{
 		var xhr = new XMLHttpRequest();
-		xhr.timeout = 45000;
+		//xhr.timeout = 45000;
 		xhr.open(method, url, true);
-		xhr.timeout = 45000;
 		const heckt = Date.now();
 		xhr.onload = function()
 		{
@@ -62,7 +61,16 @@
 				}
 				else
 				{
-					console.log("XHR " + url + "; non-ok status "+xhr.status + " after " + ((Date.now() - heckt) / 1000) +  ", response=" + xhr.response);
+					if(xhr.status == 503)
+					{
+						console.log("503: probably an LSL event queue overflow, retrying request..");
+						setTimeout(function(){ MakeXHR(handle, url, callbackFunction, message, method) }, 2500);
+					}
+					else
+					{
+						console.log("XHR " + url + "; non-ok status "+xhr.status + " after " + ((Date.now() - heckt) / 1000) +  ", response=" + xhr.response);
+					}
+					
 				}
 			}
 		};
