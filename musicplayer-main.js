@@ -72,7 +72,7 @@
 					}
 					else if(xhr.status == 504)
 					{
-						var dif = dur - poll_delay_adapt;
+						var dif = dur - 25;
 						poll_delay_adapt = Math.max(Math.min(poll_delay_adapt - dif, 22), 15);
 						console.log("504: probably SL server timeout of 25s, adjusting delay to " + poll_delay_adapt);
 						
@@ -197,7 +197,7 @@
 	function LSL_Poll()
 	{
 		last_poll = unixTime();
-		MakeXHR("", lslServer + "/poll/" + session_id + "/" + current_track_id, LSL_Poll_Callback, "", "GET");
+		MakeXHR("", lslServer + "/poll/" + session_id + "/" + current_track_id + "/" + last_poll, LSL_Poll_Callback, "", "GET");
 	}
 	
 	function LSL_Poll_Callback(handle, body)
