@@ -307,6 +307,8 @@
 			console.log("Added new empty playlist "+name);
 			BuildPlaylistSelect(playlist_list.length-1);
 			edit_playlist = name;
+			document.getElementById(SC_PREVIEW_SCROLLBOX).innerHTML = "";
+			loaded_track_uri_map.clear();
 		}
 	}
 	
