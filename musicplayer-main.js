@@ -284,7 +284,7 @@
 		var shuffle = document.getElementById("track_randomness")
 		shuffle.value = edit_playlist_shuffle * shuffle.max;
 		var track_uris = playlist_data.slice( (playlist_data[0].length < 4 ? 1 : 0), -1);
-		
+		console.log("Track URIs: " + track_uris);
 		// erase current playlist menu
 		document.getElementById(SC_PREVIEW_SCROLLBOX).innerHTML = "";
 		loaded_track_uri_map.clear();
@@ -292,6 +292,7 @@
 		// load playlist from received URIs
 		for(var i in track_uris)
 		{
+			console.log("Add preview for track " + track_uris[i]);
 			AddTrackURL(track_uris[i]);
 		}
 		

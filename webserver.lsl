@@ -1,3 +1,5 @@
+integer DBG = TRUE; // debugging switch
+
 string srv_url;
 
 string cfg_id = ""; // config webpage session id
@@ -22,20 +24,27 @@ string html_init_tail = "';</script>
 
 // current playing track data
 string current_playlist = "Default";
-string current_track; // uri of upcoming/currently playing track
+string current_track_id; // hash ID of current/next playing track
+string current_track_uri; // uri of upcoming/currently playing track
+string future_track_id; // hash ID of current/next playing track
+string future_track_uri; // uri of upcoming/currently playing track
+integer future_track_duration;
 integer start_time;
 integer end_time;
-string track_waveform; // encoded waveform binary data for active soundcloud track
+string cache_track_reply; // cached reply to track requests for the current track
+//string track_waveform; // encoded waveform binary data for active soundcloud track
+
+integer track_interval = 15; // seconds between finishing and starting tracks
 
 integer player_state; // -1=off, 0=inactive, 1=active
 integer next_url_try = 0x7FFFFFFF; // time of next attempt at getting a URL
 integer next_cleanup;
 
 // client/network stuff
-list sessions; // strides of [str session, str pollId, int time, string track]
-list pending_update; // session request ids needing update for state change
-integer batchsz = 16;
-integer polltm = 360; // poll request timeout period
+//list sessions; // strides of [str session, str pollId, int time, string track]
+//list pending_update; // session request ids needing update for state change
+//integer batchsz = 16;
+//integer polltm = 60; // requests are timed out by the SL server in 25, but consider a client disconnected if a minute passes without polling
 
 // playlist data
 list playlists = ["Default"];
@@ -51,7 +60,20 @@ list admins; // strides of [str key, int accesslevel, str name]
 integer menu_page = 0;
 integer cfg_channel = 0x6392B8E5;
 
-refreshURL()
+float tms;
+integer trqh;
+
+integer Millisec()
+{
+    string Stamp = llGetTimestamp();
+    return (integer)llGetSubString(Stamp, 8, 9) * 86400000 + // Days
+        (integer)llGetSubString(Stamp, 11, 12) * 3600000 + // Hours
+        (integer)llGetSubString(Stamp, 14, 15) * 60000 + // Minutes
+        llRound(((float)llGetSubString(Stamp, 17, -2) * 1000.0)) // Seconds.Milliseconds
+        - 617316353; // Offset to fit between [-617316353,2147483547]
+}
+
+RefreshURL()
 {
     llReleaseURL(srv_url);
     srv_url = llRequestURL();
@@ -75,60 +97,94 @@ list parseTrackData(string body)
 */
 
 
-readCurrentPlaylist()
+ReadCurrentPlaylist()
 {
     playlist_keys = llParseString2List(llLinksetDataRead(current_playlist), ["|"], []);
     playlist_randomness = llList2Float(playlist_keys, 0);
     playlist_keys = llDeleteSubList(playlist_keys, 0, 0);
-    llOwnerSay("readCurrentPlaylist randomness=" + (string)playlist_randomness);
+    if(DBG) llOwnerSay("ReadCurrentPlaylist randomness=" + (string)playlist_randomness);
 }
 
-changeTrack()
+ChangeTrack()
 {
     integer t = llGetUnixTime();
     if( (t > end_time + 600))
     {
-        llOwnerSay("Resetting tracks");
-        readCurrentPlaylist();
+        if(DBG) llOwnerSay("Resetting tracks");
+        ReadCurrentPlaylist();
     }
     
-    llOwnerSay("Changing track");
+    //if(DBG) llOwnerSay("Changing track");
+    /*
     integer ln = llGetListLength(playlist_keys) - 2; // never select the last entry to avoid repeating tracks
     integer next = llRound(llFrand(ln * playlist_randomness));
-    string next_track = llList2String(playlist_keys, next);
-    list track_data = llParseStringKeepNulls(llLinksetDataRead(next_track), ["#|"], []);
-    current_track = llList2String(track_data, 0);//llList2String(playlist_keys, next);
-    playlist_keys = llDeleteSubList(playlist_keys, next, next) + [next_track];
-    llOwnerSay("Post-shuffle: " + llList2CSV(playlist_keys));
-    start_time = t+10;
+    current_track_id = llList2String(playlist_keys, next);
+    list track_data = llParseStringKeepNulls(llLinksetDataRead(current_track_id), ["#|"], []);
+    current_track_uri = llList2String(track_data, 0);//llList2String(playlist_keys, next);
+    playlist_keys = llDeleteSubList(playlist_keys, next, next) + [current_track_id];
+    if(DBG) llOwnerSay("Post-shuffle: " + llList2CSV(playlist_keys));
+    start_time = t+15;
     end_time = start_time + llList2Integer(track_data, 2); // temp, parse duration of track from lsd value
+    */
+    if(future_track_id == "")
+        ShuffleTracks();
+        
+    current_track_id = future_track_id;
+    current_track_uri = future_track_uri;
+    start_time = t + track_interval;
+    end_time = start_time + future_track_duration;
     
-    setStateAndUpdate(1);
+    ShuffleTracks();
+    if(DBG) llOwnerSay("Tracks changed; current=" + current_track_uri + ", future=" + future_track_uri);
+    
+    cache_track_reply = current_track_uri + "|" + (string)start_time + "|" + future_track_uri + "|" + (string)(end_time + track_interval); 
+    
+    /*
+    list track_data = llParseStringKeepNulls(llLinksetDataRead(current_track_id), ["#|"], []);
+    current_track_uri = llList2String(track_data, 0);//llList2String(playlist_keys, next);
+    
+    start_time = t+15;
+    end_time = start_time + llList2Integer(track_data, 2); // temp, parse duration of track from lsd value*/
 }
 
-setStateAndUpdate(integer s)
+ShuffleTracks() // Selects the next track, sets it to future_track_ variables, shuffles track to end of playlist
 {
-    llOwnerSay("setStateAndUpdate " + (string)s);
+    integer ln = llGetListLength(playlist_keys) - 2; // never select the last entry to avoid repeating tracks
+    integer next = llRound(llFrand(ln * playlist_randomness));
+    future_track_id = llList2String(playlist_keys, next);
+    list track_data = llParseStringKeepNulls(llLinksetDataRead(future_track_id), ["#|"], []);
+    future_track_uri = llList2String(track_data, 0);
+    future_track_duration = llList2Integer(track_data, 2);
+    
+    playlist_keys = llDeleteSubList(playlist_keys, next, next) + [future_track_id];
+    if(DBG) llOwnerSay("Post-shuffle: " + llList2CSV(playlist_keys));
+}
+/*
+SetStateAndUpdate(integer s)
+{
+    if(DBG) llOwnerSay("SetStateAndUpdate " + (string)s);
     
     player_state = s;
     
     pending_update = llList2ListSlice(sessions, 0, -1, 4, 1);
-    llOwnerSay("pending_update = " + llList2CSV(pending_update));
+    if(DBG) llOwnerSay("pending_update = " + llList2CSV(pending_update));
     llSetTimerEvent(1);
 }
 
-notifySession(string rqid)
+NotifySession(string rqid)
 {
-    llOwnerSay("notifySession: " + rqid);
+   
     string body;
      
     if(player_state == 1)
-        body = "playtrack|" + current_track + "|" + (string)start_time;
+        body = "playtrack|" + current_track_uri + "|" + (string)start_time + "|" + current_track_id;
     
+    llSetContentType(rqid, CONTENT_TYPE_XHTML);
     llHTTPResponse(rqid, 200, body);
+    if(DBG) llOwnerSay("NotifySession: " + rqid + " " + body);
 }
-
-buildMenu(string agent, integer page, integer mode, integer channel)
+*/
+BuildMenu(string agent, integer page, integer mode, integer channel)
 {
     integer i = llListFindList(admins, [agent]);
     integer admin_lv = llList2Integer(admins, i+1);
@@ -183,7 +239,7 @@ default
 {
     state_entry()
     {
-        refreshURL();
+        RefreshURL();
         admins = llParseString2List(llLinksetDataRead("admins"), ["|"], []);
         llListen(cfg_channel, "", "", "");
     }
@@ -194,7 +250,7 @@ default
         if(~i)
         {
             
-            buildMenu((string)llDetectedKey(0), -1, 0, cfg_channel);
+            BuildMenu((string)llDetectedKey(0), -1, 0, cfg_channel);
             /*
             cfg_id = llGetSubString(llGenerateKey(),0,7);
             last_cfg_time = llGetUnixTime();
@@ -212,7 +268,7 @@ default
     {
         integer i = llListFindList(admins, [(string)k]);
         integer admin_lv = llList2Integer(admins, i+1);
-        llOwnerSay("Admin level: "+(string)admin_lv);
+        if(DBG) llOwnerSay("Admin level: "+(string)admin_lv);
         integer remenu = TRUE;
         integer page = menu_page; // temp global tracker
         integer mode;
@@ -260,23 +316,22 @@ default
         else if(~(i=llListFindList(playlists, [m])))
         {
             current_playlist = m;
-            llOwnerSay("DEBUG set playlist");
+            if(DBG) llOwnerSay("DEBUG set playlist");
             mode=0;
             page=-1;
-            readCurrentPlaylist();
+            ReadCurrentPlaylist();
         }
         else
             remenu = FALSE;
         
-            
         if(remenu)
-            buildMenu((string)k, page, mode, cfg_channel);
+            BuildMenu((string)k, page, mode, cfg_channel);
     }
 
     changed(integer c)
     {
         if(c & (CHANGED_REGION_START|CHANGED_REGION))
-            refreshURL();
+            RefreshURL();
     }
 
     /*
@@ -285,21 +340,23 @@ default
 
     }*/
 
-    http_request(key id, string method, string body)
+    http_request(key rqid, string method, string body)
     {
-        string header = llGetHTTPHeader(id, "x-query-string");
-        string rawpath =  llGetHTTPHeader(id, "x-path-info");
+        integer gt = Millisec();
+        
+        string header = llGetHTTPHeader(rqid, "x-query-string");
+        string rawpath =  llGetHTTPHeader(rqid, "x-path-info");
         list path =  llParseString2List(rawpath, ["/"], []);
-        string ip = llGetHTTPHeader(id, "x-remote-ip");
-        string ua = llGetHTTPHeader(id, "user-agent");
-        llOwnerSay("received " + method + " from " + ip + " [" + ua + "]\nheader=" + header + "\npath=" + llDumpList2String(path, "/") + "\nbody=" + llUnescapeURL(body));
+        string ip = llGetHTTPHeader(rqid, "x-remote-ip");
+        string ua = llGetHTTPHeader(rqid, "user-agent");
+        if(DBG) llOwnerSay("received " + method + " from ip=" + ip + " header=" + header + " path=" + llDumpList2String(path, "/") + " body=" + llUnescapeURL(body));
 
-        string rndver = (string)((integer)llFrand(0xFFFFFFF)); // remove this from shipping
+        string rndver = (string)((integer)llFrand(0xFFFFFFF)); // github caching bypass hack, remove in final build
         
         string p0 = llList2String(path, 0);
        
 
-        if((string)id == srv_url) // URL request
+        if((string)rqid == srv_url) // URL request
         {
             if (method != URL_REQUEST_GRANTED)
             {
@@ -320,42 +377,44 @@ default
                     PRIM_MEDIA_WIDTH_PIXELS, 1024,
                     PRIM_MEDIA_CURRENT_URL, srv_url
                 ]);
+                return;
             }
         }
         else if(header == "")
         {
-            //llOwnerSay("NoHeader");
+            //if(DBG) llOwnerSay("NoHeader");
                 
-            llSetContentType(id, CONTENT_TYPE_XHTML);
-            //llOwnerSay("\nPage request from " + ip + "\nuser-agent=" + llGetHTTPHeader(id, "user-agent") + "\nheader=" + header + "\npath=" + rawpath);
+            llSetContentType(rqid, CONTENT_TYPE_XHTML);
+            //if(DBG) llOwnerSay("\nPage request from " + ip + "\nuser-agent=" + llGetHTTPHeader(rqid, "user-agent") + "\nheader=" + header + "\npath=" + rawpath);
             string p1 = llList2String(path, 1);
             string p2 = llList2String(path, 2);
             string p3 = llList2String(path, 3);
             string p4 = llList2String(path, 4);
 
-            if( !llGetListLength(path) && method == "GET")
+            if( !llGetListLength(path) && method == "GET" && player_state > -1)
             {
-                llHTTPResponse(id, 200, llDumpList2String(llParseStringKeepNulls(html_init + "player" + html_init_tail, ["#VER"], []), rndver ));
-                //llHTTPResponse(id, 200, html_init + "player" + html_init_tail);
+                if(DBG) llOwnerSay("Load request from " + ip + " " + ua);
+                llHTTPResponse(rqid, 200, llDumpList2String(llParseStringKeepNulls(html_init + "player" + html_init_tail, ["#VER"], []), rndver ));
+                //llHTTPResponse(rqid, 200, html_init + "player" + html_init_tail);
             }
 
             else if(cfg_id != "" && p1 == cfg_id) // config page is being displayed
             {
-                llOwnerSay("CfgPage");
+                if(DBG) llOwnerSay("CfgPage");
                 if(llGetUnixTime() < last_cfg_time + 3600)
                 {
                     last_cfg_time = llGetUnixTime();
                 }
                 else
                 {
-                    llHTTPResponse(id, 403, "Config page has expired"); 
+                    llHTTPResponse(rqid, 403, "Config page has expired"); 
                     return;
                 }
                 
                 if(llGetListLength(path) == 2)
                 {
-                    llHTTPResponse(id, 200, llDumpList2String(llParseStringKeepNulls(html_init + "config" + html_init_tail, ["#VER"], []), rndver ));
-                   // llHTTPResponse(id, 200, html_init + "config" + html_init_tail);
+                    llHTTPResponse(rqid, 200, llDumpList2String(llParseStringKeepNulls(html_init + "config" + html_init_tail, ["#VER"], []), rndver ));
+                   // llHTTPResponse(rqid, 200, html_init + "config" + html_init_tail);
                     return;
                 }
                
@@ -366,14 +425,14 @@ default
                         saving_playlist = p4;
                         if(saving_playlist == "")
                         {
-                            llOwnerSay("Error: playlist name is null");
+                            if(DBG) llOwnerSay("Error: playlist name is null");
                             return;
                         }
-                        llOwnerSay("Saving playlist " + saving_playlist);
+                        if(DBG) llOwnerSay("Saving playlist " + saving_playlist);
                         //llLinksetDataReset();
                         playlist_track_hash = [body]; // shuffle randomness value
                         //llLinksetDataDelete(saving_playlist);
-                        llHTTPResponse(id, 200, "NXT");
+                        llHTTPResponse(rqid, 200, "NXT");
                     }
                     else if(p3 == saving_playlist)
                     {
@@ -381,23 +440,23 @@ default
                         {
                             list track = llParseStringKeepNulls(body, ["#|"], []); 
                             string hash = llGetSubString(llComputeHash(llList2String(track, 0), "sha256"),0,15);
-                            //llOwnerSay(llList2String(track, 0) + " sha256 = " + hash);
+                            //if(DBG) llOwnerSay(llList2String(track, 0) + " sha256 = " + hash);
                             playlist_track_hash += [hash];
                             llLinksetDataWrite(hash, body);
-                            llOwnerSay("Saved " + llList2String(track, 0) + " with ID " + hash);
+                            if(DBG) llOwnerSay("Saved " + llList2String(track, 0) + " with ID " + hash);
                             
-                            llHTTPResponse(id, 200, "NXT");
+                            llHTTPResponse(rqid, 200, "NXT");
                         }
                         else if(p4 == "end")
                         {
                             string dpl =  llDumpList2String(playlist_track_hash, "|");
                             llLinksetDataWrite(saving_playlist, dpl);
                             
-                            llOwnerSay("got final entry, confirming end");
-                            llOwnerSay(saving_playlist + ": " + dpl);
-                            llHTTPResponse(id, 200, "END");
+                            if(DBG) llOwnerSay("got final entry, confirming end");
+                            if(DBG) llOwnerSay(saving_playlist + ": " + dpl);
+                            llHTTPResponse(rqid, 200, "END");
                             //list lsdk = llLinksetDataListKeys(0,-1);
-                            //llOwnerSay("Saved track URIs: " + llList2CSV(lsdk));
+                            //if(DBG) llOwnerSay("Saved track URIs: " + llList2CSV(lsdk));
                         }
                     }
                     /*
@@ -407,13 +466,13 @@ default
                     }*/
                     else
                     {
-                        llHTTPResponse(id, 400, "Not a valid playlist save operation at this time");
+                        llHTTPResponse(rqid, 400, "Not a valid playlist save operation at this time");
                     }
                 }
                 
                 else if(p2 == "playlists") // load list of playlists
                 {
-                    llHTTPResponse(id, 200, llDumpList2String(playlists, "#|"));
+                    llHTTPResponse(rqid, 200, llDumpList2String(playlists, "#|"));
                 }
                 
                 else if(p2 == "playlist") // load a single playlist
@@ -426,123 +485,139 @@ default
                         integer n = llGetListLength(playlist_keys);
                         while(--n) // ignore index 0, since it is the shuffle randomness float
                             playlist_keys = llListReplaceList(playlist_keys, llList2List(llParseString2List(llLinksetDataRead(llList2String(playlist_keys, n)), ["#|"], []), 0, 0), n, n);
-                        llOwnerSay("playlist = " + llList2CSV(playlist_keys));
+                        if(DBG) llOwnerSay("playlist = " + llList2CSV(playlist_keys));
                     }
-                    llHTTPResponse(id, 200, llDumpList2String(playlist_keys, "|"));
+                    llHTTPResponse(rqid, 200, llDumpList2String(playlist_keys, "|"));
                 }
                 
                 else if (p2 == "delete")
                 {
                     string pl = llList2String(path, 3);
-                    llOwnerSay("Deleting playlist " + pl);
+                    if(DBG) llOwnerSay("Deleting playlist " + pl);
                     llLinksetDataDelete(pl);
-                    llHTTPResponse(id, 200, pl);
+                    llHTTPResponse(rqid, 200, pl);
                 }
                 /*
                 else if(p2 == "tracks")
                 {
                     list uris = llLinksetDataListKeys(0, -1);
-                    llHTTPResponse(id, 200, llDumpList2String(uris, "|"));
+                    llHTTPResponse(rqid, 200, llDumpList2String(uris, "|"));
                 }
                 */
                 else
                 {
-                    llHTTPResponse(id, 400, "Invalid path/request syntax");
+                    llHTTPResponse(rqid, 400, "Invalid path/request syntax");
                 }
                 /*
                 else if(p2 == "track")
                 {
                     string p3 = llList2String(path, 3);
                     string body = llLinksetDataRead(p3);
-                    llHTTPResponse(id, 200, body);
+                    llHTTPResponse(rqid, 200, body);
                 }*/
             }
-            
+            /*
             else if(p0 == "poll") // save a http poll to respond to on demand
             {
-                string p1 = llList2String(path, 1); // look up session by identifier
+                if(player_state == -1)
+                {
+                    llHTTPResponse(rqid, 503, "Media player server is currently offline");
+                    return;
+                }
+                //string p1 = llList2String(path, 1); // look up session by identifier
                 integer fsid = llListFindList(sessions, [p1]);
                 integer t = llGetUnixTime();
                 
+                 // existing session updated
                 if(~fsid)
                 {
-                    sessions = llListReplaceList(sessions, [(string)id, t], fsid+1, fsid+2);
-                    llOwnerSay("Session updated: " + p1);
+                    llHTTPResponse(llList2Key(sessions, fsid+1), 200, "exp"); // safely expire this poll
+                    integer lsut = llList2Integer(sessions, fsid+2);
+                    sessions = llListReplaceList(sessions, [(string)rqid, t], fsid+1, fsid+2);
+                    if(DBG) llOwnerSay("Session updated: " + p1 + " after " + (string)(t - lsut) + ", ping=" + (string)(t - (integer)p3));
+                    if(p2 != current_track_id)
+                    {
+                        if(DBG) llOwnerSay("Track ID " + p2 + "mismatches current track " + current_track_id + ", resending");
+                        NotifySession(rqid);
+                    }
                 }
-                else if(llGetListLength(sessions) < 99) // defense against vaguely intelligent people who think they are hackerman
+                // new session added
+                else if(llGetListLength(sessions) < 99) // defense against vaguely intelligent people who think they are hackerman, do some more ip filtering later
                 {
-                    sessions += [p1, (string)id, t, ""];
-                    llOwnerSay("Session recorded: " + p1);
+                    sessions += [p1, (string)rqid, t, ""];
+                    if(DBG) llOwnerSay("Session recorded: " + p1);
+                    if(t >= start_time && t < end_time)
+                        NotifySession(rqid);
                 }
                 
                 if(player_state == 0)
                 {
-                    changeTrack(); // triggers state update afterward
+                    player_state = 1;
+                    ChangeTrack(); // triggers state update afterward
                 }
             }
-            /*
+             */
+            
             else if(p0  == "next-track")
             {
                 integer t = llGetUnixTime();
                 
                 if( (t > end_time + 600))
                 {
-                    llOwnerSay("Resetting tracks");
+                    if(DBG) llOwnerSay("Resetting tracks");
                     
-                    readCurrentPlaylist();
-                    //playlist_keys = llListRandomize(playlist_keys, 1);
-                    //playlist_progress = -1;
+                    ReadCurrentPlaylist();
                 }
                 
                 if(t > end_time)
                 {
-                    llOwnerSay("Changing track");
-                    //++playlist_progress;
-                    //if(playlist_progress)
+                    ChangeTrack();
+                    /*
+                    if(DBG) llOwnerSay("Changing track");
                     integer ln = llGetListLength(playlist_keys) - 2; // never select the last entry to avoid repeating tracks
                     integer next = llRound(llFrand(ln * playlist_randomness));
                     string next_track = llList2String(playlist_keys, next);
                     list track_data = llParseStringKeepNulls(llLinksetDataRead(next_track), ["#|"], []);
-                    current_track = llList2String(track_data, 0);//llList2String(playlist_keys, next);
+                    current_track_uri = llList2String(track_data, 0);//llList2String(playlist_keys, next);
                     playlist_keys = llDeleteSubList(playlist_keys, next, next) + [next_track];
-                    llOwnerSay("Post-shuffle: " + llList2CSV(playlist_keys));
+                    if(DBG) llOwnerSay("Post-shuffle: " + llList2CSV(playlist_keys));
                     start_time = t+10;
                     end_time = start_time + llList2Integer(track_data, 2); // temp, parse duration of track from lsd value
+                    */
                 }
-                /*
-                list uris = llLinksetDataListKeys(0, -1);
-                string uri = llList2String(uris, llRound(llFrand(llGetListLength(uris)-1)));
-                current_track = uri; // temporary
-                *
                 
-                llOwnerSay("Sending track "+ current_track + " to " + ip);
-                llHTTPResponse(id, 200, current_track + "|" + (string)start_time);
-            }*/
+                if(DBG) llOwnerSay("Sending track "+ cache_track_reply + " to " + ip);
+                llHTTPResponse(rqid, 200, cache_track_reply);
+            }
             /*
             else if(p0  == "waveform")
             {
                 //string uri = llGetSubString(rawpath, 10, -1);
                 string track = llList2String(path, -1);
-                llOwnerSay(track + " == " + current_track);
-                if(~llSubStringIndex(current_track, track))
+                if(DBG) llOwnerSay(track + " == " + current_track_uri);
+                if(~llSubStringIndex(current_track_uri, track))
                 {
                     track_waveform = body;
-                    llOwnerSay("Saved waveform for current track");
+                    if(DBG) llOwnerSay("Saved waveform for current track");
                 }
-                llHTTPResponse(id, 200, "");
+                llHTTPResponse(rqid, 200, "");
             }
             */
 
             else
             {
-                llOwnerSay("Unrecognized request!");
-                llHTTPResponse(id, 400, "LSL server has no idea what that was!");
+                if(DBG) llOwnerSay("Unrecognized request!");
+                llHTTPResponse(rqid, 400, "LSL server has no idea what that was!");
             }
         }
         else
         {
-            llOwnerSay("Header is sus");
+            if(DBG) llOwnerSay("Header is sus");
         }
+        gt = Millisec() - gt;
+        tms += gt;
+        ++trqh;
+        if(DBG) llOwnerSay("Complete in " + (string)(gt) + "ms, avg=" + (string)(tms/trqh));
 
     }
 
@@ -557,13 +632,14 @@ default
         }
         else
         {
+            /*
             if(pending_update)
             {
                 integer n = llGetListLength(pending_update);
                 integer i = 0;
                 for(; i<batchsz && i<n; ++i)
                 {
-                     notifySession(llList2Key(pending_update, i));
+                     NotifySession(llList2Key(pending_update, i));
                 }
                 pending_update = llDeleteSubList(pending_update, 0, batchsz-1);
             }
@@ -578,23 +654,28 @@ default
                 integer n = llGetListLength(sessions) / 4;
                 if(!n && player_state)
                 {
-                    setStateAndUpdate(0);
+                    SetStateAndUpdate(0);
                 }
                 else while(~--n)
                 {
                     if(llList2Integer(sessions, n*4+2) + polltm < t)
                     {
-                        llOwnerSay("Session expired: " + llList2String(sessions, n*4));
+                        key rqid = llList2String(sessions, n*4+1);
+                        //llSetContentType(rqid, CONTENT_TYPE_XHTML);
+                        //llHTTPResponse(rqid, 200, "exp");
+                        if(DBG) llOwnerSay("Session expired: " + llList2String(sessions, n*4));
                         sessions = llDeleteSubList(sessions, n*4, n*4+3);
                     }
+                    //else n=0;
                 }
                 next_cleanup = t+polltm;
             }
             
-            if(t > end_time && player_state == 1)
+            if(t > end_time+1 && player_state == 1)
             {
-                changeTrack();
+                ChangeTrack();
             }
+            */
         }
     }
 }
