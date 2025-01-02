@@ -108,8 +108,8 @@
 			
 			console.log("session id is " + session_id);
 			//LSL_Poll();
-			//LSL_GetNextTrack();
-			setInterval( PollIfRequired, 1000);
+			LSL_GetNextTrack();
+			//setInterval( PollIfRequired, 1000);
 			//SC_CreateIframe("client_player_sc_iframe", "client_player_box");
 		}
 		else if(page_type == "config")
@@ -187,7 +187,7 @@
 	//
 	// Communication with server LSL script
 	//
-	
+	/*
 	function PollIfRequired()
 	{
 		if(unixTime() > (last_poll + poll_delay_adapt))
@@ -233,7 +233,7 @@
 			LSL_Poll();
 		}
 	}
-	
+	*/
 	function LSL_GetPlaylists()
 	{
 		MakeXHR("", lslServer + "/playlists", LSL_GetPlaylists_Callback, "", "GET");
@@ -380,7 +380,7 @@
 	// client player mode functions
 	//
 	
-	function LSL_GetNextTrack() // deprecated
+	function LSL_GetNextTrack()
 	{
 		loaded_track_uri_map.clear();
 		id_scplayer_map.clear();
@@ -391,12 +391,13 @@
 		});
 	}
 	
-	function LSL_GetNextTrack_Callback(handle, body) // deprecated
+	function LSL_GetNextTrack_Callback(handle, body)
 	{
 		console.log("LSL_GetNextTrack_Callback: " + body);
 		var data = body.split("|");
 		var uri = data[0];
 		current_track_start_time = Number(data[1]);
+		current_track_id = args[3];
 		
 		if(uri.includes("soundcloud"))
 		{
@@ -624,7 +625,7 @@
 		if(page_type == "player")
 		{
 			console.log("Soundcloud track finished playing, requesting next in 1s");
-			//setTimeout( function () { LSL_GetNextTrack() }, 1000 );
+			setTimeout( function () { LSL_GetNextTrack() }, 1000 );
 		}
 	}
 	
@@ -880,7 +881,7 @@
 		if(event.data == YT.PlayerState.ENDED && page_type == "player")
 		{
 			console.log("Youtube track finished playing, requesting next in 1s");
-			//setTimeout( function () { LSL_GetNextTrack() }, 1000 );
+			setTimeout( function () { LSL_GetNextTrack() }, 1000 );
 		}
 	}
 	
