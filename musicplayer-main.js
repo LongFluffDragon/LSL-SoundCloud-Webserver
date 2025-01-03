@@ -192,6 +192,9 @@
 		var ihtml = document.getElementById("TMP_sc_track_preview").cloneNode(true).innerHTML;
 		ihtml = ReplaceAll(ihtml, "%title%", track_url);
 		ihtml = ReplaceAll(ihtml, "%track%", track_id);
+		ihtml = ReplaceAll(ihtml, "#DEL", unicode_btn[2]);
+		ihtml = ReplaceAll(ihtml, "#UP", unicode_btn[0]);
+		ihtml = ReplaceAll(ihtml, "#DWN", unicode_btn[1]);
 		document.getElementById(SC_PREVIEW_SCROLLBOX).insertAdjacentHTML("beforeend", ihtml);
 		
 		// TODO: URL causes crash, fucking ampersands https://www.youtube.com/watch?v=smJrVboIOjA&list=PLhPt7n-ALrSAR_jze4rKBbRNxo0rQ467J&index=78
