@@ -312,20 +312,44 @@
 		}
 	}
 	
+	function Btn_RenPlaylist()
+	{
+		var input = window.prompt("Enter new name for "+edit_playlist, "");
+		console.log("Renaming "+edit_playlist " to " + input);
+		MakeXHR("", lslServer + "/ren/" + edit_playlist + "/" + input, LSL_RenPlaylist_Callback, "", "GET");
+		
+	}
+	
+	function LSL_RenPlaylist_Callback(handle, body)
+	{
+		/*var data = body.split("|");
+		if(data[0] != err)
+		{
+			//playlist_list.remove(data[0]);
+			LSL_GetPlaylists();
+		}*/
+		window.alert(body);
+	}
+	
 	function Btn_DelPlaylist()
 	{
 		var conf = window.prompt("Enter 'delete' to confirm deletion of "+edit_playlist, "");
 		if(conf.toLowerCase().includes("delete"))
 		{
 			console.log("Deleting "+edit_playlist);
-			MakeXHR("", lslServer + "/delete/" + edit_playlist, LSL_DelPlaylist_Callback, "", "GET");
+			MakeXHR("", lslServer + "/del/" + edit_playlist, LSL_DelPlaylist_Callback, "", "GET");
 		}
 	}
 	
 	function LSL_DelPlaylist_Callback(handle, body)
 	{
-		playlist_list.remove(body);
-		BuildPlaylistSelect(0);
+		/*var data = body.split("|");
+		if(data[0] != err)
+		{
+			//playlist_list.remove(data[0]);
+			LSL_GetPlaylists();
+		}*/
+		window.alert(body);
 	}
 	
 	function Btn_SavePlaylist()
