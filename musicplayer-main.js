@@ -234,9 +234,10 @@
 		var a = 0;
 		var b = 0;
 		var i = 0;
+		var id = SC_PRV_ID_PFX + track;
 		for (const key of loaded_track_uri_map.keys())
 		{
-			if(key == track)
+			if(key == id)
 			{
 				if(i > 0)
 				{
@@ -255,9 +256,10 @@
 		var a = 0;
 		var b = 0;
 		var i = 0;
+		var id = SC_PRV_ID_PFX + track;
 		for (const key of loaded_track_uri_map.keys())
 		{
-			if(key == track)
+			if(key == id)
 			{
 				if(i < (loaded_track_uri_map.size - 1))
 				{
@@ -273,7 +275,7 @@
 	
 	function SwapTrackPlaces(a, b)
 	{
-		console.log("SwapTrackPlaces");
+		console.log("SwapTrackPlaces: " + a + " <-> " + b);
 		var vals = new Array(loaded_track_uri_map.size);
 		var keys = new Array(loaded_track_uri_map.size);
 		var i = 0;
