@@ -360,13 +360,14 @@
 	
 	function LSL_RenPlaylist_Callback(handle, body)
 	{
-		/*var data = body.split("|");
-		if(data[0] != err)
+		var data = body.split("|");
+		if(data[0] != "err")
 		{
-			//playlist_list.remove(data[0]);
-			LSL_GetPlaylists();
-		}*/
-		window.alert(body);
+			////playlist_list.remove(data[0]);
+			edit_playlist = data[0];
+			window.alert(data[1]);
+		}
+		
 		edit_lock = false;
 		LSL_GetPlaylists();
 	}
