@@ -350,7 +350,7 @@
 		if(CheckEditLock())
 			return;
 		
-		var conf = window.prompt("Enter 'delete' to confirm deletion of " + edit_playtlist, "");
+		var conf = window.prompt("Enter 'delete' to confirm deletion of " + edit_playlist, "");
 		if(conf.toLowerCase().includes("delete"))
 		{
 			console.log("Deleting "+edit_playlist);
