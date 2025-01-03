@@ -181,6 +181,7 @@
 	
 	function PlaylistSelectChange()
 	{
+		console.log("playlist selection changed");
 		if(CheckEditLock())
 			return;
 		var index = document.getElementById("sel_playlist").value;
