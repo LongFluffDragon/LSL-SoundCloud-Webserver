@@ -291,9 +291,9 @@
 		if(CheckEditLock())
 			return;
 		
-		var index = document.getElementById("sel_playlist").value;
-		var getpl = playlist_list[index];
-		console.log("get playlist " + getpl + " at " + index);
+		var getpl = document.getElementById("sel_playlist").value;
+		//var getpl = playlist_list[index];
+		console.log("get playlist " + getpl);// + " at " + index);
 		//MakeXHR("", lslServer+"/tracks", LSL_LoadPlaylist_Callback, "", "GET");
 		edit_playlist = getpl;
 		MakeXHR("", lslServer + "/playlist/" + edit_playlist, LSL_LoadPlaylist_Callback, "", "GET");
