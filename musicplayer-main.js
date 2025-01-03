@@ -157,6 +157,7 @@
 		track_obj.uri = "";
 		track_obj.title = "unknown";
 		track_obj.duration = -1;
+		track_obj.loaded = false;
 		var add_to = "preview_iframe_" + track_id;
 		console.log("Added '" + if_id + "' to loaded_track_uri_map, creating iframe in " + add_to);
 		
@@ -323,7 +324,6 @@
 			console.log("Add preview for track " + track_uris[i]);
 			AddTrackURL(track_uris[i]);
 		}
-		
 	}
 	
 	function Btn_AddPlaylist()
@@ -436,14 +436,14 @@
 			else
 			{
 				var track_obj = loaded_track_uri_map.values().toArray()[save_track_index];
-				if(track_obj.uri.length > 0)
+				if(track_obj.loaded)
 				{
 					var track = track_obj.uri + "#|" + track_obj.title + "#|" + track_obj.duration;
 					MakeXHR("", lslServer + "/save/" + edit_playlist + "/uri", LSL_SavePlaylist_Callback, track, "PUT");
 				}
 				else
 				{
-					console.log("Error: track URI length is 0 for " + save_track_index);
+					window.alert("Error: a track is not fully loaded, cannot save playlist");
 					for (let [key, value] of loaded_track_uri_map)
 						console.dir(value);
 				}
@@ -554,6 +554,7 @@
 			var track_obj = {};// = {src_url: "", uri: current_track_uri};
 			track_obj.uri = current_track_uri;
 			track_obj.src_url = "";
+			track_obj.loaded = false;
 			loaded_track_uri_map.set(iframe.id, track_obj);
 		}
 		else
@@ -805,6 +806,7 @@
 					value.hasData = true;
 					value.title = sound.title;
 					value.duration = Math.round(sound.duration / 1000);
+					value.loaded = true;
 					loaded_track_uri_map.set(key, value);
 					
 					console.log("properties in sound data:");
@@ -994,6 +996,7 @@
 			//console.dir(track_obj);
 			track_obj.title = event.target.videoTitle;
 			track_obj.duration = event.target.getDuration();
+			track_obj.loaded = true;
 			loaded_track_uri_map.set(event.target.g.id, track_obj);
 			console.dir(track_obj);
 		}
