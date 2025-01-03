@@ -21,6 +21,7 @@
 	var playlist_list; // array of available playlists
 	var edit_playlist = "Default"; // current playlist being edited
 	var edit_playlist_shuffle = 0;
+	var edit_lock = false;
 	
 	var SC_PRV_ID_PFX = "sc_track_preview_";
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
@@ -238,11 +239,15 @@
 	*/
 	function LSL_GetPlaylists()
 	{
+		if(CheckEditLock())
+			return;
+		edit_lock = true;
 		MakeXHR("", lslServer + "/playlists", LSL_GetPlaylists_Callback, "", "GET");
 	}
 	
 	function LSL_GetPlaylists_Callback(handle, body)
 	{
+		edit_lock = false;
 		playlist_list = body.split("#|");
 		BuildPlaylistSelect(0);
 	}
@@ -264,18 +269,22 @@
 	
 	function Btn_LoadPlaylist()
 	{
+		if(CheckEditLock())
+			return;
+		
 		var index = document.getElementById("sel_playlist").value;
 		var getpl = playlist_list[index];
 		console.log("get playlist " + getpl + " at " + index);
 		//MakeXHR("", lslServer+"/tracks", LSL_LoadPlaylist_Callback, "", "GET");
 		edit_playlist = getpl;
 		MakeXHR("", lslServer + "/playlist/" + edit_playlist, LSL_LoadPlaylist_Callback, "", "GET");
+		edit_lock = true;
 	}
 	
 	function LSL_LoadPlaylist_Callback(handle, body)
 	{
 		console.log("LSL_LoadPlaylist_Callback: " + body);
-		
+		edit_lock = false;
 		var playlist_data = body.split("|"); // 0:shuffle, 1+: URIs
 		edit_playlist_shuffle = Number(playlist_data[0]);
 		if(edit_playlist_shuffle == NaN)
@@ -314,9 +323,13 @@
 	
 	function Btn_RenPlaylist()
 	{
+		if(CheckEditLock())
+			return;
+		
 		var input = window.prompt("Enter new name for "+edit_playlist, "");
 		console.log("Renaming " + edit_playlist + " to " + input);
 		MakeXHR("", lslServer + "/ren/" + edit_playlist + "/" + input, LSL_RenPlaylist_Callback, "", "GET");
+		edit_lock = true;
 		
 	}
 	
@@ -329,16 +342,21 @@
 			LSL_GetPlaylists();
 		}*/
 		window.alert(body);
+		edit_lock = false;
 	}
 	
 	function Btn_DelPlaylist()
 	{
-		var conf = window.prompt("Enter 'delete' to confirm deletion of " + edit_playlist, "");
+		if(CheckEditLock())
+			return;
+		
+		var conf = window.prompt("Enter 'delete' to confirm deletion of " + edit_playtlist, "");
 		if(conf.toLowerCase().includes("delete"))
 		{
 			console.log("Deleting "+edit_playlist);
 			MakeXHR("", lslServer + "/del/" + edit_playlist, LSL_DelPlaylist_Callback, "", "GET");
 		}
+		edit_lock = true;
 	}
 	
 	function LSL_DelPlaylist_Callback(handle, body)
@@ -350,11 +368,13 @@
 			LSL_GetPlaylists();
 		}*/
 		window.alert(body);
+		edit_lock = false;
 	}
 	
 	function Btn_SavePlaylist()
 	{
-
+		if(CheckEditLock())
+			return;
 		/*var tracks = [];
 		for (let [key, value] of loaded_track_uri_map)
 		{
@@ -368,15 +388,16 @@
 		var shuffle = document.getElementById("track_randomness");
 		edit_playlist_shuffle = shuffle.value / shuffle.max;
 		MakeXHR("", lslServer + "/save/start/" + edit_playlist, LSL_SavePlaylist_Callback, edit_playlist_shuffle, "PUT");
+		edit_lock = true;
 	}
 	
 	function LSL_SavePlaylist_Callback(handle, body)
 	{
 		if(body == "END")
 		{
-			console.log("Successfully finished track save");
-			return;
-			
+			//console.log("Successfully saved playlist");
+			window.alert("Successfully saved playlist " + edit_playlist);
+			edit_lock = false;
 		}
 		else if(body == "NXT")
 		{
@@ -403,6 +424,13 @@
 				++save_track_index;
 			}
 		}
+	}
+	
+	function CheckEditLock()
+	{
+		if(edit_lock)
+			window.alert("Editing locked, wait for save/load to complete");
+		return edit_lock;
 	}
 	
 	//
