@@ -184,12 +184,43 @@
 		console.log("playlist selection changed");
 		if(CheckEditLock())
 			return;
-		var index = document.getElementById("sel_playlist").value;
-		var getpl = playlist_list[index];
-		console.log("selected playlist " + getpl + " at " + index);
-		edit_playlist = getpl;
-		Btn_LoadPlaylist();
+		
+		var selected = document.getElementById("sel_playlist").value;
+		if(playlist_list.includes(selected))
+		{
+			edit_playlist = selected;
+			console.log("selected playlist " + selected);
+			Btn_LoadPlaylist();
+		}
+		
 	}
+	
+	function BuildPlaylistSelect(index)
+	{
+		var sel = document.getElementById("sel_playlist");
+		var selected = "#sel";
+		sel.innerHTML = "";
+		var option = document.createElement("option");
+		option.value = selected;
+		option.text = "--Select Playlist--";
+		sel.appendChild(option);
+			
+		for(var n in playlist_list)
+		{
+			option = document.createElement("option");
+			option.value = playlist_list[n];
+			option.text = playlist_list[n];
+			sel.appendChild(option);
+			if(n == edit_playlist)
+				selected = edit_playlist;
+		}
+		
+		sel.value = selected;
+		
+		if(selected == "#sel")
+			edit_playlist = "";
+	}
+	
 	
 	//
 	// Communication with server LSL script
@@ -254,21 +285,6 @@
 		edit_lock = false;
 		playlist_list = body.split("#|");
 		BuildPlaylistSelect(0);
-	}
-	
-	function BuildPlaylistSelect(index)
-	{
-		var sel = document.getElementById("sel_playlist");
-		sel.innerHTML = "";
-		for(var n in playlist_list)
-		{
-			var option = document.createElement("option");
-			option.value = n;
-			option.text = playlist_list[n];
-			sel.appendChild(option);
-		}
-		sel.value = index;
-		edit_playlist = playlist_list[0];
 	}
 	
 	function Btn_LoadPlaylist()
