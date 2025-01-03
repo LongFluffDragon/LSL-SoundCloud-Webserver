@@ -211,7 +211,7 @@
 			option.value = playlist_list[n];
 			option.text = playlist_list[n];
 			sel.appendChild(option);
-			if(n == edit_playlist)
+			if(option_value == edit_playlist)
 				selected = edit_playlist;
 		}
 		
