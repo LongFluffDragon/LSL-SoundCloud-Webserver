@@ -289,9 +289,11 @@
 		loaded_track_uri_map.clear();
 		for(i in keys)
 		{
-			console.log("key " + i + " is " + keys[i]);
+			var id = keys[i].substring(17);// gets the ID, ie from sc_track_preview_18b55035
+			console.log("key " + i + " is " + id);
+			
 			loaded_track_uri_map.set(keys[i], vals[i]);
-			document.getElementById("preview_scroll_"+keys[i]).style.order = i;
+			document.getElementById("preview_scroll_"+id).style.order = i;
 		}
 	}
 	
