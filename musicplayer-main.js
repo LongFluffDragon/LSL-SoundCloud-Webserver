@@ -328,7 +328,13 @@
 	
 	function Btn_AddPlaylist()
 	{
+		if(CheckEditLock())
+			return;
+		
 		var name = window.prompt("Enter a name for the new playlist", "Playlist" + (playlist_list.length+1));
+		if(name == null || name == "")
+			return;
+		
 		if(playlist_list.includes(name) == false)
 		{
 			playlist_list.push(name);
