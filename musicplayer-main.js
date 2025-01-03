@@ -24,6 +24,7 @@
 	var edit_lock = false;
 	
 	var SC_PRV_ID_PFX = "sc_track_preview_";
+	var SC_PRV_SCROLL_PFX = "preview_scroll_";
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
 
 	var session_id = "";
@@ -226,7 +227,7 @@
 	{
 		console.log("Removing preview track: " + track);
 		loaded_track_uri_map.delete(SC_PRV_ID_PFX + track);
-		document.getElementById("preview_scroll_" + track).remove();
+		document.getElementById(SC_PRV_SCROLL_PFX + track).remove();
 	}
 	
 	function Btn_MoveUpTrackID(track)
@@ -1009,7 +1010,7 @@
 				ytid = getYoutubeId(track); // sus
 				if(ytid == null)
 					ytid = track.split("/").slice(-1);
-				track_obj.uri = "youtube.com/embed/" + ytid;
+				track_obj.uri = "https://youtube.com/embed/" + ytid;
 				loaded_track_uri_map.set(id, track_obj);
 				console.log("Track is already in loaded_track_uri_map");
 			}
