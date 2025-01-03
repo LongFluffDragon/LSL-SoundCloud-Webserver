@@ -500,13 +500,13 @@
 	
 	function LSL_SavePlaylist_Callback(handle, body)
 	{
-		if(body == "END")
+		var data = body.split("|");
+		if(data[0] == "END")
 		{
-			//console.log("Successfully saved playlist");
-			window.alert("Successfully saved playlist " + edit_playlist);
+			window.alert("Successfully saved playlist " + edit_playlist + "\n" + data[1]);
 			edit_lock = false;
 		}
-		else if(body == "NXT")
+		else if(data[0] == "NXT")
 		{
 			console.log("LSL_SaveTrack_Callback: " + body)
 			if(save_track_index >= loaded_track_uri_map.size)
