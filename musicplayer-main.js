@@ -128,6 +128,49 @@
 	// config menu mode functions
 	//
 	
+	function PlaylistSelectChange()
+	{
+		console.log("playlist selection changed");
+		if(CheckEditLock())
+			return;
+		
+		var selected = document.getElementById("sel_playlist").value;
+		if(playlist_list.includes(selected))
+		{
+			edit_playlist = selected;
+			console.log("selected playlist " + selected);
+			Btn_LoadPlaylist();
+		}
+	}
+	
+	function BuildPlaylistSelect()
+	{
+		var sel = document.getElementById("sel_playlist");
+		var selected = "#sel";
+		sel.innerHTML = "";
+		var option = document.createElement("option");
+		option.value = selected;
+		option.text = "--Select Playlist--";
+		sel.appendChild(option);
+			
+		for(var n in playlist_list)
+		{
+			option = document.createElement("option");
+			option.value = playlist_list[n];
+			option.text = playlist_list[n];
+			sel.appendChild(option);
+			if(option.value == edit_playlist)
+				selected = edit_playlist;
+		}
+		
+		sel.value = selected;
+		
+		console.log("BuildPlaylistSelect: selected = " + selected);
+		
+		if(selected == "#sel")
+			edit_playlist = "";
+	}
+	
 	function Btn_AddTrackURL()
 	{
 		var track_url = document.getElementById("text_input_url").value;
@@ -180,49 +223,70 @@
 		document.getElementById("preview_scroll_" + track).remove();
 	}
 	
-	function PlaylistSelectChange()
+	function Btn_MoveUpTrackID(track)
 	{
-		console.log("playlist selection changed");
-		if(CheckEditLock())
-			return;
-		
-		var selected = document.getElementById("sel_playlist").value;
-		if(playlist_list.includes(selected))
+		var a = 0;
+		var b = 0;
+		var i = 0;
+		for (const key of loaded_track_uri_map.keys())
 		{
-			edit_playlist = selected;
-			console.log("selected playlist " + selected);
-			Btn_LoadPlaylist();
+			if(key == track)
+			{
+				if(i > 0)
+				{
+					a = i;
+					b = i-1;
+				}
+				break;
+			}
+			++i;
 		}
+		SwapTrackPlaces(a, b);
 	}
 	
-	function BuildPlaylistSelect()
+	function Btn_MoveDownTrackID(track)
 	{
-		var sel = document.getElementById("sel_playlist");
-		var selected = "#sel";
-		sel.innerHTML = "";
-		var option = document.createElement("option");
-		option.value = selected;
-		option.text = "--Select Playlist--";
-		sel.appendChild(option);
-			
-		for(var n in playlist_list)
+		var a = 0;
+		var b = 0;
+		var i = 0;
+		for (const key of loaded_track_uri_map.keys())
 		{
-			option = document.createElement("option");
-			option.value = playlist_list[n];
-			option.text = playlist_list[n];
-			sel.appendChild(option);
-			if(option.value == edit_playlist)
-				selected = edit_playlist;
+			if(key == track)
+			{
+				if(i < (loaded_track_uri_map.size - 1))
+				{
+					a = i;
+					b = i+1;
+				}
+				break;
+			}
+			++i;
 		}
-		
-		sel.value = selected;
-		
-		console.log("BuildPlaylistSelect: selected = " + selected);
-		
-		if(selected == "#sel")
-			edit_playlist = "";
+		SwapTrackPlaces(a, b);
 	}
 	
+	function SwapTrackPlaces(a, b)
+	{
+		console.log("SwapTrackPlaces");
+		var vals = new Array(loaded_track_uri_map.size);
+		var keys = new Array(loaded_track_uri_map.size);
+		var i = 0;
+		var at;
+		for (let [key, value] of loaded_track_uri_map)
+		{
+			at = (i == a) ? b : ((i == b) ? a : i); // truly a line of code
+			console.log("Placing " + i + " at " + at);
+			vals[at] = value;
+			keys[at] = key;
+			++i;
+		}
+		loaded_track_uri_map.clear();
+		for(i in keys)
+		{
+			loaded_track_uri_map.add(keys[i], vals[i]);
+			document.getElementById("preview_scroll_"+keys[i]).style.order = i;
+		}
+	}
 	
 	//
 	// Communication with server LSL script

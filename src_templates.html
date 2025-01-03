@@ -23,7 +23,7 @@
 	<div>Enter Soundcloud/Youtube track URL:</div>
 	<input type="url" id="text_input_url"></input>
 	<button type="button" id="btn_add_url" onclick="Btn_AddTrackURL()">Add to Playlist</button>
-	<div id="sc_preview_scroll" style="overflow-y:scroll;padding:5px;max-width:600px;max-height:800px"></div>
+	<div id="sc_preview_scroll" style="overflow-y:scroll;padding:5px;max-width:600px;max-height:800px;display:flex"></div>
 </template>
 
 <template id="TMP_sc_player_page">
@@ -40,7 +40,9 @@
 <template id="TMP_sc_track_preview">
 	<div id="preview_scroll_%track%">
 		<div>
-			<button type="button" id="btn_remove_track" onclick="Btn_RemoveTrackID('%track%')">DELETE</button>
+			<button type="button" id="btn_remove_track" onclick="Btn_RemoveTrackID('%track%')">✖</button>
+			<button type="button" id="btn_up_track" onclick="Btn_MoveUpTrackID('%track%')">⮝</button>
+			<button type="button" id="btn_down_track" onclick="Btn_MoveDownTrackID('%track%')">⮟</button>
 			%title%
 		</div>
 		<div id="preview_iframe_%track%"></div>
