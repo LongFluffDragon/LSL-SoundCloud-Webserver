@@ -288,7 +288,7 @@
 		loaded_track_uri_map.clear();
 		for(i in keys)
 		{
-			loaded_track_uri_map.add(keys[i], vals[i]);
+			loaded_track_uri_map.set(keys[i], vals[i]);
 			document.getElementById("preview_scroll_"+keys[i]).style.order = i;
 		}
 	}
