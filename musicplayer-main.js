@@ -315,7 +315,7 @@
 	function Btn_RenPlaylist()
 	{
 		var input = window.prompt("Enter new name for "+edit_playlist, "");
-		console.log("Renaming "+edit_playlist " to " + input);
+		console.log("Renaming " + edit_playlist + " to " + input);
 		MakeXHR("", lslServer + "/ren/" + edit_playlist + "/" + input, LSL_RenPlaylist_Callback, "", "GET");
 		
 	}
@@ -333,7 +333,7 @@
 	
 	function Btn_DelPlaylist()
 	{
-		var conf = window.prompt("Enter 'delete' to confirm deletion of "+edit_playlist, "");
+		var conf = window.prompt("Enter 'delete' to confirm deletion of " + edit_playlist, "");
 		if(conf.toLowerCase().includes("delete"))
 		{
 			console.log("Deleting "+edit_playlist);
