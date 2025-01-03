@@ -446,6 +446,7 @@
 					window.alert("Error: a track is not fully loaded, cannot save playlist");
 					for (let [key, value] of loaded_track_uri_map)
 						console.dir(value);
+					edit_lock = false;
 				}
 					
 				++save_track_index;
