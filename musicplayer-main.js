@@ -217,6 +217,8 @@
 		
 		sel.value = selected;
 		
+		console.log("BuildPlaylistSelect: selected = " + selected);
+		
 		if(selected == "#sel")
 			edit_playlist = "";
 	}
@@ -365,6 +367,7 @@
 		{
 			////playlist_list.remove(data[0]);
 			edit_playlist = data[0];
+			console.log("edit_playlist = " + edit_playlist)
 			window.alert(data[1]);
 		}
 		
