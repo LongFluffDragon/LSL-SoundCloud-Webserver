@@ -31,6 +31,8 @@
 	
 	var poll_delay_adapt = 20;
 	
+	const unicode_btn = ["⮝", "⮟", "✖"];
+	
 	// basic library method vomit ect
 
 	function ReplaceAll(str, tkn, rep)
