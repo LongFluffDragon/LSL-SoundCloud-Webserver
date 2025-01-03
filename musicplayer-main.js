@@ -177,10 +177,10 @@
 	{
 		var track_url = document.getElementById("text_input_url").value;
 		document.getElementById("text_input_url").value = ""; // cant cache object, what fun
-		AddTrackURL(track_url);
+		AddTrackURL(track_url, loaded_track_uri_map.size);
 	}
 	
-	function AddTrackURL(track_url)
+	function AddTrackURL(track_url, index)
 	{
 		track_url = ReplaceAll(track_url, "&", "&amp;"); // we hates it, precious
 		
@@ -195,6 +195,7 @@
 		ihtml = ReplaceAll(ihtml, "#DEL", unicode_btn[2]);
 		ihtml = ReplaceAll(ihtml, "#UP", unicode_btn[0]);
 		ihtml = ReplaceAll(ihtml, "#DWN", unicode_btn[1]);
+		ihtml = ReplaceAll(ihtml, "#ORD", index);
 		document.getElementById(SC_PREVIEW_SCROLLBOX).insertAdjacentHTML("beforeend", ihtml);
 		
 		// TODO: URL causes crash, fucking ampersands https://www.youtube.com/watch?v=smJrVboIOjA&list=PLhPt7n-ALrSAR_jze4rKBbRNxo0rQ467J&index=78
@@ -288,6 +289,7 @@
 		loaded_track_uri_map.clear();
 		for(i in keys)
 		{
+			console.log("key " + i + " is " + keys[i]);
 			loaded_track_uri_map.set(keys[i], vals[i]);
 			document.getElementById("preview_scroll_"+keys[i]).style.order = i;
 		}
@@ -393,7 +395,7 @@
 		for(var i in track_uris)
 		{
 			console.log("Add preview for track " + track_uris[i]);
-			AddTrackURL(track_uris[i]);
+			AddTrackURL(track_uris[i], i);
 		}
 	}
 	
