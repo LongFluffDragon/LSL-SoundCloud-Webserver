@@ -181,10 +181,13 @@
 	
 	function PlaylistSelectChange()
 	{
+		if(CheckEditLock())
+			return;
 		var index = document.getElementById("sel_playlist").value;
 		var getpl = playlist_list[index];
 		console.log("selected playlist " + getpl + " at " + index);
 		edit_playlist = getpl;
+		Btn_LoadPlaylist();
 	}
 	
 	//
@@ -343,6 +346,7 @@
 		}*/
 		window.alert(body);
 		edit_lock = false;
+		LSL_GetPlaylists();
 	}
 	
 	function Btn_DelPlaylist()
@@ -369,6 +373,7 @@
 		}*/
 		window.alert(body);
 		edit_lock = false;
+		LSL_GetPlaylists();
 	}
 	
 	function Btn_SavePlaylist()
