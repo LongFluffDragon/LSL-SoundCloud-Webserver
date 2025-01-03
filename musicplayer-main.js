@@ -192,10 +192,9 @@
 			console.log("selected playlist " + selected);
 			Btn_LoadPlaylist();
 		}
-		
 	}
 	
-	function BuildPlaylistSelect(index)
+	function BuildPlaylistSelect()
 	{
 		var sel = document.getElementById("sel_playlist");
 		var selected = "#sel";
@@ -284,7 +283,7 @@
 	{
 		edit_lock = false;
 		playlist_list = body.split("#|");
-		BuildPlaylistSelect(0);
+		BuildPlaylistSelect();
 	}
 	
 	function Btn_LoadPlaylist()
@@ -334,7 +333,7 @@
 		{
 			playlist_list.push(name);
 			console.log("Added new empty playlist "+name);
-			BuildPlaylistSelect(playlist_list.length-1);
+			BuildPlaylistSelect();
 			edit_playlist = name;
 			document.getElementById(SC_PREVIEW_SCROLLBOX).innerHTML = "";
 			loaded_track_uri_map.clear();
