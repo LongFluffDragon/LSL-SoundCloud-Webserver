@@ -560,8 +560,9 @@
 		}
 		else if(main_player_widget_type == "sc")
 		{
-			main_player_widget.isPaused(function(){
-				console.dir(event);
+			main_player_widget.isPaused(function()
+			{
+				event.value;
 			});
 		}
 	}
