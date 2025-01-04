@@ -5,22 +5,22 @@
 </template>
 
 <template id="TMP_sc_track_setup">
-	<div>
-		<select id="sel_playlist" class="setup" onchange="PlaylistSelectChange()"></select>
+	<div class="setup">
+		<select id="sel_playlist" onchange="PlaylistSelectChange()"></select>
 		<!--<button type="button" id="btn_load" onclick="Btn_LoadPlaylist()">Load Selected Playlist</button>-->
 		<button type="button" class="wtxt" id="btn_save" onclick="Btn_SavePlaylist()">Save Selected Playlist</button>
-	</div>
+	</div class="setup">
 		<button type="button" class="wtxt" id="btn_new" onclick="Btn_AddPlaylist()">New Playlist</button>
 		<button type="button" class="wtxt" id="btn_ren" onclick="Btn_RenPlaylist()">Rename Playlist</button>
 		<button type="button" class="wtxt" id="btn_del" onclick="Btn_DelPlaylist()">Delete Playlist</button>
 	<div>
-	<div>
+	<div class="setup">
 		<span>Playlist Shuffle: [Sequence]</span>
 		<input type="range" id="track_randomness" min="0" max="5" value="1"></input>
 		<span>[Random] </span>
 	</div>
 	</div>
-	<div>Enter Soundcloud/Youtube track URL:</div>
+	<div class="setup">Enter Soundcloud/Youtube track URL:</div>
 	<input type="url" id="text_input_url"></input>
 	<button type="button" id="btn_add_url" onclick="Btn_AddTrackURL()">Add to Playlist</button>
 	<div id="sc_preview_scroll" style="overflow-y:scroll;padding:5px;max-width:512px;max-height:800px;display:flex;flex-direction:column"></div>
