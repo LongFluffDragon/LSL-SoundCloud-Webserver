@@ -6,7 +6,7 @@
 
 <template id="TMP_sc_track_setup">
 	<div class="setup">
-		<select id="sel_playlist" onchange="PlaylistSelectChange()"></select>
+		<select id="sel_playlist" class="btntxt" onchange="PlaylistSelectChange()"></select>
 		<!--<button type="button" id="btn_load" onclick="Btn_LoadPlaylist()">Load Selected Playlist</button>-->
 		<button type="button" class="btntxt" id="btn_save" onclick="Btn_SavePlaylist()">Save Selected Playlist</button>
 	</div>
@@ -21,8 +21,8 @@
 		<span>[Random] </span>
 	</div>
 	<div class="setup">Enter Soundcloud/Youtube track URL:</div>
-	<input type="url" id="text_input_url"></input>
-	<button type="button" id="btn_add_url" onclick="Btn_AddTrackURL()">Add to Playlist</button>
+	<input type="url" id="text_input_url" style="width:80%"></input>
+	<button type="button" class="btntxt" id="btn_add_url" onclick="Btn_AddTrackURL()">Add to Playlist</button>
 	<div id="sc_preview_scroll" style="overflow-y:scroll;padding:5px;max-width:512px;max-height:800px;display:flex;flex-direction:column"></div>
 </template>
 
