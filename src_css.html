@@ -52,7 +52,7 @@
 		width: 				32px;
 		
 		
-		
+		margin: 			0 auto;
 		border-radius: 		0px;
 	}
 	
@@ -63,9 +63,25 @@
 		left: 				16px;
 		height: 			480px;
 		width: 				480px;
-		background-color: 	rgba(0,0,0,0.2);
+		background-color: 	rgba(0,0,0,0.0);
 		z-index: 			2;
 		cursor: 			pointer;
+	}
+	
+	.overlaybtn_label
+	{
+		display: none;
+		text-align:			center;
+		vertical-align:		middle;
+		height: 			128px;
+		width: 				128px;
+		font-size:			128px;
+		background-color: 	rgba(0,0,0,0.1);
+	}
+	
+	.overlaybtn:hover + .overlaybtn_label
+	{
+		display: block;
 	}
 	
 	.widget
@@ -81,6 +97,6 @@
 		border-radius: 		3px;
         overflow-x: 		hidden;
         overflow-y: 		hidden;
-		background-color: 	#4D6FB3;
+		background-color: 	rgba(.5,.5,1,1);
 	}
 	
