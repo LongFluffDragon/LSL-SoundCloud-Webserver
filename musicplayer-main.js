@@ -208,7 +208,7 @@
 		var track_obj = {};// = {src_url:track_url, uri:"", title:"unknown", duration:-1};
 		track_obj.src_url = track_url;
 		track_obj.uri = "";
-		track_obj.title = "unknown";
+		track_obj.title = "";
 		track_obj.duration = -1;
 		track_obj.loaded = false;
 		var add_to = "preview_iframe_" + track_id;
@@ -1010,7 +1010,7 @@
 				if(value.hasData != true)
 				{
 					value.hasData = true;
-					if(value.title == null || value.title == "")
+					if(value.title.length < 1)
 						value.title = sound.title;
 					value.duration = Math.round(sound.duration / 1000);
 					value.loaded = true;
@@ -1098,7 +1098,7 @@
 	//
 	// youtube widget related
 	//
-	  
+	 
 	function YT_CreateIframe(id, insert_to)
 	{
 		// this is a div that magically turns into an iframe for reason we wont think about too carefully
@@ -1209,7 +1209,7 @@
 		{
 			var track_obj = loaded_track_uri_map.get(event.target.g.id);
 			//console.dir(track_obj);
-			if(track_obj.title == null || track_obj.title == "")
+			if(track_obj.title.length < 1)
 				track_obj.title = event.target.videoTitle;
 			track_obj.duration = event.target.getDuration();
 			track_obj.loaded = true;
