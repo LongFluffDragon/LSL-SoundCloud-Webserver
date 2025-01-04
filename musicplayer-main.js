@@ -1060,10 +1060,10 @@
 			document.getElementById("titlespan").innerHTML = event.target.videoTitle;
 			var icon = document.getElementById("icon");
 			icon.src = "https://img.youtube.com/vi/" + ytid + "/0.jpg"
-			//icon.style.height = '360px';
-			//icon.style.width = '480px';
-			icon.style.height = '480px';
-			icon.style.width = '640px';
+			icon.style.height = '360px';
+			icon.style.width = '480px';
+			//icon.style.height = '480px';
+			//icon.style.width = '640px';
 			//icon.style.top = '60px';
 			
 			var time_dif = current_track_start_time - unixTime();
