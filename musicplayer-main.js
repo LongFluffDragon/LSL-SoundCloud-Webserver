@@ -1158,6 +1158,7 @@
 	
 	function YTPlayerReady(event)
 	{
+		main_player_widget = event.target;
 		console.dir(event.target);
 		console.log("src = " + event.target.g.src);
 		console.log("iframe id = " + event.target.g.id);
