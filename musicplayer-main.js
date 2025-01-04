@@ -16,7 +16,8 @@
 	var current_track_start_time = 0;
 	var future_track_uri = "";
 	var futue_track_start_time = 0;
-	var main_sc_player_widget;
+	var main_player_widget = null;
+	var main_player_widget_type = "";
 	
 	var playlist_list; // array of available playlists
 	var edit_playlist = "Default"; // current playlist being edited
@@ -551,6 +552,18 @@
 	function Btn_Play()
 	{
 		console.log("play button clicked");
+		
+		if(main_player_widget_type == "yt")
+		{
+			var state = main_player_widget.getPlayerState();
+			console.log(state);
+		}
+		else if(main_player_widget_type == "sc")
+		{
+			main_player_widget.isPaused(function(){
+				console.dir(event);
+			});
+		}
 	}
 	
 	function SetPlayLabel(index)
@@ -612,6 +625,8 @@
 		console.log("Deleting current player widget");
 		loaded_track_uri_map.clear();
 		id_scplayer_map.clear();
+		main_player_widget = null;
+		main_player_widget_type = "";
 		document.getElementById("client_player_box").innerHTML = "";
 	}
 	
@@ -810,7 +825,8 @@
 		//setTimeout(function() { SC_Widget_OnPlay_Callback(player); }, 1000);
 		player.bind(SC.Widget.Events.PLAY_PROGRESS, SC_Widget_OnStartPlay_Callback);
 		player.bind(SC.Widget.Events.FINISH, SC_Widget_OnFinish_Callback);
-		main_sc_player_widget = player;
+		main_player_widget = player;
+		main_player_widget_type = "sc";
 		
 	}
 	
@@ -819,7 +835,7 @@
 		//TODO fix event target ref use
 		
 		console.log("SC_Widget_OnPlay_Callback");
-		main_sc_player_widget.unbind(SC.Widget.Events.PLAY_PROGRESS);
+		main_player_widget.unbind(SC.Widget.Events.PLAY_PROGRESS);
 		
 		if(page_type == "player")
 		{
@@ -827,7 +843,7 @@
 			console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
 			if(time_dif < 0)
 			{
-				main_sc_player_widget.seekTo(0 - time_dif * 1000);
+				main_player_widget.seekTo(0 - time_dif * 1000);
 			}
 		}
 	}
@@ -933,7 +949,7 @@
 			}
 		}
 	}
-	
+	/*
 	function getWaveform_Callback(id, jsonstr)
 	{
 		var track_obj = loaded_track_uri_map.get(id);
@@ -980,6 +996,7 @@
 		// compress and encode keyframes
 		// reduce to 15 bit unicode chars: 5 bit magnitude, 10 bit length
 	}
+	*/
 	
 	//
 	// youtube widget related
@@ -1035,7 +1052,8 @@
 			//var ytid = track.split("/").slice(-1);
 			
 			console.log("youtube track url = " + track_obj.uri);
-			var newYTPlayer = new YT.Player(iframe.id,
+			
+			main_player_widget = new YT.Player(iframe.id,
 			{
 				height: '390',
 				width: '640',
@@ -1050,6 +1068,7 @@
 					"onStateChange": YTPlayerStateChange
 				}
 			});
+			main_player_widget_type = "yt";
 		});
 	}
 	
