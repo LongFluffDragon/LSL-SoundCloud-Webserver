@@ -33,6 +33,7 @@
 	var poll_delay_adapt = 20;
 	
 	const unicode_btn = ["⮝", "⮟", "✖"];
+	const play_btn_icons = ["⏸", "⏵"];
 	
 	// basic library method vomit ect
 
@@ -117,6 +118,7 @@
 			LSL_GetNextTrack();
 			//setInterval( PollIfRequired, 1000);
 			//SC_CreateIframe("client_player_sc_iframe", "client_player_box");
+			SetPlayLabel(1);
 		}
 		else if(page_type == "config")
 		{
@@ -549,6 +551,11 @@
 	function Btn_Play()
 	{
 		console.log("play button clicked");
+	}
+	
+	function SetPlayLabel(index)
+	{
+		document.getElementById("play_label").innerHTML = play_btn_icons[index];
 	}
 	
 	function LSL_GetNextTrack()
