@@ -304,6 +304,7 @@
 	// Communication with server LSL script
 	//
 	/*
+	
 	function PollIfRequired()
 	{
 		if(unixTime() > (last_poll + poll_delay_adapt))
@@ -544,6 +545,11 @@
 	//
 	// client player mode functions
 	//
+	
+	function Btn_Play()
+	{
+		console.log("play button clicked");
+	}
 	
 	function LSL_GetNextTrack()
 	{
