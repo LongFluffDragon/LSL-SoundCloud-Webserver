@@ -556,6 +556,24 @@
 		SetPlayerState("tgl");
 	}
 	
+	/*var time_dif = current_track_start_time - unixTime();
+			console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
+			if(time_dif < 0)
+			{
+				main_player_widget.seekTo(0 - time_dif * 1000);
+			}
+			
+			
+			var time_dif = current_track_start_time - unixTime();
+			console.log("YTPlayerReady: Track time_dif = " + time_dif);
+			
+			if(time_dif < 1)
+			{
+				event.target.seekTo(0 - time_dif, true);
+				SetPlayerState("play");
+				//event.target.playVideo();
+			}*/
+	
 	function SetPlayerState(set)
 	{
 		if(main_player_widget_type == "yt")
@@ -580,17 +598,22 @@
 						state = false;
 				}
 				if(state)
+				{
+					var time_dif = current_track_start_time - unixTime();
+					console.log("YTPlayerReady: Track time_dif = " + time_dif);
+					if(time_dif < 1)
+						main_player_widget.seekTo(0 - time_dif, true);
 					main_player_widget.playVideo();
+				}
 				else
 					main_player_widget.pauseVideo();
 			}
-			SetPlayLabel(state ? 1 : 0);
+			SetPlayLabel(state ? 0 : 1);
 		}
 		else if(main_player_widget_type == "sc")
 		{
 			main_player_widget.isPaused(function(state)
 			{
-				console.dir(event.data.value);
 				console.log(state);
 				
 				if(set != "")
@@ -608,11 +631,19 @@
 						state = false;
 					}
 					if(state)
+					{
+					console.log("attempting start play");
+						var time_dif = current_track_start_time - unixTime();
+						console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
+						if(time_dif < 0)
+							main_player_widget.seekTo(0 - time_dif * 1000);
 						main_player_widget.play();
+					}
 					else
 						main_player_widget.pause();
 				}
-				SetPlayLabel(state ? 1 : 0);
+				console.log("final state = " + state);
+				SetPlayLabel(state ? 0 : 1);
 			});
 		}
 	}
