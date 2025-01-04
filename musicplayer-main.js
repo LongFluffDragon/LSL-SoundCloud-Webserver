@@ -736,7 +736,7 @@
 				icon.src = oembedResult.thumbnail_url;
 				icon.style.height = '480px';
 				icon.style.width = '480px';
-				//icon.style.top = '0px';
+				icon.style.top = '0px';
 			}
 		}
 		
@@ -760,7 +760,7 @@
 		icon.src = oembedResult.thumbnail_url;
 		icon.style.height = '480px';
 		icon.style.width = '480px';
-		//icon.style.top = '0px';
+		icon.style.top = '0px';
 	}
 	
 	function SC_LoadTrack(id, url)
@@ -1064,7 +1064,7 @@
 			icon.style.width = '480px';
 			//icon.style.height = '480px';
 			//icon.style.width = '640px';
-			//icon.style.top = '60px';
+			icon.style.top = '60px';
 			
 			var time_dif = current_track_start_time - unixTime();
 			console.log("YTPlayerReady: Track time_dif = " + time_dif);
