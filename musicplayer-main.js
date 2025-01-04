@@ -14,8 +14,9 @@
 	//var current_track_id = ""; // hash ID of current track for identification with server
 	var current_track_uri = ""; // URI of current soundcloud/youtube track
 	var current_track_start_time = 0;
+	var current_track_end_time = 0;
 	var future_track_uri = "";
-	var futue_track_start_time = 0;
+	var future_track_start_time = 0;
 	var main_player_widget = null;
 	var main_player_widget_type = "";
 	
@@ -31,10 +32,10 @@
 	var session_id = "";
 	var last_poll = 0;
 	
-	var poll_delay_adapt = 20;
-	
 	const unicode_btn = ["⮝", "⮟", "✖"];
 	const play_btn_icons = ["⏸", "⏵"];
+	
+	var track_swap_status = true;
 	
 	// basic library method vomit ect
 
@@ -186,6 +187,9 @@
 	
 	function AddTrackURL(track_url, index)
 	{
+		if(page_type == "player") // how would this even happen? yikes.
+			return;
+		
 		track_url = ReplaceAll(track_url, "&", "&amp;"); // we hates it, precious
 		
 		console.log("AddTrackURL " + track_url);
@@ -695,16 +699,27 @@
 	function PlayFutureTrack()
 	{
 		DeletePlayer();
+		track_swap_status = false;
 		jQuery(document).ready(function()
 		{
 			if(future_track_uri != "")
 			{
-				console.log("Using future track as new current track: " + future_track_uri);
-				current_track_uri = future_track_uri;
-				current_track_start_time = future_track_start_time;
-				future_track_uri = "";
+				if(UnixTime()+5 > current_track_end_time && current_track_uri.length > 1)
+				{
+					console.log("Using future track as new current track: " + future_track_uri);
+					current_track_uri = future_track_uri;
+					current_track_start_time = future_track_start_time;
+					future_track_uri = "";
+				}
+				else
+				{
+					console.log("Reload attempt; keeping current track: " + current_track_uri);
+				}
+				
+				if(future_track_uri == "")
+					setTimeout(function(){ LSL_GetNextTrack() }, Math.random() * 10000 + 2500);
+				
 				CreatePlayer();
-				setTimeout(function(){ LSL_GetNextTrack() }, Math.random() * 10000 + 2500);
 			}
 			else
 			{
@@ -712,6 +727,16 @@
 				LSL_GetNextTrack();
 			}
 		});
+		setTimeout(CheckSwapStatus, 10000);
+	}
+	
+	function CheckSwapStatus()
+	{
+		if(track_swap_status == false)
+		{
+			PlayFutureTrack();
+			setTimeout(CheckSwapStatus, 10000);
+		}
 	}
 	
 	function DeletePlayer()
@@ -881,7 +906,7 @@
 	}
 	
 	function SC_LoadTrack(id, url)
-	{
+	{	
 		console.log("SC_LoadTrack " + id + " = " + url);
 		var options = [];
 		options.auto_play = false;//page_type == "player" ? true : false;
@@ -991,12 +1016,14 @@
 			console.log("no sound loaded yet or an error occured");
 			return;
 		}
+		
 		/*
 		if(sound.id == lastGetTrackID)
 			return
 		
 		lastGetTrackID = sound.id;
 		*/
+		track_swap_status = true; // looks like it loaded successfully
 		
 		console.log("got sound data for " + sound.id + ", updating display");
 		
@@ -1013,6 +1040,7 @@
 					if(value.title.length < 1)
 						value.title = sound.title;
 					value.duration = Math.round(sound.duration / 1000);
+					current_track_end_time = current_track_start_time + value.duration;
 					value.loaded = true;
 					loaded_track_uri_map.set(key, value);
 					
@@ -1119,18 +1147,20 @@
 			var track;
 			var track_obj;
 			
-			if(loaded_track_uri_map.has(id) == false)
+			if(loaded_track_uri_map.has(id) == false) // fairly sure this state will never occur naturally, but..
 			{
+				console.log("track not already loaded in trackmap, creating defaults");
 				track = current_track_uri;
-				track_obj = {};//{src_url: "", uri: track};
+				track_obj = {};
 				track_obj.uri = track;
-				track_obj.src_url = "";
+				track_obj.src_url = track;
 				track_obj.title = "";
 				loaded_track_uri_map.set(iframe.id, track_obj);
 				ytid = getYoutubeId(track);
 			}
 			else
 			{
+				console.log("found track in track map:");
 				track_obj = loaded_track_uri_map.get(id);
 				console.dir(track_obj);
 				track = track_obj.src_url;
@@ -1144,7 +1174,7 @@
 			}
 		
 			console.log("track id = " + ytid);
-			console.log("youtube not-iframe ready");
+			console.log("youtube iframe ready");
 			
 			
 			//var ytid = track.split("/").slice(-1);
@@ -1182,6 +1212,7 @@
 		
 		if(page_type == "player")
 		{
+			track_swap_status = true;
 			document.getElementById("titlespan").innerHTML = event.target.videoTitle;
 			var icon = document.getElementById("icon");
 			icon.src = "https://img.youtube.com/vi/" + ytid + "/0.jpg"
@@ -1212,6 +1243,7 @@
 			if(track_obj.title.length < 1)
 				track_obj.title = event.target.videoTitle;
 			track_obj.duration = event.target.getDuration();
+			current_track_end_time = current_track_start_time + track_obj.duration;
 			track_obj.loaded = true;
 			loaded_track_uri_map.set(event.target.g.id, track_obj);
 			console.dir(track_obj);
