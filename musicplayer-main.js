@@ -1010,7 +1010,7 @@
 				if(value.hasData != true)
 				{
 					value.hasData = true;
-					if(value.title == null || value.title = "")
+					if(value.title == null || value.title == "")
 						value.title = sound.title;
 					value.duration = Math.round(sound.duration / 1000);
 					value.loaded = true;
@@ -1209,7 +1209,7 @@
 		{
 			var track_obj = loaded_track_uri_map.get(event.target.g.id);
 			//console.dir(track_obj);
-			if(track_obj.title == null || track_obj.title = "")
+			if(track_obj.title == null || track_obj.title == "")
 				track_obj.title = event.target.videoTitle;
 			track_obj.duration = event.target.getDuration();
 			track_obj.loaded = true;
