@@ -553,18 +553,66 @@
 	{
 		console.log("play button clicked");
 		
+		SetPlayerState("tgl");
+	}
+	
+	function SetPlayerState(set)
+	{
 		if(main_player_widget_type == "yt")
 		{
+			// https://developers.google.com/youtube/iframe_api_reference#Playback_status
 			var state = main_player_widget.getPlayerState();
+			state = (state == 1 || state == 3) ? true : false;
 			console.log(state);
+			
+			if(set != "")
+			{
+				if(set == "tgl")
+				{
+					state = !state;
+				}
+				else if(set == "play")
+				{
+					state = true;
+				}
+				else if(set == "pause")
+				{
+						state = false;
+				}
+				if(state)
+					main_player_widget.playVideo();
+				else
+					main_player_widget.pauseVideo();
+			}
+			SetPlayLabel(state ? 1 : 0);
 		}
 		else if(main_player_widget_type == "sc")
 		{
-			main_player_widget.isPaused(function(value)
+			main_player_widget.isPaused(function(state)
 			{
-				console.dir(event);
-				console.log(value);
-				console.log(event.value());
+				console.dir(event.data.value);
+				console.log(state);
+				
+				if(set != "")
+				{
+					if(set == "tgl")
+					{
+						state = !state;
+					}
+					else if(set == "play")
+					{
+						state = true;
+					}
+					else if(set == "pause")
+					{
+						state = false;
+					}
+					if(state)
+						main_player_widget.play();
+					else
+						main_player_widget.pause();
+				}
+				SetPlayLabel(state ? 1 : 0);
 			});
 		}
 	}
@@ -854,7 +902,8 @@
 	function StartPlayingTrack(player)
 	{
 		console.log("StartPlayingTrack");
-		player.play();
+		//player.play();
+		SetPlayerState("play");
 	}
 	
 	function SC_Widget_OnFinish_Callback()
@@ -1101,11 +1150,12 @@
 			if(time_dif < 1)
 			{
 				event.target.seekTo(0 - time_dif, true);
-				event.target.playVideo();
+				SetPlayerState("play");
+				//event.target.playVideo();
 			}
 			else
 			{
-				setTimeout(function() { event.target.playVideo(); }, time_dif * 1000);
+				setTimeout(function() { SetPlayerState("play");/*event.target.playVideo();*/ }, time_dif * 1000);
 			}
 		}
 		else
