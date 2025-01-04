@@ -614,6 +614,7 @@
 		{
 			main_player_widget.isPaused(function(state)
 			{
+				state = !state;
 				console.log(state);
 				
 				if(set != "")
