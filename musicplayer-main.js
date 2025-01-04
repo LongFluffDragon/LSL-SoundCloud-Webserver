@@ -562,7 +562,7 @@
 		{
 			main_player_widget.isPaused(function()
 			{
-				event.value;
+				console.log(event.value);
 			});
 		}
 	}
