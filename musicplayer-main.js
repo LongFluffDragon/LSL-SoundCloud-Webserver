@@ -303,6 +303,17 @@
 		}
 	}
 	
+	function Btn_RenameTrackID(track)
+	{
+		var track_obj = loaded_track_uri_map.get(SC_PRV_ID_PFX + track);
+		var title = window.prompt("Enter the title to display", track_obj.title);
+		if(title != null && title.length > 0)
+		{
+			track_obj.title = title;
+			loaded_track_uri_map.set(SC_PRV_ID_PFX + track, track_obj);
+		}
+	}
+	
 	//
 	// Communication with server LSL script
 	//
@@ -747,6 +758,7 @@
 			track_obj.uri = current_track_uri;
 			track_obj.src_url = "";
 			track_obj.loaded = false;
+			track_obj.title = "";
 			loaded_track_uri_map.set(iframe.id, track_obj);
 		}
 		else
@@ -998,7 +1010,8 @@
 				if(value.hasData != true)
 				{
 					value.hasData = true;
-					value.title = sound.title;
+					if(value.title == null || value.title = "")
+						value.title = sound.title;
 					value.duration = Math.round(sound.duration / 1000);
 					value.loaded = true;
 					loaded_track_uri_map.set(key, value);
@@ -1112,6 +1125,7 @@
 				track_obj = {};//{src_url: "", uri: track};
 				track_obj.uri = track;
 				track_obj.src_url = "";
+				track_obj.title = "";
 				loaded_track_uri_map.set(iframe.id, track_obj);
 				ytid = getYoutubeId(track);
 			}
@@ -1195,7 +1209,8 @@
 		{
 			var track_obj = loaded_track_uri_map.get(event.target.g.id);
 			//console.dir(track_obj);
-			track_obj.title = event.target.videoTitle;
+			if(track_obj.title == null || track_obj.title = "")
+				track_obj.title = event.target.videoTitle;
 			track_obj.duration = event.target.getDuration();
 			track_obj.loaded = true;
 			loaded_track_uri_map.set(event.target.g.id, track_obj);
