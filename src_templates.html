@@ -6,13 +6,13 @@
 
 <template id="TMP_sc_track_setup">
 	<div>
-		<select id = "sel_playlist" onchange="PlaylistSelectChange()"></select>
+		<select id="sel_playlist" class="setup" onchange="PlaylistSelectChange()"></select>
 		<!--<button type="button" id="btn_load" onclick="Btn_LoadPlaylist()">Load Selected Playlist</button>-->
-		<button type="button" id="btn_save" onclick="Btn_SavePlaylist()">Save Selected Playlist</button>
+		<button type="button" class="wtxt" id="btn_save" onclick="Btn_SavePlaylist()">Save Selected Playlist</button>
 	</div>
-		<button type="button" id="btn_new" onclick="Btn_AddPlaylist()">New Playlist</button>
-		<button type="button" id="btn_ren" onclick="Btn_RenPlaylist()">Rename Playlist</button>
-		<button type="button" id="btn_del" onclick="Btn_DelPlaylist()">Delete Playlist</button>
+		<button type="button" class="wtxt" id="btn_new" onclick="Btn_AddPlaylist()">New Playlist</button>
+		<button type="button" class="wtxt" id="btn_ren" onclick="Btn_RenPlaylist()">Rename Playlist</button>
+		<button type="button" class="wtxt" id="btn_del" onclick="Btn_DelPlaylist()">Delete Playlist</button>
 	<div>
 	<div>
 		<span>Playlist Shuffle: [Sequence]</span>
@@ -23,7 +23,7 @@
 	<div>Enter Soundcloud/Youtube track URL:</div>
 	<input type="url" id="text_input_url"></input>
 	<button type="button" id="btn_add_url" onclick="Btn_AddTrackURL()">Add to Playlist</button>
-	<div id="sc_preview_scroll" style="overflow-y:scroll;padding:5px;max-width:600px;max-height:800px;display:flex;flex-direction:column"></div>
+	<div id="sc_preview_scroll" style="overflow-y:scroll;padding:5px;max-width:512px;max-height:800px;display:flex;flex-direction:column"></div>
 </template>
 
 <template id="TMP_sc_player_page">
@@ -41,8 +41,8 @@
 </template>
 
 <template id="TMP_sc_track_preview">
-	<div id="preview_scroll_%track%" style="order:#ORD">
-		<div>
+	<div id="preview_scroll_%track%" class="previewtrack" style="order:#ORD">
+		<div class="wtxt">
 			<button type="button" id="btn_remove_track" onclick="Btn_RemoveTrackID('%track%')">#DEL</button>
 			<button type="button" id="btn_up_track" onclick="Btn_MoveUpTrackID('%track%')">#UP</button>
 			<button type="button" id="btn_down_track" onclick="Btn_MoveDownTrackID('%track%')">#DWN</button>
