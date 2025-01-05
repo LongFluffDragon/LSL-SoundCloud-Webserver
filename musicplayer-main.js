@@ -331,7 +331,11 @@
 	function LSL_AddAgent_Callback(handle, body)
 	{
 		console.log("LSL_AddAgent_Callback: " + body);
+		
 		var agent = body.split("|"); // uuid, name
+		if(agent.length != 3 || agent[0].length < 1)
+			return; // yikes!
+		
 		if( ! admin_agent_map.has(agent[0]))
 		{
 			var agent_obj = {name:agent[1], level:"1"};
@@ -391,13 +395,23 @@
 		{
 			const agent_obj = admin_agent_map.get(agent);
 			const body = agent + "|" + agent_obj.name + "|" + agent_obj.level;
-			MakeXHR("", lslServer + "/admins/save", LSL_AddAgent_Callback, body, "PUT");
+			MakeXHR("", lslServer + "/admins/save", LSL_SaveAgent_Callback, body, "PUT");
 		}
+	}
+	
+	function LSL_SaveAgent_Callback(handle, body)
+	{
+		
 	}
 	
 	function LSL_DeleteAgentAdmin(agent)
 	{
-		MakeXHR("", lslServer + "/admins/save/del", LSL_AddAgent_Callback, agent, "PUT");
+		MakeXHR("", lslServer + "/admins/save/del", LSL_DeleteAgent_Callback, agent, "PUT");
+	}
+	
+	function LSL_DeleteAgent_Callback(handle, body)
+	{
+		
 	}
 	
 	//
