@@ -332,7 +332,7 @@
 	{
 		console.log("LSL_AddAgent_Callback: " + body);
 		var agent = body.split("|"); // uuid, name
-		if( ! admin_agent_map.has(agent[0])
+		if( ! admin_agent_map.has(agent[0]))
 		{
 			var agent_obj = {name:agent[1], level:1};
 			admin_agent_map.set(agent[0], agent_obj);
