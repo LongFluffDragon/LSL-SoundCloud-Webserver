@@ -324,7 +324,6 @@
 		if(agent != null && agent.length > 0)
 		{
 			 MakeXHR("", lslServer + "/admins/lookup/" + agent, LSL_AddAgent_Callback, "", "GET");
-			 
 		}
 	}
 	
@@ -337,7 +336,34 @@
 			var agent_obj = {name:agent[1], level:1};
 			admin_agent_map.set(agent[0], agent_obj);
 			console.dir(admin_agent_map);
+			BuildAdminAgentList();
 		}
+	}
+	
+	function BuildAdminAgentList()
+	{
+		const aascroll = document.getElementById("admin_agent_scroll");
+		aascroll.innerHTML = "";
+		for (let [key, value] of admin_agent_map)
+		{
+			var ihtml = document.getElementById("TMP_admin_agent").cloneNode(true).innerHTML;
+			ihtml = ReplaceAll(ihtml, "%agent%", key);
+			ihtml = ReplaceAll(ihtml, "%name%", value.name);
+			aascroll.insertAdjacentHTML("beforeend", ihtml);
+		}
+		jQuery(document).ready(function()
+		{
+			for (let [key, value] of admin_agent_map)
+			{
+				document.getElementById("sel_level_" + key).value = value.level;
+			}
+		});
+		//TMP_admin_agent
+	}
+	
+	function AgentLevelSelectChange(agent)
+	{
+		console.log("AgentLevelSelectChange " + agent);
 	}
 	
 	//
@@ -671,11 +697,12 @@
 					}
 					if(state)
 					{
-					console.log("attempting start play");
+						console.log("attempting start play");
 						var time_dif = current_track_start_time - UnixTime();
 						console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
 						if(time_dif < 0)
 							main_player_widget.seekTo(0 - time_dif * 1000);
+						
 						main_player_widget.play();
 					}
 					else

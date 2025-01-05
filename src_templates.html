@@ -30,6 +30,8 @@
 		<div style="float: right; width: 512px">
 			hello horizontality
 			<button type="button" class="btntxt" id="btn_addagent" onclick="Btn_AddAgent()">Add User/Admin</button>
+			<div id="admin_agent_scroll">
+			</div>
 		</div>
 	</div>
 </template>
@@ -65,4 +67,14 @@
 	<div id="%id%" class="widget" style="position:relative;" width="512" height="360"
 	scrolling="no" frameborder="no"
 	></div>
+</template>
+
+<template id="TMP_admin_agent">
+	<div>
+		<span>%name%</span>
+		<select id="sel_level_%agent%" class="btntxt" onchange="AgentLevelSelectChange(%agent%)">
+			<option value="0">User</option>
+			<option value="1">Manager</option>
+		</select>
+	</div>
 </template>
