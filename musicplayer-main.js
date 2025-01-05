@@ -704,11 +704,20 @@
 	
 	function SetPlayerState(set)
 	{
-		console.log("SetPlayerState; player = " + main_player_widget);
+		console.log("SetPlayerState; player:");
 		if(main_player_widget_type == "yt")
 		{
 			// https://developers.google.com/youtube/iframe_api_reference#Playback_status
-			var state = main_player_widget.getPlayerState();
+			var state;
+			try
+			{
+				state = main_player_widget.getPlayerState();
+			}
+			catch(error)
+			{
+				console.dir(main_player_widget);
+				console.error(error);
+			}
 			state = (state == 1 || state == 3) ? true : false;
 			console.log(state);
 			
@@ -741,41 +750,49 @@
 		}
 		else if(main_player_widget_type == "sc")
 		{
-			main_player_widget.isPaused(function(state)
+			try
 			{
-				state = !state;
-				console.log(state);
-				
-				if(set != "")
+				main_player_widget.isPaused(function(state)
 				{
-					if(set == "tgl")
+					state = !state;
+					console.log(state);
+					
+					if(set != "")
 					{
-						state = !state;
+						if(set == "tgl")
+						{
+							state = !state;
+						}
+						else if(set == "play")
+						{
+							state = true;
+						}
+						else if(set == "pause")
+						{
+							state = false;
+						}
+						if(state)
+						{
+							console.log("attempting start play");
+							var time_dif = current_track_start_time - UnixTime();
+							console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
+							if(time_dif < 0)
+								main_player_widget.seekTo(0 - time_dif * 1000);
+							
+							main_player_widget.play();
+						}
+						else
+							main_player_widget.pause();
 					}
-					else if(set == "play")
-					{
-						state = true;
-					}
-					else if(set == "pause")
-					{
-						state = false;
-					}
-					if(state)
-					{
-						console.log("attempting start play");
-						var time_dif = current_track_start_time - UnixTime();
-						console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
-						if(time_dif < 0)
-							main_player_widget.seekTo(0 - time_dif * 1000);
-						
-						main_player_widget.play();
-					}
-					else
-						main_player_widget.pause();
-				}
-				console.log("final state = " + state);
-				SetPlayLabel(state ? 0 : 1);
-			});
+					console.log("final state = " + state);
+					SetPlayLabel(state ? 0 : 1);
+				});
+			}
+			catch(error)
+			{
+				console.dir(main_player_widget);
+				console.error(error);
+			}
 		}
 	}
 	
