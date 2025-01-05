@@ -70,12 +70,12 @@
 </template>
 
 <template id="TMP_admin_agent">
-	<div class="setup">
-		<span class="btntxt" style="text-align:right;width:75%">%name%</span>
-		<select id="sel_level_%agent%" class="btntxt" style="width:20%" onchange="AgentLevelSelectChange('%agent%')">
+	<div class="setup" style="display: flex">
+		<span class="btntxt" style="text-align: right; float: right">%name%</span>
+		<select id="sel_level_%agent%" class="btntxt" style="float: right" onchange="AgentLevelSelectChange('%agent%')">
 			<option value="1">User</option>
 			<option value="2">Manager</option>
 		</select>
-		<button type="button" class="btntxt" style="width:5%" id="btn_remove_%agent%" onclick="Btn_RemoveAgent('%agent%')">#DEL</button>
+		<button type="button" class="btntxt" style="float: right" id="btn_remove_%agent%" onclick="Btn_RemoveAgent('%agent%')">#DEL</button>
 	</div>
 </template>
