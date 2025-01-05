@@ -325,13 +325,13 @@
 	
 	function PollIfRequired()
 	{
-		if(unixTime() > (last_poll + poll_delay_adapt))
+		if(UnixTime() > (last_poll + poll_delay_adapt))
 			LSL_Poll();
 	}
 	
 	function LSL_Poll()
 	{
-		last_poll = unixTime();
+		last_poll = UnixTime();
 		MakeXHR("", lslServer + "/poll/" + session_id + "/" + current_track_id + "/" + last_poll, LSL_Poll_Callback, "", "GET");
 	}
 	
@@ -571,7 +571,7 @@
 		SetPlayerState("tgl");
 	}
 	
-	/*var time_dif = current_track_start_time - unixTime();
+	/*var time_dif = current_track_start_time - UnixTime();
 			console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
 			if(time_dif < 0)
 			{
@@ -579,7 +579,7 @@
 			}
 			
 			
-			var time_dif = current_track_start_time - unixTime();
+			var time_dif = current_track_start_time - UnixTime();
 			console.log("YTPlayerReady: Track time_dif = " + time_dif);
 			
 			if(time_dif < 1)
@@ -614,7 +614,7 @@
 				}
 				if(state)
 				{
-					var time_dif = current_track_start_time - unixTime();
+					var time_dif = current_track_start_time - UnixTime();
 					console.log("YTPlayerReady: Track time_dif = " + time_dif);
 					if(time_dif < 1)
 						main_player_widget.seekTo(0 - time_dif, true);
@@ -649,7 +649,7 @@
 					if(state)
 					{
 					console.log("attempting start play");
-						var time_dif = current_track_start_time - unixTime();
+						var time_dif = current_track_start_time - UnixTime();
 						console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
 						if(time_dif < 0)
 							main_player_widget.seekTo(0 - time_dif * 1000);
@@ -726,8 +726,8 @@
 				console.log("Error: future track is null, requesting next track immediately");
 				LSL_GetNextTrack();
 			}
+			setTimeout(CheckSwapStatus, 10000);
 		});
-		setTimeout(CheckSwapStatus, 10000);
 	}
 	
 	function CheckSwapStatus()
@@ -924,7 +924,7 @@
 		
 		if(page_type == "player")
 		{
-			var time_dif = current_track_start_time - unixTime();
+			var time_dif = current_track_start_time - UnixTime();
 			console.log("Track time_dif = " + time_dif);
 			if(time_dif > 1)
 			{
@@ -959,7 +959,7 @@
 		
 		if(page_type == "player")
 		{
-			var time_dif = current_track_start_time - unixTime();
+			var time_dif = current_track_start_time - UnixTime();
 			console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
 			if(time_dif < 0)
 			{
@@ -1156,7 +1156,7 @@
 				track_obj.src_url = track;
 				track_obj.title = "";
 				loaded_track_uri_map.set(iframe.id, track_obj);
-				ytid = getYoutubeId(track);
+				ytid = GetYoutubeID(track);
 			}
 			else
 			{
@@ -1165,7 +1165,7 @@
 				console.dir(track_obj);
 				track = track_obj.src_url;
 				console.log("src_url = "+track);
-				ytid = getYoutubeId(track); // sus
+				ytid = GetYoutubeID(track); // sus
 				if(ytid == null)
 					ytid = track.split("/").slice(-1);
 				track_obj.uri = "https://youtube.com/embed/" + ytid;
@@ -1207,7 +1207,7 @@
 		console.log("src = " + event.target.g.src);
 		console.log("iframe id = " + event.target.g.id);
 		
-		var ytid = getYoutubeId(event.target.g.src);
+		var ytid = GetYoutubeID(event.target.g.src);
 		console.log("ytid = " + ytid);
 		
 		if(page_type == "player")
@@ -1222,7 +1222,7 @@
 			//icon.style.width = '640px';
 			icon.style.top = '60px';
 			
-			var time_dif = current_track_start_time - unixTime();
+			var time_dif = current_track_start_time - UnixTime();
 			console.log("YTPlayerReady: Track time_dif = " + time_dif);
 			
 			if(time_dif < 1)
@@ -1259,7 +1259,7 @@
 		}
 	}
 	
-	function getYoutubeId(url)
+	function GetYoutubeID(url)
 	{
 		const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|&v=)([^#&?]*).*/;
 		const match = url.match(regExp);
@@ -1271,7 +1271,7 @@
 	// General utility
 	//
 	
-	function unixTime()
+	function UnixTime()
 	{
 		return Math.floor(Date.now() / 1000);
 	}
