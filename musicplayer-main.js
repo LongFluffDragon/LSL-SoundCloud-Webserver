@@ -366,6 +366,10 @@
 	function AgentLevelSelectChange(agent)
 	{
 		console.log("AgentLevelSelectChange " + agent);
+		var agent_obj = admin_agent_map.get(agent);
+		agent_obj.level = document.getElementById("sel_level_"+agent).value;
+		admin_agent_map.set(agent, agent_obj);
+		console.dir(admin_agent_map);
 		LSL_SaveAgentAdmin(agent);
 	}
 	
@@ -373,7 +377,8 @@
 	{
 		console.log("Btn_RemoveAgent " + agent);
 		LSL_DeleteAgentAdmin(agent)
-		agent_admin_map.remove(agent);
+		admin_agent_map.remove(agent);
+		console.dir(admin_agent_map);
 		BuildAdminAgentList();
 	}
 	
