@@ -353,6 +353,7 @@
 			ihtml = ReplaceAll(ihtml, "%name%", value.name);
 			ihtml = ReplaceAll(ihtml, "#DEL", unicode_btn[2]);
 			aascroll.insertAdjacentHTML("beforeend", ihtml);
+			console.log("inserting entry for " + key);
 		}
 		jQuery(document).ready(function()
 		{
