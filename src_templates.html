@@ -5,25 +5,33 @@
 </template>
 
 <template id="TMP_sc_track_setup">
-	<div class="setup">
-		<select id="sel_playlist" class="btntxt" onchange="PlaylistSelectChange()"></select>
-		<!--<button type="button" id="btn_load" onclick="Btn_LoadPlaylist()">Load Selected Playlist</button>-->
-		<button type="button" class="btntxt" id="btn_save" onclick="Btn_SavePlaylist()">Save Selected Playlist</button>
+	<div style="display: inline-block">
+		<div>
+			<div class="setup">
+				<select id="sel_playlist" class="btntxt" onchange="PlaylistSelectChange()"></select>
+				<!--<button type="button" id="btn_load" onclick="Btn_LoadPlaylist()">Load Selected Playlist</button>-->
+				<button type="button" class="btntxt" id="btn_save" onclick="Btn_SavePlaylist()">Save Selected Playlist</button>
+			</div>
+			<div class="setup">
+				<button type="button" class="btntxt" id="btn_new" onclick="Btn_AddPlaylist()">New Playlist</button>
+				<button type="button" class="btntxt" id="btn_ren" onclick="Btn_RenPlaylist()">Rename Playlist</button>
+				<button type="button" class="btntxt" id="btn_del" onclick="Btn_DelPlaylist()">Delete Playlist</button>
+			</div>
+			<div class="setup">
+				<span>Playlist Shuffle: [Sequence]</span>
+				<input type="range" id="track_randomness" min="0" max="5" value="1"></input>
+				<span>[Random] </span>
+			</div>
+			<div class="setup">Enter Soundcloud/Youtube track URL:</div>
+			<input type="url" id="text_input_url" style="width:360px"></input>
+			<button type="button" class="btntxt" id="btn_add_url" onclick="Btn_AddTrackURL()">Add to Playlist</button>
+			<div id="sc_preview_scroll" style="overflow-y:scroll;padding:5px;max-width:512px;max-height:800px;display:flex;flex-direction:column"></div>
+		</div>
+		<div>
+			hello horizontality
+			<button type="button" class="btntxt" id="btn_addagent" onclick="Btn_AddAgent()">Add User/Admin</button>
+		</div>
 	</div>
-	<div class="setup">
-		<button type="button" class="btntxt" id="btn_new" onclick="Btn_AddPlaylist()">New Playlist</button>
-		<button type="button" class="btntxt" id="btn_ren" onclick="Btn_RenPlaylist()">Rename Playlist</button>
-		<button type="button" class="btntxt" id="btn_del" onclick="Btn_DelPlaylist()">Delete Playlist</button>
-	</div>
-	<div class="setup">
-		<span>Playlist Shuffle: [Sequence]</span>
-		<input type="range" id="track_randomness" min="0" max="5" value="1"></input>
-		<span>[Random] </span>
-	</div>
-	<div class="setup">Enter Soundcloud/Youtube track URL:</div>
-	<input type="url" id="text_input_url" style="width:360px"></input>
-	<button type="button" class="btntxt" id="btn_add_url" onclick="Btn_AddTrackURL()">Add to Playlist</button>
-	<div id="sc_preview_scroll" style="overflow-y:scroll;padding:5px;max-width:512px;max-height:800px;display:flex;flex-direction:column"></div>
 </template>
 
 <template id="TMP_sc_player_page">

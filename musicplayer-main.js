@@ -318,6 +318,20 @@
 		}
 	}
 	
+	function Btn_AddAgent()
+	{
+		var agent = window.prompt("Enter the full Username or UUID/key of the user", "");
+		if(agent != null && agent.length > 0)
+		{
+			 MakeXHR("", lslServer + "admins/lookup", LSL_AddAgent_Callback, agent, "GET");
+		}
+	}
+	
+	function LSL_AddAgent_Callback(handle, body)
+	{
+		console.log("LSL_AddAgent_Callback: " + body);
+	}
+	
 	//
 	// Communication with server LSL script
 	//
