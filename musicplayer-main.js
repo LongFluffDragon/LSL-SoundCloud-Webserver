@@ -350,6 +350,7 @@
 			var ihtml = document.getElementById("TMP_admin_agent").cloneNode(true).innerHTML;
 			ihtml = ReplaceAll(ihtml, "%agent%", key);
 			ihtml = ReplaceAll(ihtml, "%name%", value.name);
+			ihtml = ReplaceAll(ihtml, "#DEL", unicode_btn[2]);
 			aascroll.insertAdjacentHTML("beforeend", ihtml);
 		}
 		jQuery(document).ready(function()
@@ -365,6 +366,30 @@
 	function AgentLevelSelectChange(agent)
 	{
 		console.log("AgentLevelSelectChange " + agent);
+		LSL_SaveAgentAdmin(agent);
+	}
+	
+	function Btn_RemoveAgent(agent)
+	{
+		console.log("Btn_RemoveAgent " + agent);
+		LSL_DeleteAgentAdmin(agent)
+		agent_admin_map.remove(agent);
+		BuildAdminAgentList();
+	}
+	
+	function LSL_SaveAgentAdmin(agent)
+	{
+		if(admin_agent_map.has(agent))
+		{
+			const agent_obj = admin_agent_map.get(agent);
+			const body = agent + "|" + agent_obj.name + "|" + agent_obj.level;
+			MakeXHR("", lslServer + "/admins/save", LSL_AddAgent_Callback, body, "PUT");
+		}
+	}
+	
+	function LSL_DeleteAgentAdmin(agent)
+	{
+		MakeXHR("", lslServer + "/admins/save/del", LSL_AddAgent_Callback, agent, "PUT");
 	}
 	
 	//
