@@ -717,6 +717,7 @@
 			{
 				console.dir(main_player_widget);
 				console.error(error);
+				PlayFutureTrack()
 			}
 			state = (state == 1 || state == 3) ? true : false;
 			console.log(state);
@@ -792,6 +793,7 @@
 			{
 				console.dir(main_player_widget);
 				console.error(error);
+				PlayFutureTrack()
 			}
 		}
 	}
