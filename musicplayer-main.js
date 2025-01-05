@@ -591,6 +591,7 @@
 	
 	function SetPlayerState(set)
 	{
+		console.log("SetPlayerState; player = " + main_player_widget);
 		if(main_player_widget_type == "yt")
 		{
 			// https://developers.google.com/youtube/iframe_api_reference#Playback_status
@@ -1126,7 +1127,7 @@
 	//
 	// youtube widget related
 	//
-	 
+	
 	function YT_CreateIframe(id, insert_to)
 	{
 		// this is a div that magically turns into an iframe for reason we wont think about too carefully
@@ -1197,6 +1198,7 @@
 				}
 			});
 			main_player_widget_type = "yt";
+			console.dir(main_player_widget);
 		});
 	}
 	
@@ -1204,7 +1206,7 @@
 	{
 		main_player_widget = event.target;
 		console.dir(event.target);
-		console.log("src = " + event.target.g.src);
+		console.log("YTPlayerReady: src = " + event.target.g.src);
 		console.log("iframe id = " + event.target.g.id);
 		
 		var ytid = GetYoutubeID(event.target.g.src);
