@@ -334,10 +334,11 @@
 		var agent = body.split("|"); // uuid, name
 		if( ! admin_agent_map.has(agent[0]))
 		{
-			var agent_obj = {name:agent[1], level:1};
+			var agent_obj = {name:agent[1], level:"1"};
 			admin_agent_map.set(agent[0], agent_obj);
 			console.dir(admin_agent_map);
 			BuildAdminAgentList();
+			LSL_SaveAgentAdmin(agent[0]);
 		}
 	}
 	
