@@ -8,7 +8,7 @@
 	var lslServer = window.location.href;
 	var loaded_track_uri_map = new Map(); // IDs to source url + embed uri pairs
 	var id_scplayer_map = new Map(); // IDs to soundcloud iframe objects
-	
+	var admin_agent_map = new Map(); // UUID:{name, level} mapping for admin agents
 	var save_track_index = 0;
 	
 	//var current_track_id = ""; // hash ID of current track for identification with server
@@ -324,12 +324,20 @@
 		if(agent != null && agent.length > 0)
 		{
 			 MakeXHR("", lslServer + "/admins/lookup/" + agent, LSL_AddAgent_Callback, "", "GET");
+			 
 		}
 	}
 	
 	function LSL_AddAgent_Callback(handle, body)
 	{
 		console.log("LSL_AddAgent_Callback: " + body);
+		var agent = body.split("|"); // uuid, name
+		if( ! admin_agent_map.has(agent[0])
+		{
+			var agent_obj = {name:agent[1], level:1};
+			admin_agent_map.set(agent[0], agent_obj);
+			console.dir(admin_agent_map);
+		}
 	}
 	
 	//
