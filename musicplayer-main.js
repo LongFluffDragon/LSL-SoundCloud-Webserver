@@ -323,7 +323,7 @@
 		var agent = window.prompt("Enter the full Username or UUID/key of the user", "");
 		if(agent != null && agent.length > 0)
 		{
-			 MakeXHR("", lslServer + "/admins/lookup", LSL_AddAgent_Callback, agent, "GET");
+			 MakeXHR("", lslServer + "/admins/lookup/" + agent, LSL_AddAgent_Callback, "", "GET");
 		}
 	}
 	
