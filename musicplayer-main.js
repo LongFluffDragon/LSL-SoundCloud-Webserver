@@ -128,6 +128,7 @@
 			console.log("creating setup from template");
 			document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
 			LSL_GetPlaylists();
+			LSL_GetAdmins();
 		}
 	}
 	
@@ -417,6 +418,23 @@
 		}
 	}
 	*/
+	
+	function LSL_GetAdmins()
+	{
+		MakeXHR("", lslServer + "/admins/get", LSL_GetAdmins_Callback, "", "GET");
+	}
+	
+	function LSL_GetAdmins_Callback(handle, body)
+	{
+		var data = body.split("|");
+		admin_agent_map.clear();
+		for(var i=0; i<data.length; i+=3)
+		{
+			admin_agent_map.set(data[i], {name:data[i+1], level:data[i+2]});
+		}
+		BuildAdminAgentList();
+	}
+	
 	function LSL_GetPlaylists()
 	{
 		if(CheckEditLock())
