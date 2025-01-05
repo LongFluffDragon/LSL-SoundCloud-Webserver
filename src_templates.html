@@ -9,7 +9,6 @@
 		<div style="float: left; width: 512px">
 			<div class="setup">
 				<select id="sel_playlist" class="btntxt" onchange="PlaylistSelectChange()"></select>
-				<!--<button type="button" id="btn_load" onclick="Btn_LoadPlaylist()">Load Selected Playlist</button>-->
 				<button type="button" class="btntxt" id="btn_save" onclick="Btn_SavePlaylist()">Save Selected Playlist</button>
 			</div>
 			<div class="setup">
@@ -71,7 +70,7 @@
 
 <template id="TMP_admin_agent">
 	<div class="setup" style="display: flex; align-items: stretch; flex-direction: row">
-		<span class="btntxt" style="text-align: right; min-width:388px">%name%</span>
+		<span class="btntxt" style="text-align: right; width:386px">%name%</span>
 		<select id="sel_level_%agent%" class="btntxt" style="width:90px; float: right; order: 1" onchange="AgentLevelSelectChange('%agent%')">
 			<option value="1">User</option>
 			<option value="2">Manager</option>
