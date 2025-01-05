@@ -820,7 +820,7 @@
 		
 		if(current_track_uri != args[0])
 		{
-			console.log("LSL_GetNextTrack_Callback Warning: current != returned tracks, setting " + current_track + " -> " + args[0]);
+			console.log("LSL_GetNextTrack_Callback Warning: current != returned tracks, setting " + current_track_uri + " -> " + args[0]);
 			current_track_uri = args[0];
 			current_track_start_time = Number(args[1]);
 			CreatePlayer()
