@@ -5,8 +5,8 @@
 </template>
 
 <template id="TMP_sc_track_setup">
-	<div style="display: inline-block">
-		<div>
+	<div style="display: flex">
+		<div style="float: left; width: 512px">
 			<div class="setup">
 				<select id="sel_playlist" class="btntxt" onchange="PlaylistSelectChange()"></select>
 				<!--<button type="button" id="btn_load" onclick="Btn_LoadPlaylist()">Load Selected Playlist</button>-->
@@ -27,7 +27,7 @@
 			<button type="button" class="btntxt" id="btn_add_url" onclick="Btn_AddTrackURL()">Add to Playlist</button>
 			<div id="sc_preview_scroll" style="overflow-y:scroll;padding:5px;max-width:512px;max-height:800px;display:flex;flex-direction:column"></div>
 		</div>
-		<div>
+		<div style="float: right; width: 512px">
 			hello horizontality
 			<button type="button" class="btntxt" id="btn_addagent" onclick="Btn_AddAgent()">Add User/Admin</button>
 		</div>
