@@ -735,9 +735,12 @@
 	{
 		if(track_swap_status == false)
 		{
+			console.log("Error: track swap failed, retrying");
 			PlayFutureTrack();
 			setTimeout(CheckSwapStatus, 10000);
 		}
+		else
+			console.log("Track swap suceeded");
 	}
 	
 	function DeletePlayer()
