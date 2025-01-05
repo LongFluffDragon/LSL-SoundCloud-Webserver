@@ -704,7 +704,7 @@
 	
 	function SetPlayerState(set)
 	{
-		console.log("SetPlayerState; player:");
+		//console.log("SetPlayerState; player:");
 		if(main_player_widget_type == "yt")
 		{
 			// https://developers.google.com/youtube/iframe_api_reference#Playback_status
@@ -823,7 +823,7 @@
 			console.log("LSL_GetNextTrack_Callback Warning: current != returned tracks, setting " + current_track_uri + " -> " + args[0]);
 			current_track_uri = args[0];
 			current_track_start_time = Number(args[1]);
-			CreatePlayer()
+			CreatePlayer();
 		}
 		
 		future_track_uri = args[2];
@@ -852,7 +852,7 @@
 				}
 				
 				if(future_track_uri == "")
-					setTimeout(function(){ LSL_GetNextTrack() }, Math.random() * 10000 + 2500);
+					setTimeout(function(){ LSL_GetNextTrack() }, Math.random() * 15000 + (current_track_start_time - UnixTime() + 3));
 				
 				CreatePlayer();
 			}
