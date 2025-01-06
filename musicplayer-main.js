@@ -37,6 +37,9 @@
 	
 	var track_swap_status = true;
 	
+	const SEP = "\u2008"; // Unicode Character 8200 (U+2008) 0xE2 0x80 0x88
+	const SEP_W = "\u2008"; // temp placeholder for certain data in case this has to be undone later
+	
 	// basic library method vomit ect
 
 	function ReplaceAll(str, tkn, rep)
@@ -332,7 +335,7 @@
 	{
 		console.log("LSL_AddAgent_Callback: " + body);
 		
-		var agent = body.split("|"); // uuid, name
+		var agent = body.split(SEP); // uuid, name
 		if(agent.length != 3 || agent[0].length < 1)
 			return; // yikes!
 		
@@ -394,7 +397,7 @@
 		if(admin_agent_map.has(agent))
 		{
 			const agent_obj = admin_agent_map.get(agent);
-			const body = agent + "|" + agent_obj.name + "|" + agent_obj.level;
+			const body = agent + SEP + agent_obj.name + SEP + agent_obj.level;
 			MakeXHR("", lslServer + "/admins/save", LSL_SaveAgent_Callback, body, "PUT");
 		}
 	}
@@ -436,7 +439,7 @@
 		console.log("LSL_Poll_Callback: " + body);
 		if(body != "exp") // expired poll, avoid letting it time out naturally
 		{
-			const args = body.split("|");
+			const args = body.split(SEP);
 			
 			if(args[0] == "playtrack")
 			{
@@ -473,7 +476,7 @@
 	
 	function LSL_GetAdmins_Callback(handle, body)
 	{
-		var data = body.split("|");
+		var data = body.split(SEP);
 		admin_agent_map.clear();
 		for(var i=0; i<data.length; i+=3)
 		{
@@ -493,7 +496,7 @@
 	function LSL_GetPlaylists_Callback(handle, body)
 	{
 		edit_lock = false;
-		playlist_list = body.split("#|");
+		playlist_list = body.split(SEP_W);
 		BuildPlaylistSelect();
 	}
 	
@@ -515,7 +518,7 @@
 	{
 		console.log("LSL_LoadPlaylist_Callback: " + body);
 		edit_lock = false;
-		var playlist_data = body.split("|"); // 0:shuffle, 1+: URIs
+		var playlist_data = body.split(SEP); // 0:shuffle, 1+: URIs
 		edit_playlist_shuffle = Number(playlist_data[0]);
 		if(edit_playlist_shuffle == NaN)
 			edit_playlist_shuffle = 0;
@@ -570,7 +573,7 @@
 	
 	function LSL_RenPlaylist_Callback(handle, body)
 	{
-		var data = body.split("|");
+		var data = body.split(SEP);
 		if(data[0] != "err")
 		{
 			////playlist_list.remove(data[0]);
@@ -599,7 +602,7 @@
 	
 	function LSL_DelPlaylist_Callback(handle, body)
 	{
-		/*var data = body.split("|");
+		/*var data = body.split(SEP);
 		if(data[0] != err)
 		{
 			//playlist_list.remove(data[0]);
@@ -632,7 +635,7 @@
 	
 	function LSL_SavePlaylist_Callback(handle, body)
 	{
-		var data = body.split("|");
+		var data = body.split(SEP);
 		if(data[0] == "END")
 		{
 			window.alert("Successfully saved playlist " + edit_playlist + "\n" + data[1]);
@@ -650,7 +653,7 @@
 				var track_obj = loaded_track_uri_map.values().toArray()[save_track_index];
 				if(track_obj.loaded)
 				{
-					var track = track_obj.uri + "#|" + track_obj.title + "#|" + track_obj.duration;
+					var track = track_obj.uri + SEP_W + track_obj.title + SEP_W + track_obj.duration;
 					MakeXHR("", lslServer + "/save/" + edit_playlist + "/uri", LSL_SavePlaylist_Callback, track, "PUT");
 				}
 				else
@@ -722,7 +725,7 @@
 	function LSL_GetNextTrack_Callback(handle, body)
 	{
 		console.log("LSL_GetNextTrack_Callback: " + body);
-		var args = body.split("|");
+		var args = body.split(SEP);
 		
 		if(current_track_uri != args[0])
 		{
