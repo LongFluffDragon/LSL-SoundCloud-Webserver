@@ -186,10 +186,10 @@
 	{
 		var track_url = document.getElementById("text_input_url").value;
 		document.getElementById("text_input_url").value = ""; // cant cache object, what fun
-		AddTrackURL(track_url, loaded_track_uri_map.size);
+		AddTrackURL(track_url, loaded_track_uri_map.size, null);
 	}
 	
-	function AddTrackURL(track_url, index)
+	function AddTrackURL(track_url, index, title)
 	{
 		if(page_type == "player") // how would this even happen? yikes.
 			return;
@@ -216,7 +216,7 @@
 		var track_obj = {};// = {src_url:track_url, uri:"", title:"unknown", duration:-1};
 		track_obj.src_url = track_url;
 		track_obj.uri = "";
-		track_obj.title = "";
+		track_obj.title = title == null ? "" : title;
 		track_obj.duration = -1;
 		track_obj.loaded = false;
 		var add_to = "preview_iframe_" + track_id;
@@ -532,10 +532,18 @@
 		loaded_track_uri_map.clear();
 		
 		// load playlist from received URIs
+		/*
 		for(var i in track_uris)
 		{
 			console.log("Add preview for track " + track_uris[i]);
-			AddTrackURL(track_uris[i], i);
+			AddTrackURL(track_uris[i], i, null);
+		}
+		*/
+		
+		for(var i = 0; i < track_uris.length; i += 2)
+		{
+			console.log("Add preview for track " + track_uris[i] + " title=" + track_uris[i+1]);
+			AddTrackURL(track_uris[i], i, track_uris[i+1]);
 		}
 	}
 	
@@ -623,7 +631,7 @@
 			tracks.push(JSON.stringify(value));
 			// need to buffer and send each track one by one to avoid 2048 byte limit
 		}
-			
+		
 		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, encodeURIComponent(tracks), "PUT");*/
 		save_track_index = 0;
 		console.log("Beginning track save to LSL server");
