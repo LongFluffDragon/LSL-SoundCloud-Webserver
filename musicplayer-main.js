@@ -681,7 +681,7 @@
 	{
 		console.log("play button clicked");
 		
-		SetPlayerState("tgl");
+		SetPlayerState("tgl", true);
 	}
 	
 	/*var time_dif = current_track_start_time - UnixTime();
@@ -702,101 +702,7 @@
 				//event.target.playVideo();
 			}*/
 	
-	function SetPlayerState(set)
-	{
-		//console.log("SetPlayerState; player:");
-		if(main_player_widget_type == "yt")
-		{
-			// https://developers.google.com/youtube/iframe_api_reference#Playback_status
-			var state;
-			try
-			{
-				state = main_player_widget.getPlayerState();
-			}
-			catch(error)
-			{
-				console.dir(main_player_widget);
-				console.error(error);
-				PlayFutureTrack()
-			}
-			state = (state == 1 || state == 3) ? true : false;
-			console.log(state);
-			
-			if(set != "")
-			{
-				if(set == "tgl")
-				{
-					state = !state;
-				}
-				else if(set == "play")
-				{
-					state = true;
-				}
-				else if(set == "pause")
-				{
-						state = false;
-				}
-				if(state)
-				{
-					var time_dif = current_track_start_time - UnixTime();
-					console.log("YTPlayerReady: Track time_dif = " + time_dif);
-					if(time_dif < 1)
-						main_player_widget.seekTo(0 - time_dif, true);
-					main_player_widget.playVideo();
-				}
-				else
-					main_player_widget.pauseVideo();
-			}
-			SetPlayLabel(state ? 0 : 1);
-		}
-		else if(main_player_widget_type == "sc")
-		{
-			try
-			{
-				main_player_widget.isPaused(function(state)
-				{
-					state = !state;
-					console.log(state);
-					
-					if(set != "")
-					{
-						if(set == "tgl")
-						{
-							state = !state;
-						}
-						else if(set == "play")
-						{
-							state = true;
-						}
-						else if(set == "pause")
-						{
-							state = false;
-						}
-						if(state)
-						{
-							console.log("attempting start play");
-							var time_dif = current_track_start_time - UnixTime();
-							console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
-							if(time_dif < 0)
-								main_player_widget.seekTo(0 - time_dif * 1000);
-							
-							main_player_widget.play();
-						}
-						else
-							main_player_widget.pause();
-					}
-					console.log("final state = " + state);
-					SetPlayLabel(state ? 0 : 1);
-				});
-			}
-			catch(error)
-			{
-				console.dir(main_player_widget);
-				console.error(error);
-				PlayFutureTrack()
-			}
-		}
-	}
+	
 	
 	function SetPlayLabel(index)
 	{
@@ -850,10 +756,15 @@
 				{
 					console.log("Reload attempt; keeping current track: " + current_track_uri);
 				}
-				
+				/*
 				if(future_track_uri == "")
-					setTimeout(function(){ LSL_GetNextTrack() }, Math.random() * 15000 + (current_track_start_time - UnixTime() + 3));
-				
+				{
+					//setTimeout(function(){ LSL_GetNextTrack() }, Math.random() * 15000 + (current_track_start_time - UnixTime() + 3));
+					const rqt = (current_track_end_time - UnixTime()) - 15 - Math.random() * 15000;
+					console.log("scheduled next track request in " + rqt);
+					setTimeout(function(){ LSL_GetNextTrack() }, rqt );
+				}
+				*/
 				CreatePlayer();
 			}
 			else
@@ -897,6 +808,117 @@
 		else if(current_track_uri.includes("youtu"))
 		{
 			YT_CreateIframe("client_player_yt_iframe", "client_player_box");
+		}
+	}
+	
+	function SetPlayerState(set, manual)
+	{
+		//console.log("SetPlayerState; player:");
+		if(main_player_widget_type == "yt")
+		{
+			// https://developers.google.com/youtube/iframe_api_reference#Playback_status
+			var state;
+			try
+			{
+				state = main_player_widget.getPlayerState();
+			}
+			catch(error)
+			{
+				console.dir(main_player_widget);
+				console.error(error);
+				PlayFutureTrack()
+			}
+			state = (state == 1 || state == 3) ? true : false;
+			console.log(state);
+			
+			if(set != "")
+			{
+				if(set == "tgl")
+				{
+					state = !state;
+				}
+				else if(set == "play")
+				{
+					state = true;
+				}
+				else if(set == "pause")
+				{
+						state = false;
+				}
+				if(state)
+				{
+					var time_dif = current_track_start_time - UnixTime();
+					console.log("YTPlayerReady: Track time_dif = " + time_dif);
+					if(time_dif < 1)
+						main_player_widget.seekTo(0 - time_dif, true);
+					main_player_widget.playVideo();
+				}
+				else
+					main_player_widget.pauseVideo();
+			}
+			SetPlayLabel(state ? 0 : 1);
+			if(!manual)
+				ScheduleRequestNextTrack();
+		}
+		else if(main_player_widget_type == "sc")
+		{
+			try
+			{
+				main_player_widget.isPaused(function(state)
+				{
+					state = !state;
+					console.log(state);
+					
+					if(set != "")
+					{
+						if(set == "tgl")
+						{
+							state = !state;
+						}
+						else if(set == "play")
+						{
+							state = true;
+						}
+						else if(set == "pause")
+						{
+							state = false;
+						}
+						if(state)
+						{
+							console.log("attempting start play");
+							var time_dif = current_track_start_time - UnixTime();
+							console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
+							if(time_dif < 0)
+								main_player_widget.seekTo(0 - time_dif * 1000);
+							
+							main_player_widget.play();
+						}
+						else
+							main_player_widget.pause();
+					}
+					console.log("final state = " + state);
+					SetPlayLabel(state ? 0 : 1);
+					if(!manual)
+						ScheduleRequestNextTrack();
+				});
+			}
+			catch(error)
+			{
+				console.dir(main_player_widget);
+				console.error(error);
+				PlayFutureTrack()
+			}
+		}
+	}
+	
+	function ScheduleRequestNextTrack()
+	{
+		if(future_track_uri == "")
+		{
+			//setTimeout(function(){ LSL_GetNextTrack() }, Math.random() * 15000 + (current_track_start_time - UnixTime() + 3));
+			const rqt = (current_track_end_time - UnixTime()) - 15 - Math.random() * 15000;
+			console.log("scheduled next track request in " + rqt);
+			setTimeout(function(){ LSL_GetNextTrack() }, rqt );
 		}
 	}
 	
@@ -1067,12 +1089,13 @@
 			if(time_dif > 1)
 			{
 				console.log("Delaying track start");
-				setTimeout(function() { StartPlayingTrack(player); }, time_dif * 1000);
+				setTimeout(function() { SetPlayerState("play", false); }, time_dif * 1000);
 			}
 			else
 			{
 				options.auto_play = true;
 				console.log("Starting track immediately");
+				SetPlayerState("play", false);
 				//player.seekTo(0 - time_dif);
 				//player.play();
 			}
@@ -1105,14 +1128,14 @@
 			}
 		}
 	}
-	
+	/*
 	function StartPlayingTrack(player)
 	{
 		console.log("StartPlayingTrack");
 		//player.play();
-		SetPlayerState("play");
+		SetPlayerState("play", false);
 	}
-	
+	*/
 	function SC_Widget_OnFinish_Callback()
 	{
 		if(page_type == "player")
@@ -1367,12 +1390,12 @@
 			if(time_dif < 1)
 			{
 				event.target.seekTo(0 - time_dif, true);
-				SetPlayerState("play");
+				SetPlayerState("play", false);
 				//event.target.playVideo();
 			}
 			else
 			{
-				setTimeout(function() { SetPlayerState("play");/*event.target.playVideo();*/ }, time_dif * 1000);
+				setTimeout(function() { SetPlayerState("play", false);/*event.target.playVideo();*/ }, time_dif * 1000);
 			}
 		}
 		else
