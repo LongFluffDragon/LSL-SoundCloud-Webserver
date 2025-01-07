@@ -924,7 +924,7 @@
 		//{
 			var delay = current_track_end_time - UnixTime() + 5;
 			console.log("TrackEndTimer scheduled to run in " + delay);
-			setTimeout(TrackEndTimer, delay * 1000);
+			track_end_timer = setTimeout(TrackEndTimer, delay * 1000);
 		//}
 	}
 	
