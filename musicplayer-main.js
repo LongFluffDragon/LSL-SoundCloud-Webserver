@@ -109,6 +109,11 @@
 	{
 		if(page_type == "player")
 		{
+			const conf = confirm("Synchronized media player available\nDo you want to play streaming music?\n\nSource: " + lslServer);
+			
+			if(!conf)
+				return;
+			
 			var ihtml = document.getElementById("TMP_sc_player_page").cloneNode(true).innerHTML;
 			console.log("creating player from template");
 			document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
@@ -543,7 +548,7 @@
 		for(var i = 0; i < track_uris.length; i += 2)
 		{
 			console.log("Add preview for track " + track_uris[i] + " title=" + track_uris[i+1]);
-			AddTrackURL(track_uris[i], i, track_uris[i+1]);
+			AddTrackURL(track_uris[i], i/2, track_uris[i+1]);
 		}
 	}
 	
