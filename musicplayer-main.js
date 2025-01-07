@@ -49,7 +49,7 @@
 	
 	const unicode_btn = ["⮝", "⮟", "✖"]; // cant put non-ASCII in the templates file, great fun!
 	//const play_btn_icons = ["⏸", "⏵"];
-	const play_btn_icons = ["🔈", "🔊"];
+	const play_btn_icons = ["🔇", "🔊"];
 	
 	var track_swap_status = true; // helps recover from loading errors during track changes
 	
