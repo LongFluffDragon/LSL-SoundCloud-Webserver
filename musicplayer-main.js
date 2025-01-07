@@ -1,7 +1,13 @@
 
 	/*
 	
-		Disclaimer: javascript is a horrible little crab and i am making no effort to play by it's rules or respect it's crab-like tendencies
+		Javascript is a horrible little crab and i am making no effort to play by it's rules or respect it's crab-like tendencies. 
+		
+		Road Work Ahead
+		
+		API References
+			https://developers.soundcloud.com/docs/api/html5-widget
+			https://developers.google.com/youtube/iframe_api_reference
 	
 	*/
 
@@ -666,7 +672,7 @@
 			current_track_uri = args[0];
 			current_track_start_time = Number(args[1]);
 			current_track_title = args[4];
-			CreatePlayer();
+			PlayNextTrack(); // try to play new track immediately
 		}
 		
 		future_track_uri = args[2];
@@ -675,14 +681,16 @@
 		
 	}
 	
-	function PlayFutureTrack() // clears existing player and starts loading the next track, request new future track later
+	function PlayNextTrack() // clears existing player and starts loading the most suitable track, request new future track later
 	{
 		DeletePlayer();
-		track_swap_status = false;
+		track_swap_status = false; // failure state; set to true upon loading completion
+		
 		jQuery(document).ready(function()
 		{
 			if(future_track_uri != "")
 			{
+				// if current track has expired, load the futue one, otherwise keep the current track and try playing it again
 				if(UnixTime()+5 > current_track_end_time && current_track_uri.length > 1)
 				{
 					console.log("Using future track as new current track: " + future_track_uri);
@@ -699,28 +707,30 @@
 				
 				CreatePlayer();
 			}
-			else
+			else // yikes. why is there no future track loaded?
 			{
 				console.log("Error: future track is null, requesting next track immediately");
-				LSL_GetNextTrack();
+				current_track = ""; // ensures LSL_GetNextTrack_Callback tries to play new track immediately
+				future_track = "";
+				LSL_GetNextTrack(); // server knows best
 			}
-			setTimeout(CheckSwapStatus, 10000);
+			setTimeout(CheckSwapStatus, 10000); // something is probably goofed if it cant load in 10 seconds
 		});
 	}
 	
-	function CheckSwapStatus()
+	function CheckSwapStatus() // safety check to see if the track swap did not complete (errors, MIA requests..)
 	{
 		if(track_swap_status == false)
 		{
 			console.log("Error: track swap failed, retrying");
-			PlayFutureTrack();
+			PlayNextTrack();
 			setTimeout(CheckSwapStatus, 10000);
 		}
 		else
 			console.log("Track swap suceeded");
 	}
 	
-	function DeletePlayer()
+	function DeletePlayer() // removes the existing player iframe and track data, called before loading new track
 	{
 		console.log("Deleting current player widget");
 		loaded_track_uri_map.clear();
@@ -730,7 +740,7 @@
 		document.getElementById("client_player_box").innerHTML = "";
 	}
 	
-	function CreatePlayer()
+	function CreatePlayer() // create a suitable player iframe for the next track
 	{
 		console.log("Creating new player widget");
 		if(current_track_uri.includes("soundcloud"))
@@ -743,7 +753,7 @@
 		}
 	}
 	
-	function SetPlayerState(set, manual)
+	function SetPlayerState(set, manual) // play/pause/toggle the current player
 	{
 		if(main_player_widget_type == "yt")
 		{
@@ -753,13 +763,13 @@
 			{
 				state = main_player_widget.getPlayerState();
 			}
-			catch(error)
+			catch(error) // function does not exist ect ect because youtube iframe did not load correctly; try again
 			{
 				console.dir(main_player_widget);
 				console.error(error);
-				PlayFutureTrack()
+				PlayNextTrack();
 			}
-			state = (state == 1 || state == 3) ? true : false;
+			state = (state == 1 || state == 3) ? true : false; // playing/buffering : anything else
 			console.log(state);
 			
 			if(set != "")
@@ -778,24 +788,24 @@
 				}
 				if(state)
 				{
-					var time_dif = current_track_start_time - UnixTime();
+					var time_dif = 0 - (current_track_start_time - UnixTime());
 					console.log("YTPlayerReady: Track time_dif = " + time_dif);
-					if(time_dif < 1)
-						main_player_widget.seekTo(0 - time_dif, true);
+					if(time_dif > 0)
+						main_player_widget.seekTo(time_dif, true);
 					main_player_widget.playVideo();
 				}
 				else
 					main_player_widget.pauseVideo();
 			}
-			SetPlayLabel(state ? 0 : 1);
-			if(!manual)
+			SetPlayLabel(state ? 0 : 1); // set the overlay button icon to pause/play
+			if(!manual) // not result of user clicking the overlay button
 				ScheduleRequestNextTrack();
 		}
 		else if(main_player_widget_type == "sc")
 		{
 			try
 			{
-				main_player_widget.isPaused(function(state)
+				main_player_widget.isPaused(function(state) // why the hell is a callback needed to determine if a video is paused?
 				{
 					state = !state;
 					console.log(state);
@@ -824,7 +834,7 @@
 								if(time_dif >= (current_track_end_time - current_track_start_time)) // soundcloud wont seek past end, just fails
 								{
 									console.log("Current track exceeded duration, ending immediately");
-									PlayFutureTrack();
+									PlayNextTrack();
 									return;
 								}
 								main_player_widget.seekTo(time_dif * 1000);
@@ -841,21 +851,21 @@
 						main_player_widget.isPaused(PostSetPlayerStateCheck());
 					}
 					console.log("final state = " + state);
-					SetPlayLabel(state ? 0 : 1);
-					if(!manual)
+					SetPlayLabel(state ? 0 : 1); // set the overlay button icon to pause/play
+					if(!manual) // not result of user clicking the overlay button
 						ScheduleRequestNextTrack();
 				});
 			}
-			catch(error)
+			catch(error) // something caught fire
 			{
 				console.dir(main_player_widget);
 				console.error(error);
-				PlayFutureTrack()
+				PlayNextTrack(); // try again
 			}
 		}
 	}
 	
-	function PostSetPlayerStateCheck(is_paused)
+	function PostSetPlayerStateCheck(is_paused) // sometimes, the soundcloud widget does something strange..
 	{
 		if( is_paused == main_player_should_play ) // should be playing but is paused, or the reverse
 		{
@@ -865,7 +875,7 @@
 			else
 				main_player_widget.pause();
 			
-			setTimeout(function()
+			setTimeout(function() // make sure it actually did it correctly this time
 			{
 				main_player_widget.isPaused(PostSetPlayerStateCheck);
 			}, 1000);
@@ -874,14 +884,14 @@
 			console.log("PostSetPlayerStateCheck passed");
 	}
 	
-	function ScheduleRequestNextTrack()
+	function ScheduleRequestNextTrack() // called by non-manual player state changes, aka initial play start
 	{
 		if(future_track_uri == "")
 		{
-			//setTimeout(function(){ LSL_GetNextTrack() }, Math.random() * 15000 + (current_track_start_time - UnixTime() + 3));
+			// make the request shortly before the end of the current track
 			const rqt = (current_track_end_time - UnixTime()) - 15 - Math.random() * 15000;
 			console.log("scheduled next track request in " + rqt);
-			setTimeout(function(){ LSL_GetNextTrack() }, rqt );
+			setTimeout(function(){ LSL_GetNextTrack() }, rqt ); // this is quite silly.. may as well leave it here for fun
 		}
 	}
 	
@@ -1104,7 +1114,7 @@
 		if(page_type == "player")
 		{
 			console.log("Soundcloud track finished playing, requesting next in 1s");
-			setTimeout( function () { PlayFutureTrack() }, 1000 );
+			setTimeout( function () { PlayNextTrack() }, 1000 );
 		}
 	}
 	
@@ -1380,7 +1390,7 @@
 		if(event.data == YT.PlayerState.ENDED && page_type == "player")
 		{
 			console.log("Youtube track finished playing, requesting next in 1s");
-			setTimeout( function () { PlayFutureTrack() }, 1000 );
+			setTimeout( function () { PlayNextTrack() }, 1000 );
 		}
 	}
 	
