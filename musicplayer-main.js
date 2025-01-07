@@ -906,14 +906,17 @@
 	{
 		clearTimeout(track_end_timer);
 		if(main_player_should_play)
+		{
+			console.log("TrackEndTimer scheduled to run in " + delay);
 			setTimeout(TrackEndTimer, delay);
+		}
 	}
 	
 	function TrackEndTimer()
 	{
 		console.log("TrackEndTimer: should_play = " + main_player_should_play);
-		if(main_player_should_play)
-			PlayNextTrack();
+		//if(main_player_should_play)
+		//	PlayNextTrack();
 	}
 	
 	function ScheduleRequestNextTrack() // called by non-manual player state changes, aka initial play start
