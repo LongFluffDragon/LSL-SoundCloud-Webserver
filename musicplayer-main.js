@@ -705,7 +705,7 @@
 			if(future_track_uri != "")
 			{
 				// if current track has expired, load the futue one, otherwise keep the current track and try playing it again
-				if(UnixTime()+5 > current_track_end_time || current_track_uri.length < 2)
+				if(UnixTime() > current_track_end_time || current_track_uri.length < 2)
 				{
 					console.log("Using future track as new current track: " + future_track_uri);
 					current_track_uri = future_track_uri;
