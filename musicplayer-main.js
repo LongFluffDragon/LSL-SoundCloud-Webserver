@@ -19,11 +19,14 @@
 	
 	// two tracks are loaded at once, future track is loaded slightly in advance to avoid delays/congestion
 	var current_track_uri = ""; // URI of current soundcloud/youtube track
+	var current_track_duration = 0;
 	var current_track_start_time = 0;
 	var current_track_end_time = 0;
 	var current_track_title = ""
 	var future_track_uri = "";
+	var future_track_duration = 0;
 	var future_track_start_time = 0;
+	var future_track_end_time = 0;
 	var future_track_title = "";
 	var main_player_widget = null; // object ref to the client player soundcloud/youtube iframe if it exists
 	var main_player_widget_type = ""; // "sc" or "yt"
@@ -673,12 +676,17 @@
 			current_track_uri = args[0];
 			current_track_start_time = Number(args[1]);
 			current_track_title = args[4];
+			current_track_duration = args[6];
+			current_track_end_time = current_track_start_time + current_track_duration;
+			
 			PlayNextTrack(); // try to play new track immediately
 		}
 		
 		future_track_uri = args[2];
 		future_track_start_time = Number(args[3]);
 		future_track_title = args[5];
+		future_track_duration = args[7];
+		future_track_end_time = future_track_start_time + future_track_duration;
 		
 	}
 	
@@ -692,12 +700,14 @@
 			if(future_track_uri != "")
 			{
 				// if current track has expired, load the futue one, otherwise keep the current track and try playing it again
-				if(UnixTime()+5 > current_track_end_time && current_track_uri.length > 1)
+				if(UnixTime()+5 > current_track_end_time || current_track_uri.length < 2)
 				{
 					console.log("Using future track as new current track: " + future_track_uri);
 					current_track_uri = future_track_uri;
-					current_track_start_time = future_track_start_time;
 					current_track_title = future_track_title;
+					current_track_duration = future_track_duration;
+					current_track_start_time = future_track_start_time;
+					current_track_end_time = future_track_end_time;
 					future_track_uri = "";
 					future_track_title = "";
 				}
@@ -810,7 +820,7 @@
 			if(!manual) // not result of user clicking the overlay button
 				ScheduleRequestNextTrack();
 			
-			ScheduleTrackEnd(current_track_end_time - UnixTime() + 3);
+			ScheduleTrackEnd();
 		}
 		else if(main_player_widget_type == "sc")
 		{
@@ -870,7 +880,7 @@
 					if(!manual) // not result of user clicking the overlay button
 						ScheduleRequestNextTrack();
 					
-					ScheduleTrackEnd(current_track_end_time - UnixTime() + 3);
+					ScheduleTrackEnd();
 					
 				});
 			}
@@ -902,11 +912,12 @@
 			console.log("PostSetPlayerStateCheck passed");
 	}
 	
-	function ScheduleTrackEnd(delay)
+	function ScheduleTrackEnd()
 	{
 		clearTimeout(track_end_timer);
 		if(main_player_should_play)
 		{
+			var delay = current_track_end_time - UnixTime() + 5;
 			console.log("TrackEndTimer scheduled to run in " + delay);
 			setTimeout(TrackEndTimer, delay);
 		}
@@ -915,8 +926,8 @@
 	function TrackEndTimer()
 	{
 		console.log("TrackEndTimer: should_play = " + main_player_should_play);
-		//if(main_player_should_play)
-		//	PlayNextTrack();
+		if(main_player_should_play)
+			PlayNextTrack();
 	}
 	
 	function ScheduleRequestNextTrack() // called by non-manual player state changes, aka initial play start
@@ -1177,7 +1188,7 @@
 					if(value.title.length < 1)
 						value.title = sound.title;
 					value.duration = Math.round(sound.duration / 1000);
-					current_track_end_time = current_track_start_time + value.duration;
+					//current_track_end_time = current_track_start_time + value.duration;
 					value.loaded = true;
 					loaded_track_uri_map.set(key, value);
 					
@@ -1333,7 +1344,7 @@
 			if(track_obj.title.length < 1)
 				track_obj.title = event.target.videoTitle;
 			track_obj.duration = event.target.getDuration();
-			current_track_end_time = current_track_start_time + track_obj.duration;
+			// current_track_end_time = current_track_start_time + track_obj.duration;
 			track_obj.loaded = true;
 			loaded_track_uri_map.set(event.target.g.id, track_obj);
 			console.dir(track_obj);
