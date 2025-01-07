@@ -923,15 +923,15 @@
 		{
 			var delay = current_track_end_time - UnixTime() + 5;
 			console.log("TrackEndTimer scheduled to run in " + delay);
-			setTimeout(TrackEndTimer, delay);
+			setTimeout(TrackEndTimer, delay * 1000);
 		}
 	}
 	
 	function TrackEndTimer()
 	{
 		console.log("TrackEndTimer: should_play = " + main_player_should_play);
-		//if(main_player_should_play)
-		//	PlayNextTrack();
+		if(main_player_should_play)
+			PlayNextTrack();
 	}
 	
 	function ScheduleRequestNextTrack() // called by non-manual player state changes, aka initial play start
@@ -939,10 +939,10 @@
 		if(future_track_uri == "")
 		{
 			// make the request shortly before the end of the current track
-			const rqt = (current_track_end_time - UnixTime()) - 5 - Math.random() * 25000;
+			const rqt = (current_track_end_time - UnixTime()) - 5 - Math.random() * 25;
 			console.log("scheduled next track request in " + rqt);
 			clearTimeout(next_track_rq_timer);
-			next_track_rq_timer = setTimeout(LSL_GetNextTrack, rqt);
+			next_track_rq_timer = setTimeout(LSL_GetNextTrack, rqt * 1000);
 		}
 	}
 	
