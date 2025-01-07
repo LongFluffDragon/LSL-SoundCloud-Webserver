@@ -833,9 +833,12 @@
 							main_player_should_play = true;
 						}
 						else
+						{
 							main_player_widget.pause();
+							main_player_should_play = false;
+						}
 						
-						main_player_widget.isPaused(PostSetPlayerStateCheck);
+						main_player_widget.isPaused(PostSetPlayerStateCheck());
 					}
 					console.log("final state = " + state);
 					SetPlayLabel(state ? 0 : 1);
