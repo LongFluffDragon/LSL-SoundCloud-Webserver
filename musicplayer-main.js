@@ -679,6 +679,10 @@
 			current_track_duration = args[6];
 			current_track_end_time = current_track_start_time + current_track_duration;
 			
+			console.log("current track dur = " + current_track_duration +
+						", current track start = " + current_track_start_time +
+						", current track end = " + current_track_end_time);
+			
 			PlayNextTrack(); // try to play new track immediately
 		}
 		
