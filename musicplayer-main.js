@@ -5,44 +5,49 @@
 	
 	*/
 
-	var lslServer = window.location.href;
+	var lslServer = window.location.href; // full path of the server including /cfg/sessionID for config page
 	var loaded_track_uri_map = new Map(); // IDs to source url + embed uri pairs
 	var id_scplayer_map = new Map(); // IDs to soundcloud iframe objects
 	var admin_agent_map = new Map(); // UUID:{name, level} mapping for admin agents
-	var save_track_index = 0;
+	var save_track_index = 0; // progress tracker when progressively saving a playlist
 	
-	//var current_track_id = ""; // hash ID of current track for identification with server
+	// two tracks are loaded at once, future track is loaded slightly in advance to avoid delays/congestion
 	var current_track_uri = ""; // URI of current soundcloud/youtube track
 	var current_track_start_time = 0;
 	var current_track_end_time = 0;
+	var current_track_title = ""
 	var future_track_uri = "";
 	var future_track_start_time = 0;
-	var main_player_widget = null;
-	var main_player_widget_type = "";
+	var future_track_title = "";
+	var main_player_widget = null; // object ref to the client player soundcloud/youtube iframe if it exists
+	var main_player_widget_type = ""; // "sc" or "yt"
+	var main_player_should_play = false;
 	
 	var playlist_list; // array of available playlists
 	var edit_playlist = "Default"; // current playlist being edited
-	var edit_playlist_shuffle = 0;
-	var edit_lock = false;
+	var edit_playlist_shuffle = 0; // shuffle randomness value of the playerlist being edited in config mode, 0-1
+	var edit_lock = false; // prevents editing data during a save/load operation
 	
-	var page_type = lslServer.includes("/cfg/") ? "config" : "player"; 
+	var page_type = lslServer.includes("/cfg/") ? "config" : "player"; // if page is client player, or config
 	
-	var SC_PRV_ID_PFX = "sc_track_preview_";
-	var SC_PRV_SCROLL_PFX = "preview_scroll_";
-	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
+	var SC_PREVIEW_IFRAME = "sc_track_preview_"; // prefix for the iframe/player ID of a preview track
+	var SC_PREVIEW_DIV = "preview_scroll_"; // prefix for the div ID of a preview track element
+	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll"; // ID of the div that track previews are added to
 
-	var session_id = "";
-	var last_poll = 0;
+	//var session_id = ""; // config
+	//var last_poll = 0;
 	
-	const unicode_btn = ["⮝", "⮟", "✖"];
+	const unicode_btn = ["⮝", "⮟", "✖"]; // cant put non-ASCII in the templates file, great fun!
 	const play_btn_icons = ["⏸", "⏵"];
 	
-	var track_swap_status = true;
+	var track_swap_status = true; // helps recover from loading errors during track changes
 	
-	const SEP = "\u2008"; // Unicode Character 8200 (U+2008) 0xE2 0x80 0x88
+	const SEP = "\u2008"; // Delimiter for data to/from server; Unicode Character 8200 (U+2008) 0xE2 0x80 0x88
 	
-	// basic library method vomit ect
-
+	//
+	// Basic utility stuff
+	//
+	
 	function ReplaceAll(str, tkn, rep)
 	{
 		var next;
@@ -59,46 +64,55 @@
 		return str.substr(0, start) + rep + str.substr(end);
 	}
 	
+	function UnixTime() // Match output of LSL llGetUnixTime function
+	{
+		return Math.floor(Date.now() / 1000);
+	}
+	
+	/*
+		HttpRequest function with callback
+		handle: string identifier for the request, passed to callbackFunction, can be empty
+		url: self-explanatory, right?
+		callbackFunction: reference to a function, should have signature function(handle, body)
+		message: body to send with PUT requests
+		method: "GET", "PUT", ect
+	*/
 	function MakeXHR(handle, url, callbackFunction, message, method)
 	{
+		// https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest
+		
 		var xhr = new XMLHttpRequest();
-		//xhr.timeout = 45000;
 		xhr.open(method, url, true);
 		const st = Date.now();
+		
 		xhr.onload = function()
 		{
-			if (xhr.readyState==4)
+			if(xhr.readyState==4) // state=DONE
 			{	
-				if(xhr.status==200)
+				if(xhr.status==200) // status=OK
 				{
 					console.log("xhr response: "+xhr.response);
 					if(callbackFunction	!= null)
 						callbackFunction(handle, xhr.response);
 				}
-				else
+				else // Thing is not ok :(
 				{
-					const dur = (Date.now() - st) / 1000;
-					if(xhr.status == 503)
+					//const dur = (Date.now() - st) / 1000;
+					if(xhr.status == 503) // LSL server has extreme throttling antics, why not try again
 					{
 						console.log("503: probably an LSL event queue overflow, retrying request..");
 						setTimeout(function(){ MakeXHR(handle, url, callbackFunction, message, method) }, 2500);
 					}
-					else if(xhr.status == 504)
-					{
-						var dif = dur - 25;
-						poll_delay_adapt = Math.max(Math.min(poll_delay_adapt - dif, 22), 15);
-						console.log("504: probably SL server timeout of 25s, adjusting delay to " + poll_delay_adapt);
-						
-					}
-					console.log("XHR " + url + "; non-ok status "+xhr.status + " after " + dur +  ", response=" + xhr.response);
+					console.log("XHR " + url + "; non-ok status "+xhr.status + " after " + ((Date.now() - st) / 1000) +  ", response=" + xhr.response);
 				}
 			}
 		};
 		xhr.onerror = function()
 		{
 			console.log("XHR " + url + " error " + xhr.statusText);
-			// TODO add user-visible error handling
+			// TODO add user-visible error handling not reliant on popups, as they dont work when embedded in SL
 		};
+		
 		xhr.send(message);
 	}
 	
@@ -106,32 +120,25 @@
 	// main page code
 	//
 	
-	function InitPage()
+	function InitPage() // entrypoint for the player
 	{
-		if(page_type == "player")
+		if(page_type == "player") // create the client player UI and request track
 		{
-			const conf = confirm("Synchronized media player available\nDo you want to play streaming music?\n\nSource: " + lslServer);
-			
-			if(!conf)
-				return;
-			
 			var ihtml = document.getElementById("TMP_sc_player_page").cloneNode(true).innerHTML;
 			console.log("creating player from template");
 			document.getElementById("main_body").insertAdjacentHTML("beforeend",ihtml);
-			
+			/*
 			const sid_src = new Uint32Array(3);
-			const sid_bytes = self.crypto.getRandomValues(sid_src);//.randomUUID();
+			const sid_bytes = self.crypto.getRandomValues(sid_src);
 			for(var i in sid_bytes)
 				session_id += sid_bytes[i].toString(32);
 			
 			console.log("session id is " + session_id);
-			//LSL_Poll();
+			*/
 			LSL_GetNextTrack();
-			//setInterval( PollIfRequired, 1000);
-			//SC_CreateIframe("client_player_sc_iframe", "client_player_box");
 			SetPlayLabel(1);
 		}
-		else if(page_type == "config")
+		else if(page_type == "config") // create the config UI and request config data
 		{
 			var ihtml = document.getElementById("TMP_sc_track_setup").cloneNode(true).innerHTML;
 			console.log("creating setup from template");
@@ -142,10 +149,10 @@
 	}
 	
 	//
-	// config menu mode functions
+	// Config menu mode functions
 	//
 	
-	function PlaylistSelectChange()
+	function PlaylistSelectChange() // triggered by select "sel_playlist"
 	{
 		console.log("playlist selection changed");
 		if(CheckEditLock())
@@ -156,11 +163,11 @@
 		{
 			edit_playlist = selected;
 			console.log("selected playlist " + selected);
-			Btn_LoadPlaylist();
+			LSL_LoadSelectedPlaylist();
 		}
 	}
 	
-	function BuildPlaylistSelect()
+	function BuildPlaylistSelect() // refreshes the select dropdown to choose a playlist
 	{
 		var sel = document.getElementById("sel_playlist");
 		var selected = "#sel";
@@ -188,10 +195,10 @@
 			edit_playlist = "";
 	}
 	
-	function Btn_AddTrackURL()
+	function Btn_AddTrackURL() // triggered by button btn_add_url
 	{
 		var track_url = document.getElementById("text_input_url").value;
-		document.getElementById("text_input_url").value = ""; // cant cache object, what fun
+		document.getElementById("text_input_url").value = ""; // seemingly cant cache object here, why?
 		AddTrackURL(track_url, loaded_track_uri_map.size, null);
 	}
 	
@@ -200,11 +207,11 @@
 		if(page_type == "player") // how would this even happen? yikes.
 			return;
 		
-		track_url = ReplaceAll(track_url, "&", "&amp;"); // we hates it, precious
+		track_url = ReplaceAll(track_url, "&", "&amp;"); // ampersands in my house.. WHOLETTHEMIN?
 		
 		console.log("AddTrackURL " + track_url);
-		var track_id = Math.floor(Math.random()*2147483647).toString(16);
-		var if_id = SC_PRV_ID_PFX + track_id;
+		var track_id = Math.floor(Math.random()*2147483647).toString(16); // just a temporary ID; go, random bullshit!
+		var if_id = SC_PREVIEW_IFRAME + track_id;
 		
 		// create the preview panel
 		var ihtml = document.getElementById("TMP_sc_track_preview").cloneNode(true).innerHTML;
@@ -216,13 +223,11 @@
 		ihtml = ReplaceAll(ihtml, "#ORD", index);
 		document.getElementById(SC_PREVIEW_SCROLLBOX).insertAdjacentHTML("beforeend", ihtml);
 		
-		// TODO: URL causes crash, fucking ampersands https://www.youtube.com/watch?v=smJrVboIOjA&list=PLhPt7n-ALrSAR_jze4rKBbRNxo0rQ467J&index=78
-		
 		// record the track source and uri object
-		var track_obj = {};// = {src_url:track_url, uri:"", title:"unknown", duration:-1};
+		var track_obj = {};
 		track_obj.src_url = track_url;
 		track_obj.uri = "";
-		track_obj.title = title == null ? "" : title;
+		track_obj.title = title == null ? "" : title; // prevent overwriting existing titles loaded from LSL server
 		track_obj.duration = -1;
 		track_obj.loaded = false;
 		var add_to = "preview_iframe_" + track_id;
@@ -240,19 +245,19 @@
 		}
 	}
 	
-	function Btn_RemoveTrackID(track)
+	function Btn_RemoveTrackID(track) // triggered by button "btn_remove_track_%trackid%" in track preview widget
 	{
 		console.log("Removing preview track: " + track);
-		loaded_track_uri_map.delete(SC_PRV_ID_PFX + track);
-		document.getElementById(SC_PRV_SCROLL_PFX + track).remove();
+		loaded_track_uri_map.delete(SC_PREVIEW_IFRAME + track);
+		document.getElementById(SC_PREVIEW_DIV + track).remove();
 	}
 	
-	function Btn_MoveUpTrackID(track)
+	function Btn_MoveUpTrackID(track) // triggered by button "btn_track_up_%trackid%" in track preview widget
 	{
 		var a = 0;
 		var b = 0;
 		var i = 0;
-		var id = SC_PRV_ID_PFX + track;
+		var id = SC_PREVIEW_IFRAME + track;
 		for (const key of loaded_track_uri_map.keys())
 		{
 			if(key == id)
@@ -269,12 +274,12 @@
 		SwapTrackPlaces(a, b);
 	}
 	
-	function Btn_MoveDownTrackID(track)
+	function Btn_MoveDownTrackID(track) // triggered by button "btn_track_down_%trackid%" in track preview widget
 	{
 		var a = 0;
 		var b = 0;
 		var i = 0;
-		var id = SC_PRV_ID_PFX + track;
+		var id = SC_PREVIEW_IFRAME + track;
 		for (const key of loaded_track_uri_map.keys())
 		{
 			if(key == id)
@@ -291,25 +296,25 @@
 		SwapTrackPlaces(a, b);
 	}
 	
-	function SwapTrackPlaces(a, b)
+	function SwapTrackPlaces(a, b) // used by up/down buttons in track preview to switch places and rebuild the display. a bit silly.
 	{
 		console.log("SwapTrackPlaces: " + a + " <-> " + b);
 		var vals = new Array(loaded_track_uri_map.size);
 		var keys = new Array(loaded_track_uri_map.size);
 		var i = 0;
 		var at;
-		for (let [key, value] of loaded_track_uri_map)
+		for (let [key, value] of loaded_track_uri_map) // copy map to array, swapping places of elements a and b
 		{
-			at = (i == a) ? b : ((i == b) ? a : i); // truly a line of code
+			at = (i == a) ? b : ((i == b) ? a : i); // truly a line of code of some kind
 			console.log("Placing " + i + " at " + at);
 			vals[at] = value;
 			keys[at] = key;
 			++i;
 		}
 		loaded_track_uri_map.clear();
-		for(i in keys)
+		for(i in keys) // copy array back to the map. this is fun and efficient!
 		{
-			var id = keys[i].substring(17);// gets the ID, ie from sc_track_preview_18b55035
+			var id = keys[i].substring(SC_PREVIEW_IFRAME.length);// gets the ID after the prefix, ie '18b55035' from 'sc_track_preview_18b55035'
 			console.log("key " + i + " is " + id);
 			
 			loaded_track_uri_map.set(keys[i], vals[i]);
@@ -317,45 +322,18 @@
 		}
 	}
 	
-	function Btn_RenameTrackID(track)
+	function Btn_RenameTrackID(track) // triggered by button "btn_ren_track_%trackid%" in track preview widget
 	{
-		var track_obj = loaded_track_uri_map.get(SC_PRV_ID_PFX + track);
+		var track_obj = loaded_track_uri_map.get(SC_PREVIEW_IFRAME + track);
 		var title = window.prompt("Enter the title to display", track_obj.title);
 		if(title != null && title.length > 0)
 		{
 			track_obj.title = title;
-			loaded_track_uri_map.set(SC_PRV_ID_PFX + track, track_obj);
+			loaded_track_uri_map.set(SC_PREVIEW_IFRAME + track, track_obj);
 		}
 	}
 	
-	function Btn_AddAgent()
-	{
-		var agent = window.prompt("Enter the full Username or UUID/key of the user", "");
-		if(agent != null && agent.length > 0)
-		{
-			 MakeXHR("", lslServer + "/admins/lookup/" + agent, LSL_AddAgent_Callback, "", "GET");
-		}
-	}
-	
-	function LSL_AddAgent_Callback(handle, body)
-	{
-		console.log("LSL_AddAgent_Callback: " + body);
-		
-		var agent = body.split(SEP); // uuid, name
-		if(agent.length != 3 || agent[0].length < 1)
-			return; // yikes!
-		
-		if( ! admin_agent_map.has(agent[0]))
-		{
-			var agent_obj = {name:agent[1], level:"1"};
-			admin_agent_map.set(agent[0], agent_obj);
-			console.dir(admin_agent_map);
-			BuildAdminAgentList();
-			LSL_SaveAgentAdmin(agent[0]);
-		}
-	}
-	
-	function BuildAdminAgentList()
+	function BuildAdminUserList() // refreshes the config list of users and their level of access
 	{
 		const aascroll = document.getElementById("admin_agent_scroll");
 		aascroll.innerHTML = "";
@@ -372,110 +350,61 @@
 		{
 			for (let [key, value] of admin_agent_map)
 			{
-				document.getElementById("sel_level_" + key).value = value.level;
+				document.getElementById("sel_level_" + key).value = value.level; // level of access; user(1) or manager(2)
 			}
 		});
-		//TMP_admin_agent
 	}
 	
-	function AgentLevelSelectChange(agent)
+	function UserLevelSelectChange(agent) // triggered by select "sel_level_%agent%" in the user access level config menu
 	{
-		console.log("AgentLevelSelectChange " + agent);
+		console.log("UserLevelSelectChange " + agent);
 		var agent_obj = admin_agent_map.get(agent);
 		console.dir(agent_obj);
 		agent_obj.level = document.getElementById("sel_level_"+agent).value;
 		admin_agent_map.set(agent, agent_obj);
 		console.dir(admin_agent_map);
-		LSL_SaveAgentAdmin(agent);
+		LSL_SaveUserAdmin(agent);
 	}
 	
-	function Btn_RemoveAgent(agent)
+	function Btn_RemoveUser(agent) // triggered by button "btn_remove_%agent%" in the user access level config menu
 	{
-		console.log("Btn_RemoveAgent " + agent);
-		LSL_DeleteAgentAdmin(agent)
+		console.log("Btn_RemoveUser " + agent);
+		LSL_DeleteUserAdmin(agent)
 		admin_agent_map.delete(agent);
 		console.dir(admin_agent_map);
-		BuildAdminAgentList();
+		BuildAdminUserList();
 	}
 	
-	function LSL_SaveAgentAdmin(agent)
+	//
+	// Communication with server LSL script in config mode
+	//
+	
+	function LSL_SaveUserAdmin(agent) // called any time user config is modified
 	{
 		if(admin_agent_map.has(agent))
 		{
 			const agent_obj = admin_agent_map.get(agent);
 			const body = agent + SEP + agent_obj.name + SEP + agent_obj.level;
-			MakeXHR("", lslServer + "/admins/save", LSL_SaveAgent_Callback, body, "PUT");
+			MakeXHR("", lslServer + "/admins/save", LSL_SaveUser_Callback, body, "PUT");
 		}
 	}
 	
-	function LSL_SaveAgent_Callback(handle, body)
+	function LSL_SaveUser_Callback(handle, body) // not really needed at the moment
 	{
 		
 	}
 	
-	function LSL_DeleteAgentAdmin(agent)
+	function LSL_DeleteUserAdmin(agent) // called by Btn_RemoveUser, this probably does not need to be an entire function..
 	{
-		MakeXHR("", lslServer + "/admins/save/del", LSL_DeleteAgent_Callback, agent, "PUT");
+		MakeXHR("", lslServer + "/admins/save/del", LSL_DeleteUser_Callback, agent, "PUT");
 	}
 	
-	function LSL_DeleteAgent_Callback(handle, body)
+	function LSL_DeleteUser_Callback(handle, body) // not really needed at the moment
 	{
 		
 	}
 	
-	//
-	// Communication with server LSL script
-	//
-	/*
-	
-	function PollIfRequired()
-	{
-		if(UnixTime() > (last_poll + poll_delay_adapt))
-			LSL_Poll();
-	}
-	
-	function LSL_Poll()
-	{
-		last_poll = UnixTime();
-		MakeXHR("", lslServer + "/poll/" + session_id + "/" + current_track_id + "/" + last_poll, LSL_Poll_Callback, "", "GET");
-	}
-	
-	function LSL_Poll_Callback(handle, body)
-	{
-		console.log("LSL_Poll_Callback: " + body);
-		if(body != "exp") // expired poll, avoid letting it time out naturally
-		{
-			const args = body.split(SEP);
-			
-			if(args[0] == "playtrack")
-			{
-				var uri = args[1];
-				current_track_start_time = Number(args[2]);
-				
-				loaded_track_uri_map.clear();
-				id_scplayer_map.clear();
-				document.getElementById("client_player_box").innerHTML = "";
-				current_track_uri = uri;
-				current_track_id = args[3];
-				
-				jQuery(document).ready(function()
-				{
-					if(current_track_uri.includes("soundcloud"))
-					{
-						SC_CreateIframe("client_player_sc_iframe", "client_player_box");
-					}
-					else if(current_track_uri.includes("youtu"))
-					{
-						YT_CreateIframe("client_player_yt_iframe", "client_player_box");
-					}
-				});
-			}
-			LSL_Poll();
-		}
-	}
-	*/
-	
-	function LSL_GetAdmins()
+	function LSL_GetAdmins() // requests list of all users and their access levels
 	{
 		MakeXHR("", lslServer + "/admins/get", LSL_GetAdmins_Callback, "", "GET");
 	}
@@ -488,10 +417,10 @@
 		{
 			admin_agent_map.set(data[i], {name:data[i+1], level:data[i+2]});
 		}
-		BuildAdminAgentList();
+		BuildAdminUserList();
 	}
 	
-	function LSL_GetPlaylists()
+	function LSL_GetPlaylists() // requests list of all playlist names
 	{
 		if(CheckEditLock())
 			return;
@@ -506,15 +435,13 @@
 		BuildPlaylistSelect();
 	}
 	
-	function Btn_LoadPlaylist()
+	function LSL_LoadSelectedPlaylist() // called by PlaylistSelectChange when that happens
 	{
 		if(CheckEditLock())
 			return;
 		
 		var getpl = document.getElementById("sel_playlist").value;
-		//var getpl = playlist_list[index];
-		console.log("get playlist " + getpl);// + " at " + index);
-		//MakeXHR("", lslServer+"/tracks", LSL_LoadPlaylist_Callback, "", "GET");
+		console.log("get playlist " + getpl);
 		edit_playlist = getpl;
 		MakeXHR("", lslServer + "/playlist/" + edit_playlist, LSL_LoadPlaylist_Callback, "", "GET");
 		edit_lock = true;
@@ -525,26 +452,21 @@
 		console.log("LSL_LoadPlaylist_Callback: " + body);
 		edit_lock = false;
 		var playlist_data = body.split(SEP); // 0:shuffle, 1+: URIs
+		
 		edit_playlist_shuffle = Number(playlist_data[0]);
 		if(edit_playlist_shuffle == NaN)
 			edit_playlist_shuffle = 0;
+		
 		console.log("Track shuffle value = " + edit_playlist_shuffle);
 		var shuffle = document.getElementById("track_randomness")
 		shuffle.value = edit_playlist_shuffle * shuffle.max;
-		var track_uris = playlist_data.slice( (playlist_data[0].length < 4 ? 1 : 0), playlist_data.length);
-		console.log("Track URIs: " + track_uris);
-		// erase current playlist menu
-		document.getElementById(SC_PREVIEW_SCROLLBOX).innerHTML = "";
-		loaded_track_uri_map.clear();
 		
-		// load playlist from received URIs
-		/*
-		for(var i in track_uris)
-		{
-			console.log("Add preview for track " + track_uris[i]);
-			AddTrackURL(track_uris[i], i, null);
-		}
-		*/
+		// take into consideration missing shuffle int, this should not happen currently
+		var track_uris = playlist_data.slice( (playlist_data[0].length < 4 ? 1 : 0), playlist_data.length); 
+		console.log("Track URIs: " + track_uris);
+		
+		document.getElementById(SC_PREVIEW_SCROLLBOX).innerHTML = ""; // erase current playlist menu
+		loaded_track_uri_map.clear();
 		
 		for(var i = 0; i < track_uris.length; i += 2)
 		{
@@ -553,7 +475,34 @@
 		}
 	}
 	
-	function Btn_AddPlaylist()
+	function Btn_AddUser() // triggered by button "btn_addagent" ("Add User/Admin")
+	{
+		var agent = window.prompt("Enter the full Username or UUID/key of the user", "");
+		if(agent != null && agent.length > 0)
+		{
+			 MakeXHR("", lslServer + "/admins/lookup/" + agent, LSL_AddUser_Callback, "", "GET");
+		}
+	}
+	
+	function LSL_AddUser_Callback(handle, body)
+	{
+		console.log("LSL_AddUser_Callback: " + body);
+		
+		var agent = body.split(SEP); // uuid, name
+		if(agent.length != 3 || agent[0].length < 1)
+			return; // yikes!
+		
+		if( ! admin_agent_map.has(agent[0]))
+		{
+			var agent_obj = {name:agent[1], level:"1"};
+			admin_agent_map.set(agent[0], agent_obj);
+			console.dir(admin_agent_map);
+			BuildAdminUserList();
+			LSL_SaveUserAdmin(agent[0]);
+		}
+	}
+	
+	function Btn_AddPlaylist() // triggered by button "btn_new" ("New Playlist")
 	{
 		if(CheckEditLock())
 			return;
@@ -573,7 +522,7 @@
 		}
 	}
 	
-	function Btn_RenPlaylist()
+	function Btn_RenPlaylist() // triggered by button "btn_ren" ("Rename Playlist")
 	{
 		if(CheckEditLock())
 			return;
@@ -600,7 +549,7 @@
 		LSL_GetPlaylists();
 	}
 	
-	function Btn_DelPlaylist()
+	function Btn_DelPlaylist() // triggered by button "btn_del" ("Delete Playlist")
 	{
 		if(CheckEditLock())
 			return;
@@ -627,40 +576,36 @@
 		LSL_GetPlaylists();
 	}
 	
-	function Btn_SavePlaylist()
+	function Btn_SavePlaylist() // triggered by button "btn_save" ("Save Selected Playlist")
 	{
 		if(CheckEditLock())
 			return;
-		/*var tracks = [];
-		for (let [key, value] of loaded_track_uri_map)
-		{
-			tracks.push(JSON.stringify(value));
-			// need to buffer and send each track one by one to avoid 2048 byte limit
-		}
 		
-		MakeXHR("", lslServer+"/save", LSL_SaveTracks_Callback, encodeURIComponent(tracks), "PUT");*/
 		save_track_index = 0;
 		console.log("Beginning track save to LSL server");
 		var shuffle = document.getElementById("track_randomness");
 		edit_playlist_shuffle = shuffle.value / shuffle.max;
+		// send the shuffle randomness along with the name of the playlist to save, because why not
 		MakeXHR("", lslServer + "/save/start/" + edit_playlist, LSL_SavePlaylist_Callback, edit_playlist_shuffle, "PUT");
 		edit_lock = true;
 	}
 	
-	function LSL_SavePlaylist_Callback(handle, body)
+	function LSL_SavePlaylist_Callback(handle, body) // start the actual saving operation, back-and-forth with server
 	{
 		var data = body.split(SEP);
-		if(data[0] == "END")
+		
+		if(data[0] == "END") // server reports all tracks received and saved
 		{
 			window.alert("Successfully saved playlist " + edit_playlist + "\n" + data[1]);
 			edit_lock = false;
 		}
-		else if(data[0] == "NXT")
+		else if(data[0] == "NXT") // server wants the next track's data
 		{
 			console.log("LSL_SaveTrack_Callback: " + body)
 			if(save_track_index >= loaded_track_uri_map.size)
 			{
-				MakeXHR("", lslServer + "/save/" + edit_playlist + "/end", LSL_SavePlaylist_Callback, "END", "PUT");
+				// inform server that all tracks have been sent, received data should be saved
+				MakeXHR("", lslServer + "/save/" + edit_playlist + "/end", LSL_SavePlaylist_Callback, "", "PUT");
 			}
 			else
 			{
@@ -672,13 +617,13 @@
 				}
 				else
 				{
-					window.alert("Error: a track is not fully loaded, cannot save playlist");
+					window.alert("Error: a track is not fully loaded, cannot save playlist"); // yikes. save will abort without issues on server
 					for (let [key, value] of loaded_track_uri_map)
 						console.dir(value);
 					edit_lock = false;
 				}
 					
-				++save_track_index;
+				++save_track_index; // counter for track index to send next
 			}
 		}
 	}
@@ -694,46 +639,20 @@
 	// client player mode functions
 	//
 	
-	function Btn_Play()
+	function Btn_Play() // triggered by button "btn_play_track" overlaying the track image in the client player
 	{
-		console.log("play button clicked");
-		
 		SetPlayerState("tgl", true);
 	}
 	
-	/*var time_dif = current_track_start_time - UnixTime();
-			console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
-			if(time_dif < 0)
-			{
-				main_player_widget.seekTo(0 - time_dif * 1000);
-			}
-			
-			
-			var time_dif = current_track_start_time - UnixTime();
-			console.log("YTPlayerReady: Track time_dif = " + time_dif);
-			
-			if(time_dif < 1)
-			{
-				event.target.seekTo(0 - time_dif, true);
-				SetPlayerState("play");
-				//event.target.playVideo();
-			}*/
-	
-	
-	
-	function SetPlayLabel(index)
+	function SetPlayLabel(index) // changes the image of the overlay between play/pause media icons
 	{
 		document.getElementById("play_label").innerHTML = play_btn_icons[index];
 	}
 	
-	function LSL_GetNextTrack()
+	function LSL_GetNextTrack() // requests the current + next tracks from the server
 	{
 		console.log("Requesting next track from LSL server");
-		//DeletePlayer();
-		jQuery(document).ready(function()
-		{
-			MakeXHR("", lslServer+"/next-track", LSL_GetNextTrack_Callback, "", "GET");
-		});
+		MakeXHR("", lslServer+"/next-track", LSL_GetNextTrack_Callback, "", "GET");
 	}
 	
 	function LSL_GetNextTrack_Callback(handle, body)
@@ -741,20 +660,22 @@
 		console.log("LSL_GetNextTrack_Callback: " + body);
 		var args = body.split(SEP);
 		
-		if(current_track_uri != args[0])
+		if(current_track_uri != args[0]) // dont reset player if current track is already playing for some reason
 		{
 			console.log("LSL_GetNextTrack_Callback Warning: current != returned tracks, setting " + current_track_uri + " -> " + args[0]);
 			current_track_uri = args[0];
 			current_track_start_time = Number(args[1]);
+			current_track_title = args[4];
 			CreatePlayer();
 		}
 		
 		future_track_uri = args[2];
 		future_track_start_time = Number(args[3]);
+		future_track_title = args[5];
 		
 	}
 	
-	function PlayFutureTrack()
+	function PlayFutureTrack() // clears existing player and starts loading the next track, request new future track later
 	{
 		DeletePlayer();
 		track_swap_status = false;
@@ -767,21 +688,15 @@
 					console.log("Using future track as new current track: " + future_track_uri);
 					current_track_uri = future_track_uri;
 					current_track_start_time = future_track_start_time;
+					current_track_title = future_track_title;
 					future_track_uri = "";
+					future_track_title = "";
 				}
 				else
 				{
 					console.log("Reload attempt; keeping current track: " + current_track_uri);
 				}
-				/*
-				if(future_track_uri == "")
-				{
-					//setTimeout(function(){ LSL_GetNextTrack() }, Math.random() * 15000 + (current_track_start_time - UnixTime() + 3));
-					const rqt = (current_track_end_time - UnixTime()) - 15 - Math.random() * 15000;
-					console.log("scheduled next track request in " + rqt);
-					setTimeout(function(){ LSL_GetNextTrack() }, rqt );
-				}
-				*/
+				
 				CreatePlayer();
 			}
 			else
@@ -830,7 +745,6 @@
 	
 	function SetPlayerState(set, manual)
 	{
-		//console.log("SetPlayerState; player:");
 		if(main_player_widget_type == "yt")
 		{
 			// https://developers.google.com/youtube/iframe_api_reference#Playback_status
@@ -903,15 +817,25 @@
 						if(state)
 						{
 							console.log("attempting start play");
-							var time_dif = current_track_start_time - UnixTime();
+							var time_dif = 0 - (current_track_start_time - UnixTime());
 							console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
-							if(time_dif < 0)
-								main_player_widget.seekTo(0 - time_dif * 1000);
-							
-							main_player_widget.play();
+							if(time_dif > 0)
+							{
+								if(time_dif >= (current_track_end_time - current_track_start_time)) // soundcloud wont seek past end, just fails
+								{
+									console.log("Current track exceeded duration, ending immediately");
+									PlayFutureTrack();
+									return;
+								}
+								main_player_widget.seekTo(time_dif * 1000);
+							}
+							main_player_widget.play(); // ERROR TODO this failed to, in fact, play? player is valid, started manually
+							main_player_should_play = true;
 						}
 						else
 							main_player_widget.pause();
+						
+						main_player_widget.isPaused(PostSetPlayerStateCheck);
 					}
 					console.log("final state = " + state);
 					SetPlayLabel(state ? 0 : 1);
@@ -926,6 +850,25 @@
 				PlayFutureTrack()
 			}
 		}
+	}
+	
+	function PostSetPlayerStateCheck(is_paused)
+	{
+		if( is_paused == main_player_should_play ) // should be playing but is paused, or the reverse
+		{
+			console.log("PostSetPlayerStateCheck Error: state is incorrect");
+			if(main_player_should_play)
+				main_player_widget.play();
+			else
+				main_player_widget.pause();
+			
+			setTimeout(function()
+			{
+				main_player_widget.isPaused(PostSetPlayerStateCheck);
+			}, 1000);
+		}
+		else
+			console.log("PostSetPlayerStateCheck passed");
 	}
 	
 	function ScheduleRequestNextTrack()
@@ -960,7 +903,7 @@
 			track_obj.uri = current_track_uri;
 			track_obj.src_url = "";
 			track_obj.loaded = false;
-			track_obj.title = "";
+			track_obj.title = current_track_title;
 			loaded_track_uri_map.set(iframe.id, track_obj);
 		}
 		else
@@ -1332,7 +1275,7 @@
 				track_obj = {};
 				track_obj.uri = track;
 				track_obj.src_url = track;
-				track_obj.title = "";
+				track_obj.title = current_track_title;
 				loaded_track_uri_map.set(iframe.id, track_obj);
 				ytid = GetYoutubeID(track);
 			}
@@ -1447,26 +1390,7 @@
 	}
 	
 	//
-	// General utility
+	// Big Red Launch Button
 	//
 	
-	function UnixTime()
-	{
-		return Math.floor(Date.now() / 1000);
-	}
-	
-	/*
-	document.onclick = function(event)
-	{
-		if(page_type != "player")
-			return;
-		
-		//if (event===undefined) event= window.event;
-		//var target = 'target' in event? event.target : event.srcElement;
-		
-		//newSCWidget.play();
-	}*/
-	
-	//lslServer = window.location.href;
-
 	InitPage();

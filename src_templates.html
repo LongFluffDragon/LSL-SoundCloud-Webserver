@@ -27,8 +27,7 @@
 			<div id="sc_preview_scroll" style="overflow-y:scroll;padding:5px;max-width:512px;max-height:800px;display:flex;flex-direction:column"></div>
 		</div>
 		<div style="float: right; width: 512px">
-			hello horizontality
-			<button type="button" class="btntxt" id="btn_addagent" onclick="Btn_AddAgent()">Add User/Admin</button>
+			<button type="button" class="btntxt" id="btn_addagent" onclick="Btn_AddUser()">Add User/Admin</button>
 			<div id="admin_agent_scroll">
 			</div>
 		</div>
@@ -52,10 +51,10 @@
 <template id="TMP_sc_track_preview">
 	<div id="preview_scroll_%track%" class="previewtrack" style="order:#ORD">
 		<div>
-			<button type="button" class="btntxt" id="btn_remove_track" onclick="Btn_RemoveTrackID('%track%')">#DEL</button>
-			<button type="button" class="btntxt" id="btn_up_track" onclick="Btn_MoveUpTrackID('%track%')">#UP</button>
-			<button type="button" class="btntxt" id="btn_down_track" onclick="Btn_MoveDownTrackID('%track%')">#DWN</button>
-			<button type="button" class="btntxt" style="display:hidden" id="btn_ren_track" onclick="Btn_RenameTrackID('%track%')">Change Title</button>
+			<button type="button" class="btntxt" id="btn_remove_track_%track%" onclick="Btn_RemoveTrackID('%track%')">#DEL</button>
+			<button type="button" class="btntxt" id="btn_track_up_%track%" onclick="Btn_MoveUpTrackID('%track%')">#UP</button>
+			<button type="button" class="btntxt" id="btn_track_down_%track%" onclick="Btn_MoveDownTrackID('%track%')">#DWN</button>
+			<button type="button" class="btntxt" id="btn_ren_track_%track%" onclick="Btn_RenameTrackID('%track%')">Change Title</button>
 		</div>
 		<span class="wtxt">%title%</span>
 		<div id="preview_iframe_%track%"></div>
@@ -71,10 +70,10 @@
 <template id="TMP_admin_agent">
 	<div class="setup" style="display: flex; align-items: stretch; flex-direction: row">
 		<span class="btntxt" style="text-align: right; width:386px">%name%</span>
-		<select id="sel_level_%agent%" class="btntxt" style="width:90px; float: right; order: 1" onchange="AgentLevelSelectChange('%agent%')">
+		<select id="sel_level_%agent%" class="btntxt" style="width:90px; float: right; order: 1" onchange="UserLevelSelectChange('%agent%')">
 			<option value="1">User</option>
 			<option value="2">Manager</option>
 		</select>
-		<button type="button" class="btntxt" style="order: 2" id="btn_remove_%agent%" onclick="Btn_RemoveAgent('%agent%')">#DEL</button>
+		<button type="button" class="btntxt" style="order: 2" id="btn_remove_%agent%" onclick="Btn_RemoveUser('%agent%')">#DEL</button>
 	</div>
 </template>
