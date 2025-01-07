@@ -926,8 +926,8 @@
 	function TrackEndTimer()
 	{
 		console.log("TrackEndTimer: should_play = " + main_player_should_play);
-		if(main_player_should_play)
-			PlayNextTrack();
+		//if(main_player_should_play)
+		//	PlayNextTrack();
 	}
 	
 	function ScheduleRequestNextTrack() // called by non-manual player state changes, aka initial play start
