@@ -27,7 +27,7 @@
 	var future_track_title = "";
 	var main_player_widget = null; // object ref to the client player soundcloud/youtube iframe if it exists
 	var main_player_widget_type = ""; // "sc" or "yt"
-	var main_player_should_play = false;
+	var main_player_should_play = true;
 	
 	var playlist_list; // array of available playlists
 	var edit_playlist = "Default"; // current playlist being edited
@@ -39,9 +39,10 @@
 	var SC_PREVIEW_IFRAME = "sc_track_preview_"; // prefix for the iframe/player ID of a preview track
 	var SC_PREVIEW_DIV = "preview_scroll_"; // prefix for the div ID of a preview track element
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll"; // ID of the div that track previews are added to
-
-	//var session_id = ""; // config
-	//var last_poll = 0;
+	
+	// timeout IDs
+	var track_end_timer = 0;
+	var next_track_rq_timer = 0;
 	
 	const unicode_btn = ["⮝", "⮟", "✖"]; // cant put non-ASCII in the templates file, great fun!
 	const play_btn_icons = ["⏸", "⏵"];
@@ -776,30 +777,40 @@
 			{
 				if(set == "tgl")
 				{
-					state = !state;
+					main_player_should_play = !state;
+					//state = !state;
 				}
-				else if(set == "play")
+				else if(set == "play" && manual) // dont start playing automatically if previously paused
 				{
-					state = true;
+					main_player_should_play = true;
+					//if(main_player_should_play || manual) // dont re-start player automatically if it was paused manually
+					//	state = true;
 				}
 				else if(set == "pause")
 				{
-						state = false;
+					main_player_should_play = false;
 				}
-				if(state)
+				
+				if(main_player_should_play)
 				{
 					var time_dif = 0 - (current_track_start_time - UnixTime());
 					console.log("YTPlayerReady: Track time_dif = " + time_dif);
 					if(time_dif > 0)
 						main_player_widget.seekTo(time_dif, true);
 					main_player_widget.playVideo();
+					//main_player_should_play = true;
 				}
 				else
+				{
 					main_player_widget.pauseVideo();
+					//main_player_should_play = false;
+				}
 			}
-			SetPlayLabel(state ? 0 : 1); // set the overlay button icon to pause/play
+			SetPlayLabel(main_player_should_play ? 0 : 1); // set the overlay button icon to pause/play
 			if(!manual) // not result of user clicking the overlay button
 				ScheduleRequestNextTrack();
+			
+			ScheduleTrackEnd(current_track_end_time - UnixTime() + 3);
 		}
 		else if(main_player_widget_type == "sc")
 		{
@@ -814,17 +825,21 @@
 					{
 						if(set == "tgl")
 						{
-							state = !state;
+							main_player_should_play = !state;
+							//state = !state;
 						}
-						else if(set == "play")
+						else if(set == "play" && manual)
 						{
-							state = true;
+							main_player_should_play = true;
+							//if(main_player_should_play || manual) // dont re-start player automatically if it was paused manually
+							//	state = true;
 						}
 						else if(set == "pause")
 						{
-							state = false;
+							main_player_should_play = false;
+							//state = false;
 						}
-						if(state)
+						if(main_player_should_play)
 						{
 							console.log("attempting start play");
 							var time_dif = 0 - (current_track_start_time - UnixTime());
@@ -840,12 +855,12 @@
 								main_player_widget.seekTo(time_dif * 1000);
 							}
 							main_player_widget.play(); // ERROR TODO this failed to, in fact, play? player is valid, started manually
-							main_player_should_play = true;
+							//main_player_should_play = true;
 						}
 						else
 						{
 							main_player_widget.pause();
-							main_player_should_play = false;
+							//main_player_should_play = false;
 						}
 						
 						main_player_widget.isPaused(PostSetPlayerStateCheck());
@@ -854,6 +869,9 @@
 					SetPlayLabel(state ? 0 : 1); // set the overlay button icon to pause/play
 					if(!manual) // not result of user clicking the overlay button
 						ScheduleRequestNextTrack();
+					
+					ScheduleTrackEnd(current_track_end_time - UnixTime() + 3);
+					
 				});
 			}
 			catch(error) // something caught fire
@@ -862,7 +880,7 @@
 				console.error(error);
 				PlayNextTrack(); // try again
 			}
-		}
+		}	
 	}
 	
 	function PostSetPlayerStateCheck(is_paused) // sometimes, the soundcloud widget does something strange..
@@ -884,14 +902,29 @@
 			console.log("PostSetPlayerStateCheck passed");
 	}
 	
+	function ScheduleTrackEnd(delay)
+	{
+		clearTimeout(track_end_timer);
+		if(main_player_should_play)
+			setTimeout(TrackEndTimer, delay);
+	}
+	
+	function TrackEndTimer()
+	{
+		console.log("TrackEndTimer: should_play = " + main_player_should_play);
+		if(main_player_should_play)
+			PlayNextTrack();
+	}
+	
 	function ScheduleRequestNextTrack() // called by non-manual player state changes, aka initial play start
 	{
 		if(future_track_uri == "")
 		{
 			// make the request shortly before the end of the current track
-			const rqt = (current_track_end_time - UnixTime()) - 15 - Math.random() * 15000;
+			const rqt = (current_track_end_time - UnixTime()) - 5 - Math.random() * 25000;
 			console.log("scheduled next track request in " + rqt);
-			setTimeout(function(){ LSL_GetNextTrack() }, rqt ); // this is quite silly.. may as well leave it here for fun
+			clearTimeout(next_track_rq_timer);
+			next_track_rq_timer = setTimeout(LSL_GetNextTrack, rqt);
 		}
 	}
 	
@@ -929,28 +962,8 @@
 			var newSCWidget = SC.Widget(iframe.id);
 			id_scplayer_map.set(iframe.id, newSCWidget)
 			console.log("Created scWidget for id "+iframe.id);
-			
 			newSCWidget.bind(SC.Widget.Events.READY, SC_Widget_Event_READY(iframe.id));
-			
-			/*
-			newSCWidget.bind(SC.Widget.Events.LOAD_PROGRESS, function()
-			{
-				console.log("lololoload"); // never executes
-			});
-			
-			newSCWidget.bind(SC.Widget.Events.PLAY, function()
-			{
-				newSCWidget.getCurrentSound(getCurrentSound_Callback); // when scope is sus
-			});
-			
-			$('button').click(function()
-			{
-				newSCWidget.toggle();
-			});
-			*/
-			console.log("setup complete");
 		});
-		//document.getElementById("playbtn").click();
 	}
 	
 	function SC_Widget_Event_READY(iframe_id)
@@ -1101,20 +1114,14 @@
 			}
 		}
 	}
-	/*
-	function StartPlayingTrack(player)
-	{
-		console.log("StartPlayingTrack");
-		//player.play();
-		SetPlayerState("play", false);
-	}
-	*/
+	
 	function SC_Widget_OnFinish_Callback()
 	{
+		// TODO ERROR this may fail to trigger if a track is paused and resumed, ensure it is bound?
 		if(page_type == "player")
 		{
 			console.log("Soundcloud track finished playing, requesting next in 1s");
-			setTimeout( function () { PlayNextTrack() }, 1000 );
+			//setTimeout( function () { PlayNextTrack() }, 1000 );
 		}
 	}
 	
@@ -1150,13 +1157,6 @@
 			console.log("no sound loaded yet or an error occured");
 			return;
 		}
-		
-		/*
-		if(sound.id == lastGetTrackID)
-			return
-		
-		lastGetTrackID = sound.id;
-		*/
 		track_swap_status = true; // looks like it loaded successfully
 		
 		console.log("got sound data for " + sound.id + ", updating display");
@@ -1208,54 +1208,6 @@
 			}
 		}
 	}
-	/*
-	function getWaveform_Callback(id, jsonstr)
-	{
-		var track_obj = loaded_track_uri_map.get(id);
-		if(track_obj)
-		{
-			console.log("got waveform for " + id);
-			var soundDuration = track_obj.duration;
-			var waveform = JSON.parse(jsonstr);
-			var hmul = 127.0 / parseFloat(waveform.height);
-			var sps = waveform.width / (soundDuration / 1000.0);
-			
-			var encode_wf = "";
-			var val = 0;
-			var sample = 0;
-			var step = 8;
-			while(sample < waveform.width)
-			{
-				var min = 255;
-				var max = 0;
-				var n = 0;
-				for(; n < step; ++n)
-				{
-					if(sample + n >= waveform.width)
-						break;
-					
-					val = waveform.samples[sample + n];
-					if(val < min)
-						min = val;
-					if(val > max)
-						max = val;
-				}
-				
-				encode_wf += String.fromCharCode(255 + min + (max << 7));
-				sample += step;
-			}
-			
-			track_obj.encode_wf = encode_wf;
-			
-			loaded_track_uri_map.set(id, track_obj);
-			
-			console.log("waveform.height=" + waveform.height + " waveform.length=" + waveform.width + " sps=" + sps + " encoded=" + encode_wf);
-			MakeXHR("", lslServer+"/waveform/" + track_obj.uri, null, encode_wf, "PUT");
-		}
-		// compress and encode keyframes
-		// reduce to 15 bit unicode chars: 5 bit magnitude, 10 bit length
-	}
-	*/
 	
 	//
 	// youtube widget related
@@ -1390,7 +1342,7 @@
 		if(event.data == YT.PlayerState.ENDED && page_type == "player")
 		{
 			console.log("Youtube track finished playing, requesting next in 1s");
-			setTimeout( function () { PlayNextTrack() }, 1000 );
+			//setTimeout( function () { PlayNextTrack() }, 1000 );
 		}
 	}
 	
