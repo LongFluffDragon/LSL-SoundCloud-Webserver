@@ -25,6 +25,8 @@
 	var edit_playlist_shuffle = 0;
 	var edit_lock = false;
 	
+	var page_type = lslServer.includes("/cfg/") ? "config" : "player"; 
+	
 	var SC_PRV_ID_PFX = "sc_track_preview_";
 	var SC_PRV_SCROLL_PFX = "preview_scroll_";
 	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll";
@@ -38,7 +40,6 @@
 	var track_swap_status = true;
 	
 	const SEP = "\u2008"; // Unicode Character 8200 (U+2008) 0xE2 0x80 0x88
-	const SEP_W = "\u2008"; // temp placeholder for certain data in case this has to be undone later
 	
 	// basic library method vomit ect
 
@@ -501,7 +502,7 @@
 	function LSL_GetPlaylists_Callback(handle, body)
 	{
 		edit_lock = false;
-		playlist_list = body.split(SEP_W);
+		playlist_list = body.split(SEP);
 		BuildPlaylistSelect();
 	}
 	
@@ -666,7 +667,7 @@
 				var track_obj = loaded_track_uri_map.values().toArray()[save_track_index];
 				if(track_obj.loaded)
 				{
-					var track = track_obj.uri + SEP_W + track_obj.title + SEP_W + track_obj.duration;
+					var track = track_obj.uri + SEP + track_obj.title + SEP + track_obj.duration;
 					MakeXHR("", lslServer + "/save/" + edit_playlist + "/uri", LSL_SavePlaylist_Callback, track, "PUT");
 				}
 				else
