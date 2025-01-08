@@ -147,7 +147,7 @@
 			console.log("session id is " + session_id);
 			*/
 			LSL_GetNextTrack();
-			SetPlayLabel(1);
+			SetPlayLabel();
 		}
 		else if(page_type == "config") // create the config UI and request config data
 		{
@@ -655,9 +655,9 @@
 		SetPlayerState("tgl", true);
 	}
 	
-	function SetPlayLabel(index) // changes the image of the overlay between play/pause media icons
+	function SetPlayLabel() // changes the image of the overlay between play/pause media icons
 	{
-		document.getElementById("play_label").innerHTML = play_btn_icons[index];
+		document.getElementById("play_label").innerHTML = play_btn_icons[main_player_should_play ? 0 : 1];
 	}
 	
 	function LSL_GetNextTrack() // requests the current + next tracks from the server
@@ -821,7 +821,7 @@
 					//main_player_should_play = false;
 				}
 			}
-			SetPlayLabel(main_player_should_play ? 0 : 1); // set the overlay button icon to pause/play
+			SetPlayLabel();//main_player_should_play ? 0 : 1); // set the overlay button icon to pause/play
 			if(!manual) // not result of user clicking the overlay button
 				ScheduleRequestNextTrack();
 			
@@ -881,7 +881,7 @@
 						main_player_widget.isPaused(PostSetPlayerStateCheck());
 					}
 					console.log("final state = " + state);
-					SetPlayLabel(state ? 0 : 1); // set the overlay button icon to pause/play
+					SetPlayLabel();//state ? 0 : 1); // set the overlay button icon to pause/play
 					if(!manual) // not result of user clicking the overlay button
 						ScheduleRequestNextTrack();
 					
