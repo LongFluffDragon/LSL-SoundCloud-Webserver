@@ -771,6 +771,8 @@
 	
 	function SetPlayerState(set, manual) // play/pause/toggle the current player
 	{
+		console.log("SetPlayerState " + set + ", main_player_widget_type="+main_player_widget_type);
+		
 		if(main_player_widget_type == "yt")
 		{
 			// https://developers.google.com/youtube/iframe_api_reference#Playback_status
@@ -825,6 +827,7 @@
 			if(!manual) // not result of user clicking the overlay button
 				ScheduleRequestNextTrack();
 			
+			console.log("Should schedule end play now!");
 			ScheduleTrackEnd();
 		}
 		else if(main_player_widget_type == "sc")
@@ -919,6 +922,7 @@
 	
 	function ScheduleTrackEnd()
 	{
+		console.log("DEBUG: ScheduleTrackEnd did actually run");
 		clearTimeout(track_end_timer);
 		//if(main_player_should_play)
 		//{
