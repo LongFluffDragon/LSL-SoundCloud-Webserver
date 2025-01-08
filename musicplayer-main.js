@@ -1105,8 +1105,6 @@
 				options.auto_play = true;
 				console.log("Starting track immediately");
 				SetPlayerState("play", false);
-				//player.seekTo(0 - time_dif);
-				//player.play();
 			}
 		}
 		setTimeout(function() { GetMissingTrackData(); }, 1000);
@@ -1143,7 +1141,9 @@
 		// TODO ERROR this may fail to trigger if a track is paused and resumed, ensure it is bound?
 		if(page_type == "player")
 		{
-			console.log("Soundcloud track finished playing, requesting next in 1s");
+			console.log("Soundcloud track reached end");
+			
+			// this seems slightly unreliable, using pre-set timer instead
 			//setTimeout( function () { PlayNextTrack() }, 1000 );
 		}
 	}
@@ -1172,9 +1172,8 @@
 			setTimeout(function() { GetMissingTrackData(); }, 2500);
 	}
 	
-	function getCurrentSound_Callback(sound)
+	function getCurrentSound_Callback(sound) // data on the current soundcloud track; duration, title, ect
 	{
-		//console.log("gotCurrentSound?");
 		if(sound == null)
 		{
 			console.log("no sound loaded yet or an error occured");
@@ -1197,20 +1196,15 @@
 					if(value.title.length < 1)
 						value.title = sound.title;
 					value.duration = Math.round(sound.duration / 1000);
-					//current_track_end_time = current_track_start_time + value.duration;
 					value.loaded = true;
 					loaded_track_uri_map.set(key, value);
 					
+					/*
 					console.log("properties in sound data:");
 					for(var propertyName in sound)
 					{
 						console.log(propertyName + "=" + sound[propertyName]);
 					}
-					console.log("updating data, requesting waveform");
-					
-					// dont get waveform, not compatible with youtube
-					/*if(page_type == "player")
-						MakeXHR(key, sound.waveform_url, getWaveform_Callback, "", "GET");
 					*/
 				}
 				break;
@@ -1285,9 +1279,6 @@
 			console.log("track id = " + ytid);
 			console.log("youtube iframe ready");
 			
-			
-			//var ytid = track.split("/").slice(-1);
-			
 			console.log("youtube track url = " + track_obj.uri);
 			
 			main_player_widget = new YT.Player(iframe.id,
@@ -1295,9 +1286,12 @@
 				height: '390',
 				width: '640',
 				videoId: ytid,
-				playerVars:
+				playerVars: // https://developers.google.com/youtube/player_parameters#Parameters
 				{
-					'playsinline': 1
+					'playsinline': 1, // may as well leave this in to giggle about someone somehow creating a situation where it matters
+					'disablekb': 1,
+					'iv_load_policy': 3,
+					'controls': 0
 				},
 				events:
 				{
@@ -1313,7 +1307,7 @@
 	function YTPlayerReady(event)
 	{
 		main_player_widget = event.target;
-		console.dir(event.target);
+		//console.dir(event.target);
 		console.log("YTPlayerReady: src = " + event.target.g.src);
 		console.log("iframe id = " + event.target.g.id);
 		
@@ -1328,8 +1322,6 @@
 			icon.src = "https://img.youtube.com/vi/" + ytid + "/0.jpg"
 			icon.style.height = '360px';
 			icon.style.width = '480px';
-			//icon.style.height = '480px';
-			//icon.style.width = '640px';
 			icon.style.top = '60px';
 			
 			var time_dif = current_track_start_time - UnixTime();
@@ -1339,7 +1331,6 @@
 			{
 				event.target.seekTo(0 - time_dif, true);
 				SetPlayerState("play", false);
-				//event.target.playVideo();
 			}
 			else
 			{
@@ -1349,14 +1340,13 @@
 		else
 		{
 			var track_obj = loaded_track_uri_map.get(event.target.g.id);
-			//console.dir(track_obj);
 			if(track_obj.title.length < 1)
 				track_obj.title = event.target.videoTitle;
 			track_obj.duration = event.target.getDuration();
 			// current_track_end_time = current_track_start_time + track_obj.duration;
 			track_obj.loaded = true;
 			loaded_track_uri_map.set(event.target.g.id, track_obj);
-			console.dir(track_obj);
+			//console.dir(track_obj);
 		}
 	}
 	
@@ -1364,7 +1354,8 @@
 	{
 		if(event.data == YT.PlayerState.ENDED && page_type == "player")
 		{
-			console.log("Youtube track finished playing, requesting next in 1s");
+			console.log("Youtube track reached end");
+			// this seems slightly unreliable, using pre-set timer instead
 			//setTimeout( function () { PlayNextTrack() }, 1000 );
 		}
 	}
