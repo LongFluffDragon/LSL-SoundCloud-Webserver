@@ -454,7 +454,7 @@
 		var getpl = document.getElementById("sel_playlist").value;
 		console.log("get playlist " + getpl);
 		edit_playlist = getpl;
-		MakeXHR("", lslServer + "/playlist/" + EncodeURI(edit_playlist), LSL_LoadPlaylist_Callback, "", "GET");
+		MakeXHR("", lslServer + "/playlist/" + encodeURI(edit_playlist), LSL_LoadPlaylist_Callback, "", "GET");
 		edit_lock = true;
 	}
 	
@@ -540,7 +540,7 @@
 		
 		var input = window.prompt("Enter new name for "+edit_playlist, "");
 		console.log("Renaming " + edit_playlist + " to " + input);
-		MakeXHR("", lslServer + "/ren/" + edit_playlist + "/" + EncodeURI(input), LSL_RenPlaylist_Callback, "", "GET");
+		MakeXHR("", lslServer + "/ren/" + edit_playlist + "/" + encodeURI(input), LSL_RenPlaylist_Callback, "", "GET");
 		edit_lock = true;
 		
 	}
@@ -569,7 +569,7 @@
 		if(conf.toLowerCase().includes("delete"))
 		{
 			console.log("Deleting "+edit_playlist);
-			MakeXHR("", lslServer + "/del/" + EncodeURI(edit_playlist), LSL_DelPlaylist_Callback, "", "GET");
+			MakeXHR("", lslServer + "/del/" + encodeURI(edit_playlist), LSL_DelPlaylist_Callback, "", "GET");
 		}
 		edit_lock = true;
 	}
@@ -597,7 +597,7 @@
 		var shuffle = document.getElementById("track_randomness");
 		edit_playlist_shuffle = shuffle.value / shuffle.max;
 		// send the shuffle randomness along with the name of the playlist to save, because why not
-		MakeXHR("", lslServer + "/save/start/" + EncodeURI(edit_playlist), LSL_SavePlaylist_Callback, edit_playlist_shuffle, "PUT");
+		MakeXHR("", lslServer + "/save/start/" + encodeURI(edit_playlist), LSL_SavePlaylist_Callback, edit_playlist_shuffle, "PUT");
 		edit_lock = true;
 	}
 	
@@ -616,7 +616,7 @@
 			if(save_track_index >= loaded_track_uri_map.size)
 			{
 				// inform server that all tracks have been sent, received data should be saved
-				MakeXHR("", lslServer + "/save/" + EncodeURI(edit_playlist) + "/end", LSL_SavePlaylist_Callback, "", "PUT");
+				MakeXHR("", lslServer + "/save/" + encodeURI(edit_playlist) + "/end", LSL_SavePlaylist_Callback, "", "PUT");
 			}
 			else
 			{
@@ -624,7 +624,7 @@
 				if(track_obj.loaded)
 				{
 					var track = track_obj.uri + SEP + track_obj.title + SEP + track_obj.duration;
-					MakeXHR("", lslServer + "/save/" + EncodeURI(edit_playlist) + "/uri", LSL_SavePlaylist_Callback, track, "PUT");
+					MakeXHR("", lslServer + "/save/" + encodeURI(edit_playlist) + "/uri", LSL_SavePlaylist_Callback, track, "PUT");
 				}
 				else
 				{
