@@ -1312,10 +1312,17 @@
 		var ytid = GetYoutubeID(event.target.g.src);
 		console.log("ytid = " + ytid);
 		
+		var track_obj = loaded_track_uri_map.get(event.target.g.id);
+		if(track_obj.title.length < 1)
+		{
+			track_obj.title = event.target.videoTitle;
+			console.log("Using retrieved video title due to missing title data");
+		}
+	
 		if(page_type == "player")
 		{
 			track_swap_status = true;
-			document.getElementById("titlespan").innerHTML = event.target.videoTitle;
+			document.getElementById("titlespan").innerHTML = track_obj.title;
 			var icon = document.getElementById("icon");
 			icon.src = "https://img.youtube.com/vi/" + ytid + "/0.jpg"
 			icon.style.height = '360px';
@@ -1337,12 +1344,12 @@
 		}
 		else
 		{
-			var track_obj = loaded_track_uri_map.get(event.target.g.id);
+			/*var track_obj = loaded_track_uri_map.get(event.target.g.id);
 			if(track_obj.title.length < 1)
 			{
 				track_obj.title = event.target.videoTitle;
 				console.log("Using retrieved video title due to missing title data");
-			}
+			}*/
 			track_obj.duration = event.target.getDuration();
 			// current_track_end_time = current_track_start_time + track_obj.duration;
 			track_obj.loaded = true;
