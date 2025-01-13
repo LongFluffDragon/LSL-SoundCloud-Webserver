@@ -682,7 +682,8 @@
 			
 			console.log("current track dur = " + current_track_duration +
 						", current track start = " + current_track_start_time +
-						", current track end = " + current_track_end_time);
+						", current track end = " + current_track_end_time +
+						", current track title = " + current_track_title);
 			
 			PlayNextTrack(); // try to play new track immediately
 		}
@@ -1338,7 +1339,10 @@
 		{
 			var track_obj = loaded_track_uri_map.get(event.target.g.id);
 			if(track_obj.title.length < 1)
+			{
 				track_obj.title = event.target.videoTitle;
+				console.log("Using retrieved video title due to missing title data");
+			}
 			track_obj.duration = event.target.getDuration();
 			// current_track_end_time = current_track_start_time + track_obj.duration;
 			track_obj.loaded = true;
