@@ -1029,11 +1029,16 @@
 		var urlSubstr = oembedHtml.substring(start+4, end);
 		console.log("url=" + urlSubstr);
 		
+		//urlSubstr = decodeURIComponent(urlSubstr);
 		urlSubstr = decodeURIComponent(urlSubstr);
+		var track_obj = loaded_track_uri_map.get(id);
+		track_obj.uri = urlSubstr;
+		loaded_track_uri_map.set(id, track_obj);
+		console.log("track.obj.uri=" + urlSubstr);
 		
 		if(page_type == "player")
 		{
-			document.getElementById("titlespan").innerHTML = oembedResult.title;
+			document.getElementById("titlespan").innerHTML = track_obj.title;
 			
 			if(oembedResult.thumbnail_url.includes("placeholder"))
 			{
@@ -1051,11 +1056,7 @@
 			}
 		}
 		
-		urlSubstr = decodeURIComponent(urlSubstr);
-		var track_obj = loaded_track_uri_map.get(id);
-		track_obj.uri = urlSubstr;
-		loaded_track_uri_map.set(id, track_obj);
-		console.log("track.obj.uri=" + urlSubstr);
+		
 		
 		SC_LoadTrack(id, urlSubstr);
 	}
