@@ -1053,8 +1053,6 @@
 			}
 		}
 		
-		
-		
 		SC_LoadTrack(id, urlSubstr);
 	}
 	
@@ -1113,6 +1111,8 @@
 		player.bind(SC.Widget.Events.FINISH, SC_Widget_OnFinish_Callback);
 		main_player_widget = player;
 		main_player_widget_type = "sc";
+		
+		setTimeout(function() { console.dir(player); }, 1000);
 		
 	}
 	
