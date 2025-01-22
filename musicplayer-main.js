@@ -75,6 +75,16 @@
 		return str.substr(0, start) + rep + str.substr(end);
 	}
 	
+	function Sanitize(str)
+	{
+		str = ReplaceAll(str, "&", "&amp;");
+		str = ReplaceAll(str, "&", "&amp;");
+		str = ReplaceAll(str, "\"", "&quot;");
+		str = ReplaceAll(str, "\'", "&#39;");
+		str = ReplaceAll(str, ">", "&gt;");
+		return str;
+	}
+	
 	function UnixTime() // Match output of LSL llGetUnixTime function
 	{
 		return Math.floor(Date.now() / 1000);
@@ -218,7 +228,7 @@
 		if(page_type == "player") // how would this even happen? yikes.
 			return;
 		
-		track_url = ReplaceAll(track_url, "&", "&amp;"); // ampersands in my house.. WHOLETTHEMIN?
+		track_url = Sanitize(track_url);//ReplaceAll(track_url, "&", "&amp;"); // ampersands in my house.. WHOLETTHEMIN?
 		
 		console.log("AddTrackURL " + track_url);
 		var track_id = Math.floor(Math.random()*2147483647).toString(16); // just a temporary ID; go, random bullshit!
@@ -1036,7 +1046,7 @@
 		
 		if(page_type == "player")
 		{
-			document.getElementById("titlespan").innerHTML = ReplaceAll(track_obj.title, "&", "&amp;");//track_obj.title;
+			document.getElementById("titlespan").innerHTML = Sanitize(track_obj.title);//ReplaceAll(track_obj.title, "&", "&amp;");//track_obj.title;
 			
 			if(oembedResult.thumbnail_url.includes("placeholder"))
 			{
@@ -1322,7 +1332,7 @@
 		if(page_type == "player")
 		{
 			track_swap_status = true;
-			document.getElementById("titlespan").innerHTML = ReplaceAll(track_obj.title, "&", "&amp;");//track_obj.title;
+			document.getElementById("titlespan").innerHTML = Sanitize(track_obj.title);//ReplaceAll(track_obj.title, "&", "&amp;");//track_obj.title;
 			var icon = document.getElementById("icon");
 			icon.src = "https://img.youtube.com/vi/" + ytid + "/0.jpg"
 			icon.style.height = '360px';
