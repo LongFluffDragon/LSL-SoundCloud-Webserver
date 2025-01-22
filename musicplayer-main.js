@@ -219,7 +219,7 @@
 			return;
 		
 		track_url = ReplaceAll(track_url, "&", "&amp;"); // ampersands in my house.. WHOLETTHEMIN?
-		title = ReplaceAll(title, "&", "&amp;");
+		
 		console.log("AddTrackURL " + track_url);
 		var track_id = Math.floor(Math.random()*2147483647).toString(16); // just a temporary ID; go, random bullshit!
 		var if_id = SC_PREVIEW_IFRAME + track_id;
@@ -676,7 +676,7 @@
 			console.log("LSL_GetNextTrack_Callback Warning: current != returned tracks, setting " + current_track_uri + " -> " + args[0]);
 			current_track_uri = args[0];
 			current_track_start_time = Number(args[1]);
-			current_track_title = ReplaceAll(args[4], "&", "&amp;");
+			current_track_title = args[4];
 			current_track_duration = Number(args[6]);
 			current_track_end_time = current_track_start_time + current_track_duration;
 			
@@ -690,7 +690,7 @@
 		
 		future_track_uri = args[2];
 		future_track_start_time = Number(args[3]);
-		future_track_title = ReplaceAll(args[5], "&", "&amp;");
+		future_track_title = args[5];
 		future_track_duration = Number(args[7]);
 		future_track_end_time = future_track_start_time + future_track_duration;
 		
@@ -1036,7 +1036,7 @@
 		
 		if(page_type == "player")
 		{
-			document.getElementById("titlespan").innerHTML = track_obj.title;
+			document.getElementById("titlespan").innerHTML = ReplaceAll(track_obj.title, "&", "&amp;");//track_obj.title;
 			
 			if(oembedResult.thumbnail_url.includes("placeholder"))
 			{
@@ -1322,7 +1322,7 @@
 		if(page_type == "player")
 		{
 			track_swap_status = true;
-			document.getElementById("titlespan").innerHTML = track_obj.title;
+			document.getElementById("titlespan").innerHTML = ReplaceAll(track_obj.title, "&", "&amp;");//track_obj.title;
 			var icon = document.getElementById("icon");
 			icon.src = "https://img.youtube.com/vi/" + ytid + "/0.jpg"
 			icon.style.height = '360px';
