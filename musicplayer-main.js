@@ -78,10 +78,10 @@
 	function Sanitize(str)
 	{
 		str = ReplaceAll(str, "&", "&amp;");
-		str = ReplaceAll(str, "&", "&amp;");
 		str = ReplaceAll(str, "\"", "&quot;");
 		str = ReplaceAll(str, "\'", "&#39;");
 		str = ReplaceAll(str, ">", "&gt;");
+		str = ReplaceAll(str, "<", "&lt;");
 		return str;
 	}
 	
