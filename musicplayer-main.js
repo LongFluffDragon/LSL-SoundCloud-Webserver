@@ -219,7 +219,7 @@
 			return;
 		
 		track_url = ReplaceAll(track_url, "&", "&amp;"); // ampersands in my house.. WHOLETTHEMIN?
-		
+		title = ReplaceAll(title, "&", "&amp;");
 		console.log("AddTrackURL " + track_url);
 		var track_id = Math.floor(Math.random()*2147483647).toString(16); // just a temporary ID; go, random bullshit!
 		var if_id = SC_PREVIEW_IFRAME + track_id;
@@ -676,7 +676,7 @@
 			console.log("LSL_GetNextTrack_Callback Warning: current != returned tracks, setting " + current_track_uri + " -> " + args[0]);
 			current_track_uri = args[0];
 			current_track_start_time = Number(args[1]);
-			current_track_title = args[4];
+			current_track_title = ReplaceAll(args[4], "&", "&amp;");
 			current_track_duration = Number(args[6]);
 			current_track_end_time = current_track_start_time + current_track_duration;
 			
@@ -690,7 +690,7 @@
 		
 		future_track_uri = args[2];
 		future_track_start_time = Number(args[3]);
-		future_track_title = args[5];
+		future_track_title = ReplaceAll(args[5], "&", "&amp;");
 		future_track_duration = Number(args[7]);
 		future_track_end_time = future_track_start_time + future_track_duration;
 		
@@ -1112,7 +1112,7 @@
 		main_player_widget = player;
 		main_player_widget_type = "sc";
 		
-		setTimeout(function() { console.dir(player); }, 1000);
+		//setTimeout(function() { console.dir(player); }, 1000);
 		
 	}
 	
