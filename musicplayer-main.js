@@ -85,6 +85,31 @@
 		return str;
 	}
 	
+	/*
+		https://github.com/bryc/code/blob/master/jshash/experimental/cyrb53.js
+		 cyrb53 (c) 2018 bryc (github.com/bryc)
+		License: Public domain (or MIT if needed). Attribution appreciated.
+		A fast and simple 53-bit string hash function with decent collision resistance.
+		Largely inspired by MurmurHash2/3, but with a focus on speed/simplicity.
+	*/
+	function cyrb53(str)
+	{
+		var h1 = 0xdeadbeef;
+		var h2 = 0x41c6ce57;
+		for(let i = 0, ch; i < str.length; i++)
+		{
+			ch = str.charCodeAt(i);
+			h1 = Math.imul(h1 ^ ch, 2654435761);
+			h2 = Math.imul(h2 ^ ch, 1597334677);
+		}
+		h1  = Math.imul(h1 ^ (h1 >>> 16), 2246822507);
+		h1 ^= Math.imul(h2 ^ (h2 >>> 13), 3266489909);
+		h2  = Math.imul(h2 ^ (h2 >>> 16), 2246822507);
+		h2 ^= Math.imul(h1 ^ (h1 >>> 13), 3266489909);
+  
+		return 4294967296 * (2097151 & h2) + (h1 >>> 0);
+	}
+	
 	function UnixTime() // Match output of LSL llGetUnixTime function
 	{
 		return Math.floor(Date.now() / 1000);
@@ -231,7 +256,8 @@
 		track_url = Sanitize(track_url);//ReplaceAll(track_url, "&", "&amp;"); // ampersands in my house.. WHOLETTHEMIN?
 		
 		console.log("AddTrackURL " + track_url);
-		var track_id = Math.floor(Math.random()*2147483647).toString(16); // just a temporary ID; go, random bullshit!
+		//var track_id = Math.floor(Math.random()*2147483647).toString(16); // just a temporary ID; go, random bullshit!
+		var track_id = cyrb53(track_url).substring(0, 8);
 		var if_id = SC_PREVIEW_IFRAME + track_id;
 		
 		// create the preview panel
