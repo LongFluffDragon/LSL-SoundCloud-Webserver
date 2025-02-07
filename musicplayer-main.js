@@ -14,6 +14,7 @@
 	var lslServer = window.location.href; // full path of the server including /cfg/sessionID for config page
 	var loaded_track_uri_map = new Map(); // IDs to source url + embed uri pairs
 	var id_playeriframe_map = new Map(); // IDs to soundcloud/youtube iframe objects
+	var id_iframe_map_v2 = new Map();
 	var admin_agent_map = new Map(); // UUID:{name, level} mapping for admin agents
 	var save_track_index = 0; // progress tracker when progressively saving a playlist
 	
@@ -307,8 +308,7 @@
 	function Slider_TrackVolume(track)
 	{
 		var track_obj = loaded_track_uri_map.get(SC_PREVIEW_IFRAME + track);
-		//var player = id_playeriframe_map.get(SC_PREVIEW_IFRAME + track);
-		var player = document.getElementById(SC_PREVIEW_IFRAME + track);
+		var player = id_iframe_map_v2.get(track);
 		var vol = document.getElementById("track_vol_" + track).value;
 		if (vol == null || vol < 33 || vol > 100)
 		{
@@ -1145,7 +1145,7 @@
 	{	
 		console.log("SC_LoadTrack " + id + " = " + url);
 		var options = [];
-		options.auto_play = false;//page_type == "player" ? true : false;
+		options.auto_play = false;
 		options.download = false;
 		options.show_artwork = true;
 		options.show_playcount = false;
@@ -1173,18 +1173,20 @@
 				console.log("Starting track immediately");
 				SetPlayerState("play", false);
 			}
+			main_player_widget = player;
+			main_player_widget_type = "sc";
 		}
+		else
+		{
+			id_iframe_map_v2.add(id, player);
+			console.log("added " + id + " to id_iframe_map_v2");
+		}
+		
 		setTimeout(function() { GetMissingTrackData(); }, 1000);
 		
 		player.load(url, options);
-		//setTimeout(function() { SC_Widget_OnPlay_Callback(player); }, 1000);
 		player.bind(SC.Widget.Events.PLAY_PROGRESS, SC_Widget_OnStartPlay_Callback);
 		player.bind(SC.Widget.Events.FINISH, SC_Widget_OnFinish_Callback);
-		main_player_widget = player;
-		main_player_widget_type = "sc";
-		
-		//setTimeout(function() { console.dir(player); }, 1000);
-		
 	}
 	
 	function SC_Widget_OnStartPlay_Callback()
@@ -1350,7 +1352,7 @@
 			
 			console.log("youtube track url = " + track_obj.uri);
 			
-			main_player_widget = new YT.Player(iframe.id,
+			var player = new YT.Player(iframe.id,
 			{
 				height: '390',
 				width: '640',
@@ -1368,7 +1370,18 @@
 					"onStateChange": YTPlayerStateChange
 				}
 			});
-			main_player_widget_type = "yt";
+			
+			if(page_type == "player")
+			{
+				main_player_widget = player;
+				main_player_widget_type = "yt";
+			}
+			else
+			{
+				id_iframe_map_v2.add(id, player);
+				console.log("added " + id + " to id_iframe_map_v2");
+			}
+			
 			console.dir(main_player_widget);
 		});
 	}
