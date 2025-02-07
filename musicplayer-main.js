@@ -307,7 +307,8 @@
 	function Slider_TrackVolume(track)
 	{
 		var track_obj = loaded_track_uri_map.get(SC_PREVIEW_IFRAME + track);
-		var player = id_playeriframe_map.get(SC_PREVIEW_IFRAME + track);
+		//var player = id_playeriframe_map.get(SC_PREVIEW_IFRAME + track);
+		var player = document.getElementById(SC_PREVIEW_IFRAME + track);
 		console.dir("VOLUME CHANGE DEBUG " + player);
 		var vol = document.getElementById("track_vol_" + track).value;
 		if (vol == null || vol < 33 || vol > 100)
