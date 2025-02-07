@@ -47,7 +47,7 @@
 	const SC_PREVIEW_SCROLLBOX = "sc_preview_scroll"; // ID of the div that track previews are added to
 	const MIN_VOL = 1;
 	const MAX_VOL = 100;
-	const DEF_VOL = 50;
+	const DEF_VOL = 75;
 	
 	// timeout IDs
 	var track_end_timer = 0;
