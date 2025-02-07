@@ -309,13 +309,15 @@
 		var track_obj = loaded_track_uri_map.get(SC_PREVIEW_IFRAME + track);
 		//var player = id_playeriframe_map.get(SC_PREVIEW_IFRAME + track);
 		var player = document.getElementById(SC_PREVIEW_IFRAME + track);
-		console.dir("VOLUME CHANGE DEBUG " + player);
 		var vol = document.getElementById("track_vol_" + track).value;
 		if (vol == null || vol < 33 || vol > 100)
 		{
 			vol = 67;
 		}
-		console.log(track + " volume = " + vol);
+		console.log("DEBUG VOLUME");
+		console.dir(player);
+		console.log(SC_PREVIEW_IFRAME + track + " volume = " + vol);
+		console.log("DEBUG VOLUME");
 		track_obj.volume = vol;
 		player.setVolume(vol);
 		loaded_track_uri_map.set(SC_PREVIEW_IFRAME + track, track_obj);
@@ -1187,13 +1189,10 @@
 	
 	function SC_Widget_OnStartPlay_Callback()
 	{
-		//TODO fix event target ref use
-		
-		console.log("SC_Widget_OnPlay_Callback");
-		main_player_widget.unbind(SC.Widget.Events.PLAY_PROGRESS);
-		
 		if (page_type == "player")
 		{
+			console.log("SC_Widget_OnPlay_Callback");
+			main_player_widget.unbind(SC.Widget.Events.PLAY_PROGRESS);
 			var time_dif = current_track_start_time - UnixTime();
 			console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
 			if (time_dif < 0)
