@@ -1243,6 +1243,8 @@
 	
 	function getCurrentSound_Callback(sound) // data on the current soundcloud track; duration, title, ect
 	{
+		console.log("getCurrentSound_Callback");
+		
 		if (sound == null)
 		{
 			console.log("no sound loaded yet or an error occured");
