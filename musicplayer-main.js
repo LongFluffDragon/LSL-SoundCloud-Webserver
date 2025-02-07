@@ -47,7 +47,7 @@
 	const SC_PREVIEW_SCROLLBOX = "sc_preview_scroll"; // ID of the div that track previews are added to
 	const MIN_VOL = 1;
 	const MAX_VOL = 100;
-	const DEF_VOL = 75;
+	const DEF_VOL = 50;
 	
 	// timeout IDs
 	var track_end_timer = 0;
@@ -324,7 +324,7 @@
 		console.log(SC_PREVIEW_IFRAME + track + " volume = " + vol);
 		console.log("DEBUG VOLUME");
 		track_obj.volume = vol;
-		player.setVolume(Math.log(vol));
+		player.setVolume(vol);
 		loaded_track_uri_map.set(SC_PREVIEW_IFRAME + track, track_obj);
 		
 	}
@@ -888,14 +888,12 @@
 					console.log("YTPlayerReady: Track time_dif = " + time_dif);
 					if (time_dif > 0)
 						main_player_widget.seekTo(time_dif, true);
-					main_player_widget.setVolume(Math.log(current_track_vol));
+					main_player_widget.setVolume(current_track_vol);
 					main_player_widget.playVideo();
-					//main_player_should_play = true;
 				}
 				else
 				{
 					main_player_widget.pauseVideo();
-					//main_player_should_play = false;
 				}
 			}
 			SetPlayLabel();//main_player_should_play ? 0 : 1); // set the overlay button icon to pause/play
@@ -919,13 +917,10 @@
 						if (set == "tgl")
 						{
 							main_player_should_play = !state;
-							//state = !state;
 						}
 						else if (set == "play" && manual)
 						{
 							main_player_should_play = true;
-							//if (main_player_should_play || manual) // dont re-start player automatically if it was paused manually
-							//	state = true;
 						}
 						else if (set == "pause")
 						{
@@ -947,14 +942,12 @@
 								}
 								main_player_widget.seekTo(time_dif * 1000);
 							}
-							main_player_widget.setVolume(Math.log(current_track_vol));
-							main_player_widget.play(); // ERROR TODO this failed to, in fact, play? player is valid, started manually
-							//main_player_should_play = true;
+							main_player_widget.setVolume(current_track_vol);
+							main_player_widget.play();
 						}
 						else
 						{
 							main_player_widget.pause();
-							//main_player_should_play = false;
 						}
 						
 						main_player_widget.isPaused(PostSetPlayerStateCheck());
@@ -1186,6 +1179,8 @@
 			var trunc = id.replace(SC_PREVIEW_IFRAME, "");
 			id_iframe_map_v2.set(trunc, player);
 			console.log("added " + trunc + " to id_iframe_map_v2");
+			track_obj = loaded_track_uri_map.get(trunc);
+			player.setVolume(track_obj.volume);
 		}
 		
 		setTimeout(function() { GetMissingTrackData(); }, 1000);
@@ -1395,7 +1390,7 @@
 	
 	function YTPlayerReady(event)
 	{
-		main_player_widget = event.target;
+		
 		//console.dir(event.target);
 		console.log("YTPlayerReady: src = " + event.target.g.src);
 		console.log("iframe id = " + event.target.g.id);
@@ -1412,6 +1407,7 @@
 	
 		if (page_type == "player")
 		{
+			main_player_widget = event.target;
 			track_swap_status = true;
 			document.getElementById("titlespan").innerHTML = Sanitize(track_obj.title);//ReplaceAll(track_obj.title, "&", "&amp;");//track_obj.title;
 			var icon = document.getElementById("icon");
@@ -1435,17 +1431,10 @@
 		}
 		else
 		{
-			/*var track_obj = loaded_track_uri_map.get(event.target.g.id);
-			if (track_obj.title.length < 1)
-			{
-				track_obj.title = event.target.videoTitle;
-				console.log("Using retrieved video title due to missing title data");
-			}*/
+			event.target.setVolume(track_obj.volume);
 			track_obj.duration = event.target.getDuration();
-			// current_track_end_time = current_track_start_time + track_obj.duration;
 			track_obj.loaded = true;
 			loaded_track_uri_map.set(event.target.g.id, track_obj);
-			//console.dir(track_obj);
 		}
 	}
 	
