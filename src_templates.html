@@ -22,8 +22,7 @@
 		</div>
 		<div style="float: right; width: 512px">
 			<button type="button" class="btntxt" id="btn_addagent" onclick="Btn_AddUser()">Add User/Admin</button>
-			<div id="admin_agent_scroll">
-			</div>
+			<div id="admin_agent_scroll"></div>
 		</div>
 	</div>
 </template>
@@ -49,8 +48,9 @@
 			<button type="button" class="btntxt" id="btn_track_up_%track%" onclick="Btn_MoveUpTrackID('%track%')">#UP</button>
 			<button type="button" class="btntxt" id="btn_track_down_%track%" onclick="Btn_MoveDownTrackID('%track%')">#DWN</button>
 			<button type="button" class="btntxt" id="btn_ren_track_%track%" onclick="Btn_RenameTrackID('%track%')">Change Title</button>
-			<span class="wtxt"> Volume </span>
-			<input type="range" id="track_vol_%track%" min="50" max="100" value="75" step="5" onchange="Slider_TrackVolume('%track%')"></input>
+			<span class="wtxt" style="display: inline-block; vertical-align: middle"> Volume </span>
+			<input type="range" id="track_vol_%track%" min="%VOLMIN%" max="%VOLMAX%" value="75" step="5" style="display: inline-block; vertical-align: middle" 
+				onchange="Slider_TrackVolume('%track%')"></input>
 		</div>
 		<span class="wtxt">%title%</span>
 		<div id="preview_iframe_%track%"></div>
@@ -59,14 +59,14 @@
 
 <template id="TMP_sc_iframe">
 	<iframe id="%id%" class="widget" style="position:relative;" width="512" height="166"
-	scrolling="no" frameborder="no" onload="SC_IframeTemplate_onload(this)"
-	src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/placeholder&amp;visual=false"></iframe>
+		scrolling="no" frameborder="no" onload="SC_IframeTemplate_onload(this)"
+		src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/placeholder&amp;visual=false">
+	</iframe>
 </template>
 
 <template id="TMP_yt_iframe">
-	<div id="%id%" class="widget" style="position:relative;" width="512" height="360"
-	scrolling="no" frameborder="no"
-	></div>
+	<div id="%id%" class="widget" style="position:relative;" width="512" height="360" scrolling="no" frameborder="no">
+	</div>
 </template>
 
 <template id="TMP_admin_agent">
