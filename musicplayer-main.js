@@ -13,7 +13,7 @@
 
 	var lslServer = window.location.href; // full path of the server including /cfg/sessionID for config page
 	var loaded_track_uri_map = new Map(); // IDs to source url + embed uri pairs
-	var id_scplayer_map = new Map(); // IDs to soundcloud iframe objects
+	var id_playeriframe_map = new Map(); // IDs to soundcloud/youtube iframe objects
 	var admin_agent_map = new Map(); // UUID:{name, level} mapping for admin agents
 	var save_track_index = 0; // progress tracker when progressively saving a playlist
 	
@@ -23,11 +23,13 @@
 	var current_track_start_time = 0;
 	var current_track_end_time = 0;
 	var current_track_title = ""
+	var current_track_vol = 0;
 	var future_track_uri = "";
 	var future_track_duration = 0;
 	var future_track_start_time = 0;
 	var future_track_end_time = 0;
 	var future_track_title = "";
+	var future_track_vol = 0;
 	var main_player_widget = null; // object ref to the client player soundcloud/youtube iframe if it exists
 	var main_player_widget_type = ""; // "sc" or "yt"
 	var main_player_should_play = true;
@@ -133,18 +135,18 @@
 		
 		xhr.onload = function()
 		{
-			if(xhr.readyState==4) // state=DONE
+			if (xhr.readyState==4) // state=DONE
 			{	
-				if(xhr.status==200) // status=OK
+				if (xhr.status==200) // status=OK
 				{
 					console.log("xhr response: "+xhr.response);
-					if(callbackFunction	!= null)
+					if (callbackFunction	!= null)
 						callbackFunction(handle, xhr.response);
 				}
 				else // Thing is not ok :(
 				{
 					//const dur = (Date.now() - st) / 1000;
-					if(xhr.status == 503) // LSL server has extreme throttling antics, why not try again
+					if (xhr.status == 503) // LSL server has extreme throttling antics, why not try again
 					{
 						console.log("503: probably an LSL event queue overflow, retrying request..");
 						setTimeout(function(){ MakeXHR(handle, url, callbackFunction, message, method) }, 2500);
@@ -168,7 +170,7 @@
 	
 	function InitPage() // entrypoint for the player
 	{
-		if(page_type == "player") // create the client player UI and request track
+		if (page_type == "player") // create the client player UI and request track
 		{
 			var ihtml = document.getElementById("TMP_sc_player_page").cloneNode(true).innerHTML;
 			console.log("creating player from template");
@@ -184,7 +186,7 @@
 			LSL_GetNextTrack();
 			SetPlayLabel();
 		}
-		else if(page_type == "config") // create the config UI and request config data
+		else if (page_type == "config") // create the config UI and request config data
 		{
 			var ihtml = document.getElementById("TMP_sc_track_setup").cloneNode(true).innerHTML;
 			console.log("creating setup from template");
@@ -201,11 +203,11 @@
 	function PlaylistSelectChange() // triggered by select "sel_playlist"
 	{
 		console.log("playlist selection changed");
-		if(CheckEditLock())
+		if (CheckEditLock())
 			return;
 		
 		var selected = document.getElementById("sel_playlist").value;
-		if(playlist_list.includes(selected))
+		if (playlist_list.includes(selected))
 		{
 			edit_playlist = selected;
 			console.log("selected playlist " + selected);
@@ -229,7 +231,7 @@
 			option.value = playlist_list[n];
 			option.text = playlist_list[n];
 			sel.appendChild(option);
-			if(option.value == edit_playlist)
+			if (option.value == edit_playlist)
 				selected = edit_playlist;
 		}
 		
@@ -237,7 +239,7 @@
 		
 		console.log("BuildPlaylistSelect: selected = " + selected);
 		
-		if(selected == "#sel")
+		if (selected == "#sel")
 			edit_playlist = "";
 	}
 	
@@ -245,20 +247,22 @@
 	{
 		var track_url = document.getElementById("text_input_url").value;
 		document.getElementById("text_input_url").value = ""; // seemingly cant cache object here, why?
-		AddTrackURL(track_url, loaded_track_uri_map.size, null);
+		AddTrackURL(track_url, loaded_track_uri_map.size, null, 0);
 	}
 	
-	function AddTrackURL(track_url, index, title)
+	function AddTrackURL(track_url, index, title, volume)
 	{
-		if(page_type == "player") // how would this even happen? yikes.
+		if (page_type == "player") // how would this even happen? yikes.
 			return;
 		
-		track_url = Sanitize(track_url);//ReplaceAll(track_url, "&", "&amp;"); // ampersands in my house.. WHOLETTHEMIN?
+		track_url = Sanitize(track_url); // ampersands in my house.. WHOLETTHEMIN?
 		
 		console.log("AddTrackURL " + track_url);
-		//var track_id = Math.floor(Math.random()*2147483647).toString(16); // just a temporary ID; go, random bullshit!
 		var track_id = cyrb53(track_url).substring(0, 8);
 		var if_id = SC_PREVIEW_IFRAME + track_id;
+		
+		if (volume == 0 || volume < 33 || volume > 100)
+			volume = 67;
 		
 		// create the preview panel
 		var ihtml = document.getElementById("TMP_sc_track_preview").cloneNode(true).innerHTML;
@@ -277,15 +281,16 @@
 		track_obj.title = title == null ? "" : title; // prevent overwriting existing titles loaded from LSL server
 		track_obj.duration = -1;
 		track_obj.loaded = false;
+		track_obj.volume = volume;
 		var add_to = "preview_iframe_" + track_id;
 		console.log("Added '" + if_id + "' to loaded_track_uri_map, creating iframe in " + add_to);
 		
-		if(track_url.includes("soundcloud"))
+		if (track_url.includes("soundcloud"))
 		{
 			loaded_track_uri_map.set(if_id, track_obj);
 			SC_CreateIframe(if_id, add_to);
 		}
-		else if(track_url.includes("youtu"))
+		else if (track_url.includes("youtu"))
 		{
 			loaded_track_uri_map.set(if_id, track_obj);
 			YT_CreateIframe(if_id, add_to);
@@ -299,6 +304,23 @@
 		document.getElementById(SC_PREVIEW_DIV + track).remove();
 	}
 	
+	function Slider_TrackVolume(track)
+	{
+		var track_obj = loaded_track_uri_map.get(SC_PREVIEW_IFRAME + track);
+		var player = id_playeriframe_map.get(track);
+		console.dir("VOLUME CHANGE DEBUG " + player);
+		var vol = document.getElementById("track_vol_" + track).value;
+		if (vol == null || vol < 33 || vol > 100)
+		{
+			vol = 67;
+		}
+		console.log(track + " volume = " + vol);
+		track_obj.volume = vol;
+		player.setVolume(vol);
+		loaded_track_uri_map.set(SC_PREVIEW_IFRAME + track, track_obj);
+		
+	}
+	
 	function Btn_MoveUpTrackID(track) // triggered by button "btn_track_up_%trackid%" in track preview widget
 	{
 		var a = 0;
@@ -307,9 +329,9 @@
 		var id = SC_PREVIEW_IFRAME + track;
 		for (const key of loaded_track_uri_map.keys())
 		{
-			if(key == id)
+			if (key == id)
 			{
-				if(i > 0)
+				if (i > 0)
 				{
 					a = i;
 					b = i-1;
@@ -329,9 +351,9 @@
 		var id = SC_PREVIEW_IFRAME + track;
 		for (const key of loaded_track_uri_map.keys())
 		{
-			if(key == id)
+			if (key == id)
 			{
-				if(i < (loaded_track_uri_map.size - 1))
+				if (i < (loaded_track_uri_map.size - 1))
 				{
 					a = i;
 					b = i+1;
@@ -373,7 +395,7 @@
 	{
 		var track_obj = loaded_track_uri_map.get(SC_PREVIEW_IFRAME + track);
 		var title = window.prompt("Enter the title to display", track_obj.title);
-		if(title != null && title.length > 0)
+		if (title != null && title.length > 0)
 		{
 			track_obj.title = title;
 			loaded_track_uri_map.set(SC_PREVIEW_IFRAME + track, track_obj);
@@ -428,7 +450,7 @@
 	
 	function LSL_SaveUserAdmin(agent) // called any time user config is modified
 	{
-		if(admin_agent_map.has(agent))
+		if (admin_agent_map.has(agent))
 		{
 			const agent_obj = admin_agent_map.get(agent);
 			const body = agent + SEP + agent_obj.name + SEP + agent_obj.level;
@@ -469,7 +491,7 @@
 	
 	function LSL_GetPlaylists() // requests list of all playlist names
 	{
-		if(CheckEditLock())
+		if (CheckEditLock())
 			return;
 		edit_lock = true;
 		MakeXHR("", lslServer + "/playlists", LSL_GetPlaylists_Callback, "", "GET");
@@ -484,7 +506,7 @@
 	
 	function LSL_LoadSelectedPlaylist() // called by PlaylistSelectChange when that happens
 	{
-		if(CheckEditLock())
+		if (CheckEditLock())
 			return;
 		
 		var getpl = document.getElementById("sel_playlist").value;
@@ -501,31 +523,31 @@
 		var playlist_data = body.split(SEP); // 0:shuffle, 1+: URIs
 		
 		edit_playlist_shuffle = Number(playlist_data[0]);
-		if(edit_playlist_shuffle == NaN)
+		if (edit_playlist_shuffle == NaN)
 			edit_playlist_shuffle = 0;
 		
 		console.log("Track shuffle value = " + edit_playlist_shuffle);
 		var shuffle = document.getElementById("track_randomness")
 		shuffle.value = edit_playlist_shuffle * shuffle.max;
 		
-		// take into consideration missing shuffle int, this should not happen currently
-		var track_uris = playlist_data.slice( (playlist_data[0].length < 4 ? 1 : 0), playlist_data.length); 
-		console.log("Track URIs: " + track_uris);
+		// [URI, title override, volume override]
+		var track_datas = playlist_data.slice(1, playlist_data.length); 
+		console.log("Track URIs: " + track_datas);
 		
 		document.getElementById(SC_PREVIEW_SCROLLBOX).innerHTML = ""; // erase current playlist menu
 		loaded_track_uri_map.clear();
 		
-		for(var i = 0; i < track_uris.length; i += 2)
+		for(var i = 0; i < track_datas.length; i += 3)
 		{
-			console.log("Add preview for track " + track_uris[i] + " title=" + track_uris[i+1]);
-			AddTrackURL(track_uris[i], i/2, track_uris[i+1]);
+			console.log("Add preview for track " + track_datas[i] + " title=" + track_datas[i+1] + " VO=" + track_datas[i+2]);
+			AddTrackURL(track_datas[i], i/3, track_datas[i+1], Number(track_datas[i+2]));
 		}
 	}
 	
 	function Btn_AddUser() // triggered by button "btn_addagent" ("Add User/Admin")
 	{
 		var agent = window.prompt("Enter the full Username or UUID/key of the user", "");
-		if(agent != null && agent.length > 0)
+		if (agent != null && agent.length > 0)
 		{
 			 MakeXHR("", lslServer + "/admins/lookup/" + agent, LSL_AddUser_Callback, "", "GET");
 		}
@@ -536,10 +558,10 @@
 		console.log("LSL_AddUser_Callback: " + body);
 		
 		var agent = body.split(SEP); // uuid, name
-		if(agent.length != 3 || agent[0].length < 1)
+		if (agent.length != 3 || agent[0].length < 1)
 			return; // yikes!
 		
-		if( ! admin_agent_map.has(agent[0]))
+		if ( ! admin_agent_map.has(agent[0]))
 		{
 			var agent_obj = {name:agent[1], level:"1"};
 			admin_agent_map.set(agent[0], agent_obj);
@@ -551,14 +573,14 @@
 	
 	function Btn_AddPlaylist() // triggered by button "btn_new" ("New Playlist")
 	{
-		if(CheckEditLock())
+		if (CheckEditLock())
 			return;
 		
 		var name = window.prompt("Enter a name for the new playlist", "Playlist" + (playlist_list.length+1));
-		if(name == null || name == "")
+		if (name == null || name == "")
 			return;
 		
-		if(playlist_list.includes(name) == false)
+		if (playlist_list.includes(name) == false)
 		{
 			playlist_list.push(name);
 			console.log("Added new empty playlist "+name);
@@ -571,7 +593,7 @@
 	
 	function Btn_RenPlaylist() // triggered by button "btn_ren" ("Rename Playlist")
 	{
-		if(CheckEditLock())
+		if (CheckEditLock())
 			return;
 		
 		var input = window.prompt("Enter new name for "+edit_playlist, "");
@@ -584,7 +606,7 @@
 	function LSL_RenPlaylist_Callback(handle, body)
 	{
 		var data = body.split(SEP);
-		if(data[0] != "err")
+		if (data[0] != "err")
 		{
 			////playlist_list.remove(data[0]);
 			edit_playlist = data[0];
@@ -598,11 +620,11 @@
 	
 	function Btn_DelPlaylist() // triggered by button "btn_del" ("Delete Playlist")
 	{
-		if(CheckEditLock())
+		if (CheckEditLock())
 			return;
 		
 		var conf = window.prompt("Enter 'delete' to confirm deletion of " + edit_playlist, "");
-		if(conf.toLowerCase().includes("delete"))
+		if (conf.toLowerCase().includes("delete"))
 		{
 			console.log("Deleting "+edit_playlist);
 			MakeXHR("", lslServer + "/del/" + encodeURI(edit_playlist), LSL_DelPlaylist_Callback, "", "GET");
@@ -613,7 +635,7 @@
 	function LSL_DelPlaylist_Callback(handle, body)
 	{
 		/*var data = body.split(SEP);
-		if(data[0] != err)
+		if (data[0] != err)
 		{
 			//playlist_list.remove(data[0]);
 			LSL_GetPlaylists();
@@ -625,7 +647,7 @@
 	
 	function Btn_SavePlaylist() // triggered by button "btn_save" ("Save Selected Playlist")
 	{
-		if(CheckEditLock())
+		if (CheckEditLock())
 			return;
 		
 		save_track_index = 0;
@@ -641,15 +663,15 @@
 	{
 		var data = body.split(SEP);
 		
-		if(data[0] == "END") // server reports all tracks received and saved
+		if (data[0] == "END") // server reports all tracks received and saved
 		{
 			window.alert("Successfully saved playlist " + edit_playlist + "\n" + data[1]);
 			edit_lock = false;
 		}
-		else if(data[0] == "NXT") // server wants the next track's data
+		else if (data[0] == "NXT") // server wants the next track's data
 		{
 			console.log("LSL_SaveTrack_Callback: " + body)
-			if(save_track_index >= loaded_track_uri_map.size)
+			if (save_track_index >= loaded_track_uri_map.size)
 			{
 				// inform server that all tracks have been sent, received data should be saved
 				MakeXHR("", lslServer + "/save/" + encodeURI(edit_playlist) + "/end", LSL_SavePlaylist_Callback, "", "PUT");
@@ -657,9 +679,9 @@
 			else
 			{
 				var track_obj = loaded_track_uri_map.values().toArray()[save_track_index];
-				if(track_obj.loaded)
+				if (track_obj.loaded)
 				{
-					var track = track_obj.uri + SEP + track_obj.title + SEP + track_obj.duration;
+					var track = track_obj.uri + SEP + track_obj.title + SEP + track_obj.duration + SEP + track_obj.volume;
 					MakeXHR("", lslServer + "/save/" + encodeURI(edit_playlist) + "/uri", LSL_SavePlaylist_Callback, track, "PUT");
 				}
 				else
@@ -677,7 +699,7 @@
 	
 	function CheckEditLock()
 	{
-		if(edit_lock)
+		if (edit_lock)
 			window.alert("Editing locked, wait for save/load to complete");
 		return edit_lock;
 	}
@@ -707,13 +729,16 @@
 		console.log("LSL_GetNextTrack_Callback: " + body);
 		var args = body.split(SEP);
 		
-		if(current_track_uri != args[0]) // dont reset player if current track is already playing for some reason
+		if (current_track_uri != args[0]) // dont reset player if current track is already playing for some reason
 		{
 			console.log("LSL_GetNextTrack_Callback Warning: current != returned tracks, setting " + current_track_uri + " -> " + args[0]);
 			current_track_uri = args[0];
 			current_track_start_time = Number(args[1]);
 			current_track_title = args[4];
 			current_track_duration = Number(args[6]);
+			current_track_vol = 67;
+			if (args.length > 8)
+				current_track_vol = Number(args[8]);
 			current_track_end_time = current_track_start_time + current_track_duration;
 			
 			console.log("current track dur = " + current_track_duration +
@@ -728,6 +753,9 @@
 		future_track_start_time = Number(args[3]);
 		future_track_title = args[5];
 		future_track_duration = Number(args[7]);
+		future_track_vol = 67;
+		if (args.length > 9)
+			future_track_vol = Number(args[9]);
 		future_track_end_time = future_track_start_time + future_track_duration;
 		
 	}
@@ -739,10 +767,10 @@
 		
 		jQuery(document).ready(function()
 		{
-			if(future_track_uri != "")
+			if (future_track_uri != "")
 			{
 				// if current track has expired, load the futue one, otherwise keep the current track and try playing it again
-				if(UnixTime() > current_track_end_time || current_track_uri.length < 2)
+				if (UnixTime() > current_track_end_time || current_track_uri.length < 2)
 				{
 					console.log("Using future track as new current track: " + future_track_uri);
 					current_track_uri = future_track_uri;
@@ -750,6 +778,7 @@
 					current_track_duration = future_track_duration;
 					current_track_start_time = future_track_start_time;
 					current_track_end_time = future_track_end_time;
+					current_track_vol = future_track_vol;
 					future_track_uri = "";
 					future_track_title = "";
 				}
@@ -773,7 +802,7 @@
 	
 	function CheckSwapStatus() // safety check to see if the track swap did not complete (errors, MIA requests..)
 	{
-		if(track_swap_status == false)
+		if (track_swap_status == false)
 		{
 			console.log("Error: track swap failed, retrying");
 			PlayNextTrack();
@@ -787,7 +816,7 @@
 	{
 		console.log("Deleting current player widget");
 		loaded_track_uri_map.clear();
-		id_scplayer_map.clear();
+		id_playeriframe_map.clear();
 		main_player_widget = null;
 		main_player_widget_type = "";
 		document.getElementById("client_player_box").innerHTML = "";
@@ -796,11 +825,11 @@
 	function CreatePlayer() // create a suitable player iframe for the next track
 	{
 		console.log("Creating new player widget");
-		if(current_track_uri.includes("soundcloud"))
+		if (current_track_uri.includes("soundcloud"))
 		{
 			SC_CreateIframe("client_player_sc_iframe", "client_player_box");
 		}
-		else if(current_track_uri.includes("youtu"))
+		else if (current_track_uri.includes("youtu"))
 		{
 			YT_CreateIframe("client_player_yt_iframe", "client_player_box");
 		}
@@ -810,7 +839,7 @@
 	{
 		console.log("SetPlayerState " + set + ", main_player_widget_type="+main_player_widget_type);
 		
-		if(main_player_widget_type == "yt")
+		if (main_player_widget_type == "yt")
 		{
 			// https://developers.google.com/youtube/iframe_api_reference#Playback_status
 			var state;
@@ -827,30 +856,31 @@
 			state = (state == 1 || state == 3) ? true : false; // playing/buffering : anything else
 			console.log(state);
 			
-			if(set != "")
+			if (set != "")
 			{
-				if(set == "tgl")
+				if (set == "tgl")
 				{
 					main_player_should_play = !state;
 					//state = !state;
 				}
-				else if(set == "play" && manual) // dont start playing automatically if previously paused
+				else if (set == "play" && manual) // dont start playing automatically if previously paused
 				{
 					main_player_should_play = true;
-					//if(main_player_should_play || manual) // dont re-start player automatically if it was paused manually
+					//if (main_player_should_play || manual) // dont re-start player automatically if it was paused manually
 					//	state = true;
 				}
-				else if(set == "pause")
+				else if (set == "pause")
 				{
 					main_player_should_play = false;
 				}
 				
-				if(main_player_should_play)
+				if (main_player_should_play)
 				{
 					var time_dif = 0 - (current_track_start_time - UnixTime());
 					console.log("YTPlayerReady: Track time_dif = " + time_dif);
-					if(time_dif > 0)
+					if (time_dif > 0)
 						main_player_widget.seekTo(time_dif, true);
+					main_player_widget.setVolume(current_track_vol);
 					main_player_widget.playVideo();
 					//main_player_should_play = true;
 				}
@@ -861,13 +891,13 @@
 				}
 			}
 			SetPlayLabel();//main_player_should_play ? 0 : 1); // set the overlay button icon to pause/play
-			if(!manual) // not result of user clicking the overlay button
+			if (!manual) // not result of user clicking the overlay button
 				ScheduleRequestNextTrack();
 			
 			console.log("Should schedule end play now!");
 			ScheduleTrackEnd();
 		}
-		else if(main_player_widget_type == "sc")
+		else if (main_player_widget_type == "sc")
 		{
 			try
 			{
@@ -876,32 +906,32 @@
 					state = !state;
 					console.log(state);
 					
-					if(set != "")
+					if (set != "")
 					{
-						if(set == "tgl")
+						if (set == "tgl")
 						{
 							main_player_should_play = !state;
 							//state = !state;
 						}
-						else if(set == "play" && manual)
+						else if (set == "play" && manual)
 						{
 							main_player_should_play = true;
-							//if(main_player_should_play || manual) // dont re-start player automatically if it was paused manually
+							//if (main_player_should_play || manual) // dont re-start player automatically if it was paused manually
 							//	state = true;
 						}
-						else if(set == "pause")
+						else if (set == "pause")
 						{
 							main_player_should_play = false;
 							//state = false;
 						}
-						if(main_player_should_play)
+						if (main_player_should_play)
 						{
 							console.log("attempting start play");
 							var time_dif = 0 - (current_track_start_time - UnixTime());
 							console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
-							if(time_dif > 0)
+							if (time_dif > 0)
 							{
-								if(time_dif >= (current_track_end_time - current_track_start_time)) // soundcloud wont seek past end, just fails
+								if (time_dif >= (current_track_end_time - current_track_start_time)) // soundcloud wont seek past end, just fails
 								{
 									console.log("Current track exceeded duration, ending immediately");
 									PlayNextTrack();
@@ -909,6 +939,7 @@
 								}
 								main_player_widget.seekTo(time_dif * 1000);
 							}
+							main_player_widget.setVolume(current_track_vol);
 							main_player_widget.play(); // ERROR TODO this failed to, in fact, play? player is valid, started manually
 							//main_player_should_play = true;
 						}
@@ -922,7 +953,7 @@
 					}
 					console.log("final state = " + state);
 					SetPlayLabel();//state ? 0 : 1); // set the overlay button icon to pause/play
-					if(!manual) // not result of user clicking the overlay button
+					if (!manual) // not result of user clicking the overlay button
 						ScheduleRequestNextTrack();
 					
 					ScheduleTrackEnd();
@@ -940,10 +971,10 @@
 	
 	function PostSetPlayerStateCheck(is_paused) // sometimes, the soundcloud widget does something strange..
 	{
-		if( is_paused == main_player_should_play ) // should be playing but is paused, or the reverse
+		if ( is_paused == main_player_should_play ) // should be playing but is paused, or the reverse
 		{
 			console.log("PostSetPlayerStateCheck Error: state is incorrect");
-			if(main_player_should_play)
+			if (main_player_should_play)
 				main_player_widget.play();
 			else
 				main_player_widget.pause();
@@ -961,7 +992,7 @@
 	{
 		console.log("DEBUG: ScheduleTrackEnd did actually run");
 		clearTimeout(track_end_timer);
-		//if(main_player_should_play)
+		//if (main_player_should_play)
 		//{
 			var delay = current_track_end_time - UnixTime() + 5;
 			console.log("TrackEndTimer scheduled to run in " + delay);
@@ -972,13 +1003,13 @@
 	function TrackEndTimer()
 	{
 		console.log("TrackEndTimer: should_play = " + main_player_should_play);
-		//if(main_player_should_play)
+		//if (main_player_should_play)
 		PlayNextTrack();
 	}
 	
 	function ScheduleRequestNextTrack() // called by non-manual player state changes, aka initial play start
 	{
-		if(future_track_uri == "")
+		if (future_track_uri == "")
 		{
 			// make the request shortly before the end of the current track
 			const rqt = (current_track_end_time - UnixTime()) - 5 - Math.random() * 25;
@@ -1003,13 +1034,14 @@
 	function SC_IframeTemplate_onload(iframe)
 	{
 		console.log("iframe loaded: " + iframe.id);
-		if(loaded_track_uri_map.has(iframe.id) == false)
+		if (loaded_track_uri_map.has(iframe.id) == false)
 		{
-			var track_obj = {};// = {src_url: "", uri: current_track_uri};
+			var track_obj = {};
 			track_obj.uri = current_track_uri;
 			track_obj.src_url = "";
 			track_obj.loaded = false;
 			track_obj.title = current_track_title;
+			track_obj.volume = current_track_vol;
 			loaded_track_uri_map.set(iframe.id, track_obj);
 		}
 		else
@@ -1020,7 +1052,7 @@
 		jQuery(document).ready(function()
 		{
 			var newSCWidget = SC.Widget(iframe.id);
-			id_scplayer_map.set(iframe.id, newSCWidget)
+			id_playeriframe_map.set(iframe.id, newSCWidget);
 			console.log("Created scWidget for id "+iframe.id);
 			newSCWidget.bind(SC.Widget.Events.READY, SC_Widget_Event_READY(iframe.id));
 		});
@@ -1029,7 +1061,7 @@
 	function SC_Widget_Event_READY(iframe_id)
 	{
 		console.log(" !! SC_Widget_Event_READY !! ");
-		if(page_type == "player")
+		if (page_type == "player")
 		{
 			console.log("player soundcloud widget " + iframe_id + " ready, playing next track " + current_track_uri);
 			//SC_LoadTrack(iframe_id, current_track_uri);
@@ -1040,7 +1072,7 @@
 		{
 			console.log("preview soundcloud widget " + iframe_id + " ready, loading track");
 			var trackURL = loaded_track_uri_map.get(iframe_id).src_url;
-			var scWidget = id_scplayer_map.get(iframe_id);
+			var scWidget = id_playeriframe_map.get(iframe_id);
 			console.log("track URL = " + trackURL);
 			SC_GetOembedURL(iframe_id, trackURL);
 		}
@@ -1053,7 +1085,7 @@
 	
 	function SC_GetOembedURL_Callback(id, jsonstr)
 	{
-		if(jsonstr.substring(0, 1) === '(') // what the fuck is this round-edged safety json
+		if (jsonstr.substring(0, 1) === '(') // what the fuck is this round-edged safety json
 			jsonstr = jsonstr.substring(1, jsonstr.length - 2);
 		var oembedResult = JSON.parse(jsonstr);
 		console.log("SC_GetOembedURL_Callback for " + id + ", TrackData: " + oembedResult);
@@ -1070,11 +1102,11 @@
 		loaded_track_uri_map.set(id, track_obj);
 		console.log("track.obj.uri=" + urlSubstr);
 		
-		if(page_type == "player")
+		if (page_type == "player")
 		{
 			document.getElementById("titlespan").innerHTML = Sanitize(track_obj.title);//ReplaceAll(track_obj.title, "&", "&amp;");//track_obj.title;
 			
-			if(oembedResult.thumbnail_url.includes("placeholder"))
+			if (oembedResult.thumbnail_url.includes("placeholder"))
 			{
 				console.log("Missing thumbnail and art, requesting author thumbnail");
 				MakeXHR("", "https://soundcloud.com/oembed?format=js&url="+oembedResult.author_url, SC_GetAuthorJSON_Callback, "", "GET");
@@ -1094,7 +1126,7 @@
 	
 	function SC_GetAuthorJSON_Callback(id, jsonstr)
 	{
-		if(jsonstr.substring(0, 1) === '(') // what the fuck is this round-edged safety json
+		if (jsonstr.substring(0, 1) === '(') // what the fuck is this round-edged safety json
 			jsonstr = jsonstr.substring(1, jsonstr.length - 2);
 		var oembedResult = JSON.parse(jsonstr);
 		console.log("SC_GetAuthorJSON_Callback, Author Data: " + oembedResult);
@@ -1121,13 +1153,13 @@
 		options.show_reposts = false;
 		options.show_teaser = false;
 		
-		var player = id_scplayer_map.get(id);
+		var player = id_playeriframe_map.get(id);
 		
-		if(page_type == "player")
+		if (page_type == "player")
 		{
 			var time_dif = current_track_start_time - UnixTime();
 			console.log("Track time_dif = " + time_dif);
-			if(time_dif > 1)
+			if (time_dif > 1)
 			{
 				console.log("Delaying track start");
 				setTimeout(function() { SetPlayerState("play", false); }, time_dif * 1000);
@@ -1159,11 +1191,11 @@
 		console.log("SC_Widget_OnPlay_Callback");
 		main_player_widget.unbind(SC.Widget.Events.PLAY_PROGRESS);
 		
-		if(page_type == "player")
+		if (page_type == "player")
 		{
 			var time_dif = current_track_start_time - UnixTime();
 			console.log("SC_Widget_OnPlay_Callback: Track time_dif = " + time_dif);
-			if(time_dif < 0)
+			if (time_dif < 0)
 			{
 				main_player_widget.seekTo(0 - time_dif * 1000);
 			}
@@ -1173,7 +1205,7 @@
 	function SC_Widget_OnFinish_Callback()
 	{
 		// TODO ERROR this may fail to trigger if a track is paused and resumed, ensure it is bound?
-		if(page_type == "player")
+		if (page_type == "player")
 		{
 			console.log("Soundcloud track reached end");
 			
@@ -1190,10 +1222,10 @@
 		
 		for (let [key, value] of loaded_track_uri_map)
 		{
-			if(value.hasData != true)
+			if (value.hasData != true)
 			{
-				var player = id_scplayer_map.get(key);
-				if(player)
+				var player = id_playeriframe_map.get(key);
+				if (player)
 				{
 					console.log("requesting sound data for " + key);
 					player.getCurrentSound(getCurrentSound_Callback);
@@ -1202,13 +1234,13 @@
 			}
 		}
 		
-		if(is_any_missing)
+		if (is_any_missing)
 			setTimeout(function() { GetMissingTrackData(); }, 2500);
 	}
 	
 	function getCurrentSound_Callback(sound) // data on the current soundcloud track; duration, title, ect
 	{
-		if(sound == null)
+		if (sound == null)
 		{
 			console.log("no sound loaded yet or an error occured");
 			return;
@@ -1220,14 +1252,14 @@
 		var match = false;
 		for (let [key, value] of loaded_track_uri_map)
 		{
-			if(value.uri == sound.uri)
+			if (value.uri == sound.uri)
 			{
 				match = true;
 				console.log("found URL matching ID " + value.uri);
-				if(value.hasData != true)
+				if (value.hasData != true)
 				{
 					value.hasData = true;
-					if(value.title.length < 1)
+					if (value.title.length < 1)
 						value.title = sound.title;
 					value.duration = Math.round(sound.duration / 1000);
 					value.loaded = true;
@@ -1245,7 +1277,7 @@
 			}
 		}
 		
-		if(!match)
+		if (!match)
 		{
 			console.log("ERROR; no URI match found! properties in sound data:");
 			for(var propertyName in sound)
@@ -1268,7 +1300,7 @@
 	{
 		// this is a div that magically turns into an iframe for reason we wont think about too carefully
 		// using an iframe from the start causes youtube to have a screaming meltdown for some reason we also wont think about
-		var ihtml = document.getElementById("TMP_yt_notframe").cloneNode(true).innerHTML;
+		var ihtml = document.getElementById("TMP_yt_iframe").cloneNode(true).innerHTML;
 		ihtml = ReplaceAll(ihtml, "%id%", id);
 		
 		console.log("creating youtube iframe from template");
@@ -1277,14 +1309,16 @@
 		jQuery(document).ready(function()
 		{
 			var iframe = document.getElementById(id);
-			if(iframe == null)
+			if (iframe == null)
 				return;
+			
+			id_playeriframe_map.set(id, iframe);
 			
 			var ytid;
 			var track;
 			var track_obj;
 			
-			if(loaded_track_uri_map.has(id) == false) // fairly sure this state will never occur naturally, but..
+			if (loaded_track_uri_map.has(id) == false) // fairly sure this state will never occur naturally, but..
 			{
 				console.log("track not already loaded in trackmap, creating defaults");
 				track = current_track_uri;
@@ -1292,6 +1326,7 @@
 				track_obj.uri = track;
 				track_obj.src_url = track;
 				track_obj.title = current_track_title;
+				track_obj.volume = current_track_vol;
 				loaded_track_uri_map.set(iframe.id, track_obj);
 				ytid = GetYoutubeID(track);
 			}
@@ -1303,7 +1338,7 @@
 				track = track_obj.src_url;
 				console.log("src_url = "+track);
 				ytid = GetYoutubeID(track); // sus
-				if(ytid == null)
+				if (ytid == null)
 					ytid = track.split("/").slice(-1);
 				track_obj.uri = "https://youtube.com/embed/" + ytid;
 				loaded_track_uri_map.set(id, track_obj);
@@ -1349,13 +1384,13 @@
 		console.log("ytid = " + ytid);
 		
 		var track_obj = loaded_track_uri_map.get(event.target.g.id);
-		if(track_obj.title.length < 1)
+		if (track_obj.title.length < 1)
 		{
 			track_obj.title = event.target.videoTitle;
 			console.log("Using retrieved video title due to missing title data");
 		}
 	
-		if(page_type == "player")
+		if (page_type == "player")
 		{
 			track_swap_status = true;
 			document.getElementById("titlespan").innerHTML = Sanitize(track_obj.title);//ReplaceAll(track_obj.title, "&", "&amp;");//track_obj.title;
@@ -1368,7 +1403,7 @@
 			var time_dif = current_track_start_time - UnixTime();
 			console.log("YTPlayerReady: Track time_dif = " + time_dif);
 			
-			if(time_dif < 1)
+			if (time_dif < 1)
 			{
 				event.target.seekTo(0 - time_dif, true);
 				SetPlayerState("play", false);
@@ -1381,7 +1416,7 @@
 		else
 		{
 			/*var track_obj = loaded_track_uri_map.get(event.target.g.id);
-			if(track_obj.title.length < 1)
+			if (track_obj.title.length < 1)
 			{
 				track_obj.title = event.target.videoTitle;
 				console.log("Using retrieved video title due to missing title data");
@@ -1396,7 +1431,7 @@
 	
 	function YTPlayerStateChange(event)
 	{
-		if(event.data == YT.PlayerState.ENDED && page_type == "player")
+		if (event.data == YT.PlayerState.ENDED && page_type == "player")
 		{
 			console.log("Youtube track reached end");
 			// this seems slightly unreliable, using pre-set timer instead
