@@ -324,7 +324,7 @@
 		console.log(SC_PREVIEW_IFRAME + track + " volume = " + vol);
 		console.log("DEBUG VOLUME");
 		track_obj.volume = vol;
-		player.setVolume(vol.log());
+		player.setVolume(Math.log(vol));
 		loaded_track_uri_map.set(SC_PREVIEW_IFRAME + track, track_obj);
 		
 	}
@@ -746,7 +746,7 @@
 			current_track_duration = Number(args[6]);
 			current_track_vol = DEF_VOL;
 			if (args.length > 8)
-				current_track_vol = Number(args[8]);//.log();
+				current_track_vol = Number(args[8]);
 			current_track_end_time = current_track_start_time + current_track_duration;
 			
 			console.log("current track dur = " + current_track_duration +
@@ -763,7 +763,7 @@
 		future_track_duration = Number(args[7]);
 		future_track_vol = DEF_VOL;
 		if (args.length > 9)
-			future_track_vol = Number(args[9]);//.log();
+			future_track_vol = Number(args[9]);
 		future_track_end_time = future_track_start_time + future_track_duration;
 		
 	}
@@ -888,7 +888,7 @@
 					console.log("YTPlayerReady: Track time_dif = " + time_dif);
 					if (time_dif > 0)
 						main_player_widget.seekTo(time_dif, true);
-					main_player_widget.setVolume(current_track_vol.log());
+					main_player_widget.setVolume(Math.log(current_track_vol));
 					main_player_widget.playVideo();
 					//main_player_should_play = true;
 				}
@@ -947,7 +947,7 @@
 								}
 								main_player_widget.seekTo(time_dif * 1000);
 							}
-							main_player_widget.setVolume(current_track_vol.log());
+							main_player_widget.setVolume(Math.log(current_track_vol));
 							main_player_widget.play(); // ERROR TODO this failed to, in fact, play? player is valid, started manually
 							//main_player_should_play = true;
 						}
