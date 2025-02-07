@@ -12,7 +12,7 @@
 			</div>
 			<div class="setup">
 				<span>Playlist Shuffle: [Sequence]</span>
-				<input type="range" id="track_randomness" min="0" max="5" value="1" step="1">
+				<input type="range" id="track_randomness" min="0" max="5" value="1" step="1"></input>
 				<span>[Random] </span>
 			</div>
 			<div class="setup">Enter Soundcloud/Youtube track URL:</div>
@@ -50,7 +50,7 @@
 			<button type="button" class="btntxt" id="btn_track_down_%track%" onclick="Btn_MoveDownTrackID('%track%')">#DWN</button>
 			<button type="button" class="btntxt" id="btn_ren_track_%track%" onclick="Btn_RenameTrackID('%track%')">Change Title</button>
 			<span>Volume </span>
-			<input type="range" id="track_vol_%track%" min="50" max="100" value="75" step="5" onchange="Slider_TrackVolume('%track%')">
+			<input type="range" id="track_vol_%track%" min="50" max="100" value="75" step="5" onchange="Slider_TrackVolume('%track%')"></input>
 		</div>
 		<span class="wtxt">%title%</span>
 		<div id="preview_iframe_%track%"></div>
