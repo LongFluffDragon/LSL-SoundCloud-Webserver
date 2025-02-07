@@ -1043,6 +1043,7 @@
 			track_obj.loaded = false;
 			track_obj.title = current_track_title;
 			track_obj.volume = current_track_vol;
+			track_obj.hasData = false;
 			loaded_track_uri_map.set(iframe.id, track_obj);
 		}
 		else
@@ -1331,6 +1332,7 @@
 				track_obj.src_url = track;
 				track_obj.title = current_track_title;
 				track_obj.volume = current_track_vol;
+				track_obj.hasData = true;
 				loaded_track_uri_map.set(iframe.id, track_obj);
 				ytid = GetYoutubeID(track);
 			}
