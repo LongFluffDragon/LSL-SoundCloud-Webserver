@@ -694,7 +694,7 @@
 				}
 				else
 				{
-					window.alert("Error: a track is not fully loaded, cannot save playlist"); // yikes. save will abort without issues on server
+					window.alert("Error: track " + track_obj.title + " is not fully loaded, cannot save playlist"); // yikes. save will abort without issues on server
 					for (let [key, value] of loaded_track_uri_map)
 						console.dir(value);
 					edit_lock = false;
@@ -1267,7 +1267,6 @@
 					value.duration = Math.round(sound.duration / 1000);
 					value.loaded = true;
 					loaded_track_uri_map.set(key, value);
-					
 					/*
 					console.log("properties in sound data:");
 					for(var propertyName in sound)
