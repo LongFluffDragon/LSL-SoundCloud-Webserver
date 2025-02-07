@@ -11,9 +11,9 @@
 				<button type="button" class="btntxt" id="btn_del" onclick="Btn_DelPlaylist()">Delete Playlist</button>
 			</div>
 			<div class="setup">
-				<span>Playlist Shuffle: [Sequence]</span>
-				<input type="range" id="track_randomness" min="0" max="5" value="1" step="1"></input>
-				<span>[Random] </span>
+				<span class="block_mid">Playlist Shuffle: [Sequence]</span>
+				<input class="block_mid" type="range" id="track_randomness" min="0" max="5" value="1" step="1"></input>
+				<span class="block_mid">[Random] </span>
 			</div>
 			<div class="setup">Enter Soundcloud/Youtube track URL:</div>
 			<input type="url" id="text_input_url" style="width:360px"></input>
@@ -48,8 +48,8 @@
 			<button type="button" class="btntxt" id="btn_track_up_%track%" onclick="Btn_MoveUpTrackID('%track%')">%UP%</button>
 			<button type="button" class="btntxt" id="btn_track_down_%track%" onclick="Btn_MoveDownTrackID('%track%')">%DWN%</button>
 			<button type="button" class="btntxt" id="btn_ren_track_%track%" onclick="Btn_RenameTrackID('%track%')">Change Title</button>
-			<span class="wtxt" style="display: inline-block; vertical-align: middle"> Volume </span>
-			<input type="range" id="track_vol_%track%" min="%MIN%" max="%MAX%" value="75" step="5" style="display: inline-block; vertical-align: middle" 
+			<span class="wtxt block_mid"> Volume </span>
+			<input class="block_mid" type="range" id="track_vol_%track%" min="%MIN%" max="%MAX%" value="75" step="5"
 				onchange="Slider_TrackVolume('%track%')"></input>
 		</div>
 		<span class="wtxt">%title%</span>
