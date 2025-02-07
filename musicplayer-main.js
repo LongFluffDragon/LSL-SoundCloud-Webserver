@@ -278,6 +278,7 @@
 		ihtml = ReplaceAll(ihtml, "%ORD%", index);
 		ihtml = ReplaceAll(ihtml, "%MIN%", MIN_VOL);
 		ihtml = ReplaceAll(ihtml, "%MAX%", MAX_VOL);
+		ihtml = ReplaceAll(ihtml, "%VOL%", volume);
 		document.getElementById(SC_PREVIEW_SCROLLBOX).insertAdjacentHTML("beforeend", ihtml);
 		
 		// record the track source and uri object
