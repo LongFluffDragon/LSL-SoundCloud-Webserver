@@ -1220,6 +1220,7 @@
 	
 	function GetMissingTrackData()
 	{
+		console.dir(loaded_track_uri_map);
 		console.log("GetMissingTrackData");
 		
 		var is_any_missing = false;
@@ -1264,10 +1265,10 @@
 				console.log("found URL matching ID " + value.uri);
 				if (value.hasData != true)
 				{
-					value.hasData = true;
 					if (value.title.length < 1)
 						value.title = sound.title;
 					value.duration = Math.round(sound.duration / 1000);
+					value.hasData = true;
 					value.loaded = true;
 					loaded_track_uri_map.set(key, value);
 					/*
@@ -1347,6 +1348,7 @@
 				if (ytid == null)
 					ytid = track.split("/").slice(-1);
 				track_obj.uri = "https://youtube.com/embed/" + ytid;
+				track_obj.hasData = true;
 				loaded_track_uri_map.set(id, track_obj);
 				console.log("Track is already in loaded_track_uri_map");
 			}
