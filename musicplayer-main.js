@@ -1178,7 +1178,7 @@
 		}
 		else
 		{
-			id_iframe_map_v2.add(id, player);
+			id_iframe_map_v2.set(id, player);
 			console.log("added " + id + " to id_iframe_map_v2");
 		}
 		
@@ -1378,7 +1378,7 @@
 			}
 			else
 			{
-				id_iframe_map_v2.add(id, player);
+				id_iframe_map_v2.set(id, player);
 				console.log("added " + id + " to id_iframe_map_v2");
 			}
 			
