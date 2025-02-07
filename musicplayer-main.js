@@ -1179,7 +1179,7 @@
 			var trunc = id.replace(SC_PREVIEW_IFRAME, "");
 			id_iframe_map_v2.set(trunc, player);
 			console.log("added " + trunc + " to id_iframe_map_v2");
-			var track_obj = loaded_track_uri_map.get(trunc);
+			var track_obj = loaded_track_uri_map.get(id);
 			player.setVolume(track_obj.volume);
 		}
 		
