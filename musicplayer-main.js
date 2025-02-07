@@ -1368,7 +1368,7 @@
 					'playsinline': 1, // may as well leave this in to giggle about someone somehow creating a situation where it matters
 					'disablekb': 1,
 					'iv_load_policy': 3,
-					'controls': 0
+					'controls': 1
 				},
 				events:
 				{
