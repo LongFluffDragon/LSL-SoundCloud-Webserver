@@ -42,9 +42,12 @@
 	
 	var page_type = lslServer.includes("/cfg/") ? "config" : "player"; // if page is client player, or config
 	
-	var SC_PREVIEW_IFRAME = "sc_track_preview_"; // prefix for the iframe/player ID of a preview track
-	var SC_PREVIEW_DIV = "preview_scroll_"; // prefix for the div ID of a preview track element
-	var SC_PREVIEW_SCROLLBOX = "sc_preview_scroll"; // ID of the div that track previews are added to
+	const SC_PREVIEW_IFRAME = "sc_track_preview_"; // prefix for the iframe/player ID of a preview track
+	const SC_PREVIEW_DIV = "preview_scroll_"; // prefix for the div ID of a preview track element
+	const SC_PREVIEW_SCROLLBOX = "sc_preview_scroll"; // ID of the div that track previews are added to
+	const MIN_VOL = 10;
+	const MAX_VOL = 100;
+	const DEF_VOL = 50;
 	
 	// timeout IDs
 	var track_end_timer = 0;
@@ -262,8 +265,8 @@
 		var track_id = cyrb53(track_url).substring(0, 8);
 		var if_id = SC_PREVIEW_IFRAME + track_id;
 		
-		if (volume == 0 || volume < 33 || volume > 100)
-			volume = 67;
+		if (volume == 0 || volume < MIN_VOL || volume > MAX_VOL)
+			volume = DEF_VOL;
 		
 		// create the preview panel
 		var ihtml = document.getElementById("TMP_sc_track_preview").cloneNode(true).innerHTML;
@@ -310,9 +313,9 @@
 		var track_obj = loaded_track_uri_map.get(SC_PREVIEW_IFRAME + track);
 		var player = id_iframe_map_v2.get(track);
 		var vol = document.getElementById("track_vol_" + track).value;
-		if (vol == null || vol < 33 || vol > 100)
+		if (vol == null || vol < MIN_VOL || vol > MAX_VOL)
 		{
-			vol = 67;
+			vol = DEF_VOL;
 		}
 		console.log("DEBUG VOLUME");
 		console.dir(player);
@@ -739,7 +742,7 @@
 			current_track_start_time = Number(args[1]);
 			current_track_title = args[4];
 			current_track_duration = Number(args[6]);
-			current_track_vol = 67;
+			current_track_vol = DEF_VOL;
 			if (args.length > 8)
 				current_track_vol = Number(args[8]);
 			current_track_end_time = current_track_start_time + current_track_duration;
@@ -756,7 +759,7 @@
 		future_track_start_time = Number(args[3]);
 		future_track_title = args[5];
 		future_track_duration = Number(args[7]);
-		future_track_vol = 67;
+		future_track_vol = DEF_VOL;
 		if (args.length > 9)
 			future_track_vol = Number(args[9]);
 		future_track_end_time = future_track_start_time + future_track_duration;
