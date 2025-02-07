@@ -45,7 +45,7 @@
 	const SC_PREVIEW_IFRAME = "sc_track_preview_"; // prefix for the iframe/player ID of a preview track
 	const SC_PREVIEW_DIV = "preview_scroll_"; // prefix for the div ID of a preview track element
 	const SC_PREVIEW_SCROLLBOX = "sc_preview_scroll"; // ID of the div that track previews are added to
-	const MIN_VOL = 10;
+	const MIN_VOL = 1;
 	const MAX_VOL = 100;
 	const DEF_VOL = 50;
 	
