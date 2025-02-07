@@ -42,14 +42,14 @@
 </template>
 
 <template id="TMP_sc_track_preview">
-	<div id="preview_scroll_%track%" class="previewtrack" style="order:#ORD">
+	<div id="preview_scroll_%track%" class="previewtrack" style="order:%ORD%">
 		<div>
-			<button type="button" class="btntxt" id="btn_remove_track_%track%" onclick="Btn_RemoveTrackID('%track%')">#DEL</button>
-			<button type="button" class="btntxt" id="btn_track_up_%track%" onclick="Btn_MoveUpTrackID('%track%')">#UP</button>
-			<button type="button" class="btntxt" id="btn_track_down_%track%" onclick="Btn_MoveDownTrackID('%track%')">#DWN</button>
+			<button type="button" class="btntxt" id="btn_remove_track_%track%" onclick="Btn_RemoveTrackID('%track%')">%DEL%</button>
+			<button type="button" class="btntxt" id="btn_track_up_%track%" onclick="Btn_MoveUpTrackID('%track%')">%UP%</button>
+			<button type="button" class="btntxt" id="btn_track_down_%track%" onclick="Btn_MoveDownTrackID('%track%')">%DWN%</button>
 			<button type="button" class="btntxt" id="btn_ren_track_%track%" onclick="Btn_RenameTrackID('%track%')">Change Title</button>
 			<span class="wtxt" style="display: inline-block; vertical-align: middle"> Volume </span>
-			<input type="range" id="track_vol_%track%" min="%VOLMIN%" max="%VOLMAX%" value="75" step="5" style="display: inline-block; vertical-align: middle" 
+			<input type="range" id="track_vol_%track%" min="%MIN%" max="%MAX%" value="75" step="5" style="display: inline-block; vertical-align: middle" 
 				onchange="Slider_TrackVolume('%track%')"></input>
 		</div>
 		<span class="wtxt">%title%</span>

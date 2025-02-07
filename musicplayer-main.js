@@ -272,13 +272,12 @@
 		var ihtml = document.getElementById("TMP_sc_track_preview").cloneNode(true).innerHTML;
 		ihtml = ReplaceAll(ihtml, "%title%", track_url);
 		ihtml = ReplaceAll(ihtml, "%track%", track_id);
-		ihtml = ReplaceAll(ihtml, "#DEL", unicode_btn[2]);
-		ihtml = ReplaceAll(ihtml, "#UP", unicode_btn[0]);
-		ihtml = ReplaceAll(ihtml, "#DWN", unicode_btn[1]);
-		ihtml = ReplaceAll(ihtml, "#ORD", index);
-		ihtml = ReplaceAll(ihtml, "%VOLMIN%", VOLMIN);
-		ihtml = ReplaceAll(ihtml, "%VOLMAX%", VOLMAX);
-		ihtml = ReplaceAll(ihtml, "#ORD", index);
+		ihtml = ReplaceAll(ihtml, "%DEL%", unicode_btn[2]);
+		ihtml = ReplaceAll(ihtml, "%UP%", unicode_btn[0]);
+		ihtml = ReplaceAll(ihtml, "%DWN%", unicode_btn[1]);
+		ihtml = ReplaceAll(ihtml, "%ORD%", index);
+		ihtml = ReplaceAll(ihtml, "%MIN%", MIN_VOL);
+		ihtml = ReplaceAll(ihtml, "%MAX%", MAX_VOL);
 		document.getElementById(SC_PREVIEW_SCROLLBOX).insertAdjacentHTML("beforeend", ihtml);
 		
 		// record the track source and uri object
