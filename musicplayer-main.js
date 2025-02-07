@@ -1178,8 +1178,9 @@
 		}
 		else
 		{
-			id_iframe_map_v2.set(id, player);
-			console.log("added " + id + " to id_iframe_map_v2");
+			var trunc = id.replace(SC_PREVIEW_IFRAME, "");
+			id_iframe_map_v2.set(trunc, player);
+			console.log("added " + trunc + " to id_iframe_map_v2");
 		}
 		
 		setTimeout(function() { GetMissingTrackData(); }, 1000);
@@ -1378,8 +1379,9 @@
 			}
 			else
 			{
-				id_iframe_map_v2.set(id, player);
-				console.log("added " + id + " to id_iframe_map_v2");
+				var trunc = id.replace(SC_PREVIEW_IFRAME, "");
+				id_iframe_map_v2.set(trunc, player);
+				console.log("added " + trunc + " to id_iframe_map_v2");
 			}
 			
 			console.dir(main_player_widget);
