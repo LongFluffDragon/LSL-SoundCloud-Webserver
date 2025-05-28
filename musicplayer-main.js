@@ -289,6 +289,7 @@
 		track_obj.duration = -1;
 		track_obj.loaded = false;
 		track_obj.volume = volume;
+		track_obj.edited = "default";
 		var add_to = "preview_iframe_" + track_id;
 		console.log("Added '" + if_id + "' to loaded_track_uri_map, creating iframe in " + add_to);
 		
@@ -325,6 +326,7 @@
 		console.log(SC_PREVIEW_IFRAME + track + " volume = " + vol);
 		console.log("DEBUG VOLUME");
 		track_obj.volume = vol;
+		track_obj.edited = "edited";
 		player.setVolume(vol);
 		loaded_track_uri_map.set(SC_PREVIEW_IFRAME + track, track_obj);
 		
@@ -407,6 +409,7 @@
 		if (title != null && title.length > 0)
 		{
 			track_obj.title = title;
+			track_obj.edited = "edited";
 			loaded_track_uri_map.set(SC_PREVIEW_IFRAME + track, track_obj);
 		}
 	}
@@ -691,7 +694,7 @@
 				if (track_obj.loaded)
 				{
 					var track = track_obj.uri + SEP + track_obj.title + SEP + track_obj.duration + SEP + track_obj.volume;
-					MakeXHR("", lslServer + "/save/" + encodeURI(edit_playlist) + "/uri", LSL_SavePlaylist_Callback, track, "PUT");
+					MakeXHR("", lslServer + "/save/" + encodeURI(edit_playlist) + "/uri/" + track_obj.edited, LSL_SavePlaylist_Callback, track, "PUT");
 				}
 				else
 				{
