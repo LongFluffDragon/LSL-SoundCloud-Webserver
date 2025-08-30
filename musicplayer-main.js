@@ -293,16 +293,13 @@
 		var add_to = "preview_iframe_" + track_id;
 		console.log("Added '" + if_id + "' to loaded_track_uri_map, creating iframe in " + add_to);
 		
+		loaded_track_uri_map.set(if_id, track_obj);
+		
 		if (track_url.includes("soundcloud"))
-		{
-			loaded_track_uri_map.set(if_id, track_obj);
 			SC_CreateIframe(if_id, add_to);
-		}
+		
 		else if (track_url.includes("youtu"))
-		{
-			loaded_track_uri_map.set(if_id, track_obj);
 			YT_CreateIframe(if_id, add_to);
-		}
 	}
 	
 	function Btn_RemoveTrackID(track) // triggered by button "btn_remove_track_%trackid%" in track preview widget
@@ -524,7 +521,10 @@
 		var getpl = document.getElementById("sel_playlist").value;
 		console.log("get playlist " + getpl);
 		edit_playlist = getpl;
-		MakeXHR("", lslServer + "/playlist/" + encodeURI(edit_playlist), LSL_LoadPlaylist_Callback, "", "GET");
+		//MakeXHR("", lslServer + "/playlist/" + encodeURI(edit_playlist), LSL_LoadPlaylist_Callback, "", "GET");
+		MakeXHR("", lslServer + "/playlist/" + encodeURI(edit_playlist) + "/chunk/0", LSL_LoadPlaylistChunk_Callback, "", "GET");
+		document.getElementById(SC_PREVIEW_SCROLLBOX).innerHTML = ""; // erase current playlist menu
+		loaded_track_uri_map.clear(); // clear loaded track data
 		edit_lock = true;
 	}
 	
@@ -554,6 +554,41 @@
 			console.log("Add preview for track " + track_datas[i] + " title=" + track_datas[i+1] + " VO=" + track_datas[i+2]);
 			AddTrackURL(track_datas[i], i/3, track_datas[i+1], Number(track_datas[i+2]));
 		}
+	}
+	
+	
+	function LSL_LoadPlaylistChunk_Callback(handle, body)
+	{
+		if(body == "END")
+		{
+			edit_lock = false;
+			console.log("Loaded all playlist chunks, removing edit lock");
+			return;
+		}
+		console.log("LSL_LoadPlaylistChunk_Callback: " + body);
+		var playlist_data = body.split(SEP); // 0:shuffle, 1+: URIs
+		
+		edit_playlist_shuffle = Number(playlist_data[0]);
+		if (edit_playlist_shuffle == NaN)
+			edit_playlist_shuffle = 0;
+		
+		console.log("Track shuffle value = " + edit_playlist_shuffle);
+		var shuffle = document.getElementById("track_randomness")
+		shuffle.value = edit_playlist_shuffle * shuffle.max;
+		
+		// [URI, title override, volume override]
+		var track_datas = playlist_data.slice(1, playlist_data.length); 
+		console.log("Track URIs: " + track_datas);
+		
+		//document.getElementById(SC_PREVIEW_SCROLLBOX).innerHTML = ""; // erase current playlist menu
+		//loaded_track_uri_map.clear();
+		
+		for(var i = 0; i < track_datas.length; i += 3)
+		{
+			console.log("Add preview for track " + track_datas[i] + " title=" + track_datas[i+1] + " VO=" + track_datas[i+2]);
+			AddTrackURL(track_datas[i], i/3, track_datas[i+1], Number(track_datas[i+2]));
+		}
+		MakeXHR("", lslServer + "/playlist/" + encodeURI(edit_playlist) + "/chunk/" + loaded_track_uri_map.size, LSL_LoadPlaylistChunk_Callback, "", "GET");
 	}
 	
 	function Btn_AddUser() // triggered by button "btn_addagent" ("Add User/Admin")

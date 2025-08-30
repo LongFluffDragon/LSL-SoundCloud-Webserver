@@ -715,13 +715,13 @@ default
                     {
                         if (p4 == "uri") // save a track to playlist; /cfg/<sessionID>/save/<saving_playlist>/uri/nondefault + body=[uri, title, duration, volume]
                         {
-                            integer nondefault = llUnescapeURL(llList2String(path, 5)) == "ndft"; // TODO pass flag from webpage
+                            integer nondefault = llUnescapeURL(llList2String(path, 5)) == "edited"; // if the track title/volume has been manually edited or not
                             temp = "NXT";
                             list track = llParseStringKeepNulls(body, [SEP], []);
                             string hash = llGetSubString(llComputeHash(llList2String(track, 0), "sha256"),0,15); // use hash of the URI as the key, prevents duplications
                             saving_playlist_data += [hash];
                             
-                            if (llLinksetDataRead(hash) == "" || nondefault) // dont overwrite existing track data with defaults from creation
+                            if (llLinksetDataRead(hash) == "" || nondefault) // dont overwrite existing track data with defaults from creation in a new playlist, or if nothing changed
                             {
                                 integer rem = llLinksetDataAvailable();
                                 if (rem < (llStringLength(body) * 2 + 64 + llGetListLength(saving_playlist_data) * 32)) // estimate size requirements + 32 extra bytes
