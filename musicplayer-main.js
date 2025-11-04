@@ -1296,7 +1296,7 @@ function getCurrentSound_Callback(sound) // data on the current soundcloud track
 	console.log("got sound data for " + sound.id + ", updating display");
 	
 	var match = false;
-	var URI = ReplaceAll(decodeURIComponent(sound.uri), ":", "/");
+	var URI = ReplaceAll(decodeURIComponent(sound.uri), "soundcloud:tracks:", ""); // hell
 	console.log("Stripped and decoded URI: " + URI);
 	for (let [key, value] of loaded_track_uri_map)
 	{
