@@ -850,25 +850,72 @@ default
                 
                 else if (p2 == "playlist") // load a single playlist; /cfg/<sessionID>/playlist/<playlistName>
                 {
-                    temp = llLinksetDataRead(p3);
-                    list tracks;
-                    if (temp != "")
+                    if(p4 == "chunk") // new memory-aware chunked loading method
                     {
-                        tracks = llParseStringKeepNulls(temp, [SEP], []);
-                        integer n = llGetListLength(tracks);
-                        while (--n) // ignore index 0, since it is the shuffle randomness float
+                        integer fm = llGetFreeMemory() - 512; // one mono allocation block of safety
+                        integer sz;
+                        integer start = llList2Integer(path, 5);
+                        
+                        temp = llLinksetDataRead(p3);
+                        llOwnerSay(p3 + "=" + temp);
+                        if (temp != "")
                         {
-                            // replace each track key with a slice of 0 to 1 from the equivalent track's data, discarding the duration value
-                            //list rep = llList2List(llParseString2List(llLinksetDataRead(llList2String(tracks, n)), [SEP], []), 0, 1);
-                            list td = llParseString2List(llLinksetDataRead(llList2String(tracks, n)), [SEP], []);
-                            //tracks = llListReplaceList(tracks, llList2List(td, 0, 1) + llList2List(td, 3, 3), n, n);
-                            tracks = llListReplaceList(tracks, llList2List(td, 0, 1) + llList2Integer(td, 3), n, n);
+                            llOwnerSay("loading tracks");
+                            list tracks = llParseStringKeepNulls(temp, [SEP], []);
+                            list payload = ["@"];
+                            
+                            integer end = llGetListLength(tracks); // includes extra entry for shuffle randomness
+                            
+                            if (start + 2 > end) // start should be number of received track entries
+                            {
+                                llOwnerSay("aaaaaaaaaaaaa");
+                                if (DBG) llOwnerSay("confirming all playlist chunks sent");
+                                llHTTPResponse(rqid, 200, "END");
+                                return;
+                            }
+                            
+                            while (++start < end && llGetListLength(payload) < 6) // start from 1, 0 is playlist shuffle randomness value  !! DEBUG force chunks of 6 for testing math
+                            {
+                                string data = llLinksetDataRead(llList2String(tracks, start));
+                                sz += llStringLength(data) * 4; // assume 4 byte per char due to copy operation, very rough estimate
+                                if(sz < fm)
+                                {
+                                    // load URL, title, and volume, discarding the duration value [2]
+                                    list td = llParseString2List(data, [SEP], []);
+                                    payload += llList2List(td, 0, 1) + llList2Integer(td, 3);
+                                }
+                                else
+                                    end = start;
+                            }
+                            llOwnerSay("sending payload " + llDumpList2String(payload, SEP));
+                            
+                            if (DBG) llOwnerSay("playlist chunk = " + llList2CSV(payload));
+                            llHTTPResponse(rqid, 200, llDumpList2String(payload, SEP));
                         }
-                        if (DBG) llOwnerSay("playlist = " + llList2CSV(tracks));
-                        llHTTPResponse(rqid, 200, llDumpList2String(tracks, SEP));
+                        else
+                            llOwnerSay("WTF");
+                        
+                        
                     }
-                    else // found a way to rickroll user-error anyway
-                        llHTTPResponse(rqid, 200, llDumpList2String(["https://www.youtube.com/watch?v=dQw4w9WgXcQ", "Rick Astley - Never Gonna Give You Up"], SEP));
+                    else // old unchunked loading method, prone to sudden decompression
+                    {
+                        temp = llLinksetDataRead(p3);
+                        if (temp != "")
+                        {
+                            list tracks = llParseStringKeepNulls(temp, [SEP], []);
+                            integer n = llGetListLength(tracks);
+                            while (--n) // stop on index 0, since it is the shuffle randomness float
+                            {
+                                // replace each track key with a slice of 0 to 1 from the equivalent track's data, discarding the duration value
+                                list td = llParseString2List(llLinksetDataRead(llList2String(tracks, n)), [SEP], []);
+                                tracks = llListReplaceList(tracks, llList2List(td, 0, 1) + llList2Integer(td, 3), n, n);
+                            }
+                            if (DBG) llOwnerSay("playlist = " + llList2CSV(tracks));
+                            llHTTPResponse(rqid, 200, llDumpList2String(tracks, SEP));
+                        }
+                        else // found a way to rickroll user-error anyway
+                            llHTTPResponse(rqid, 200, llDumpList2String(["https://www.youtube.com/watch?v=dQw4w9WgXcQ", "Rick Astley - Never Gonna Give You Up"], SEP));
+                    }
                 }
                 
                 else if (p2 == "ren") // rename a playlist; /cfg/<sessionID>/ren/<oldName>/<newName>
