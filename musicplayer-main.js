@@ -1296,11 +1296,11 @@ function getCurrentSound_Callback(sound) // data on the current soundcloud track
 	console.log("got sound data for " + sound.id + ", updating display");
 	
 	var match = false;
-	var URI = ReplaceAll(decodeURI(sound.uri), ":", "/");
+	var URI = ReplaceAll(decodeURIComponent(sound.uri), ":", "/");
 	console.log("Stripped and decoded URI: " + URI);
 	for (let [key, value] of loaded_track_uri_map)
 	{
-		if (decodeURI(value.uri) == URI)
+		if (decodeURIComponent(value.uri) == URI)
 		{
 			match = true;
 			console.log("found URL matching ID " + value.uri);
