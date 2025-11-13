@@ -843,6 +843,7 @@ function PlayNextTrack() // clears existing player and starts loading the most s
 			future_track = "";
 			LSL_GetNextTrack(); // server knows best
 		}
+		window.top.document.title = current_track_title;
 		setTimeout(CheckSwapStatus, 10000); // something is probably goofed if it cant load in 10 seconds
 	});
 }
